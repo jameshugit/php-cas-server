@@ -5,21 +5,43 @@
 	publiques de restitution de tickets.
 *******************************************************************************/
 class ticket {
-	static $ticketType; // type de ticket ST ou TGT
+	const ST_PREFIX = 'ST';
+	const TGT_PREFIX = 'TGT';
+	const SEPARATOR = '-';
+	const NUMERICAL = "0123456789";
+	const ALPHABETICAL = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 
 	// Constructeur
-	function ticket($pTypeTicket) {
-		// type de ticket
-		ticket::$ticketType = $pTypeTicket;
+	function __construct($pTypeTicket) {
 	}
 
-	// ouverture d'un nouveau fichier de log
-	private function _open($nomFichier) {
-		log::$logFileName = LOG_FOLDER.$nomFichier."_".log::_getDateDuJour().".html";
-		log::$handle=fopen(log::$logFileName, "w+");
+	// Renvoie une chaine de caractère random en fonction du charset et de la longueur désirée
+	private function getRadomString($pCharSet, $pLength){
+		$randomString = "";
+		for ($i=0; $i<$pLength; $i++) $randomString .= $pCharSet[(mt_rand(0,(strlen($pCharSet)-1)))];
+		return $randomString;
+	}
+	
+	// Renvoyer un nombre compris entre 1 et 99999
+	private function getUniqueId($pLen = 5) {
+		return getRadomString(self::NUMERICAL, $pLen);
 	}
 
+	// Renvoyer une clé 
+	private function getUniqueKey($pLen = 20) {
+		return getRadomString(self::ALPHABETICAL, $pLen);
+	}
+
+	// Revouyer un service Ticket.
+	public function getServiceTicket() {
+		return self::ST_PREFIX.self::SEPARATOR.ticket::getUniqueId(5).self::SEPARATOR.ticket::getUniqueKey(20);
+	}
+	
+	// Revouyer un service Ticket.
+	public function getTicketGrantingTicket() {
+		return self::TGT_PREFIX.self::SEPARATOR.ticket::getUniqueId(6).self::SEPARATOR.ticket::getUniqueKey(30);
+	}
 }
 
 ?>
