@@ -10,8 +10,10 @@ require_once('header.php');
 // Callback getFormLogin
 //------------------------------------------------------------------------------
 function getFormLogin($t) {
-	$actionForm = $t["ACTION"];
-	echo '<form id="fm1" class="fm-v clearfix" method="post" action="'.$actionForm.'" onsubmit="submitMyCredential();"> 
+	$actionForm = $t["action"];
+	$service = $t["service"];
+	//onsubmit="submitMyCredential();"
+	echo '<form id="fm1" class="fm-v clearfix" method="post" action="'.$actionForm.'"> 
             
             <div class="box" id="login">
               <h2>Entrez votre identifiant et votre mot de passe.</h2>
@@ -41,11 +43,13 @@ function getFormLogin($t) {
             </div>
                
             <div id="sidebar">
-              <p>Pour des raisons de sécurité, veuillez vous déconnecter et fermer votre navigateur lorsque vous avez fini d\'accéder aux services authentifiés.</p>
+              <p>Pour des raisons de s&eacute;curit&eacute;, veuillez vous d&eacute;connecter et fermer votre navigateur lorsque vous avez fini d\'acc&eacute;der aux services authentifi&eacute;s.</p>
               <div id="list-languages">
               </div>
             </div>
           </form>
+';
+/*
           <script>
           function submitMyCredential() {
             //document.getElementById(\'username\').value=document.getElementById(\'username\').value.toUpperCase();
@@ -54,7 +58,8 @@ function getFormLogin($t) {
             u.value = u.value.toUpperCase();
             p.value = p.value.toLowerCase();
           }
-          </script>';
+          </script>*/
+          
 }
 
 //------------------------------------------------------------------------------
