@@ -1,4 +1,8 @@
 <?php
+/*******************************************************************************
+	@filename : login.php 
+	@description : Gestion de template de login.
+*******************************************************************************/
 require_once('footer.php');
 require_once('header.php');
 
