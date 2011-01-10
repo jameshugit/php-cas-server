@@ -11,7 +11,7 @@
     <body id="cas" onload="init();">
       <div id="page">
         <h1 id="app-name">Service d'Authentification Central de l'ENT laclasse.com</h1>
-        <div id="mire"><!--PGL-->
+        <div id="mire"><!--Pierre Gilles-->
           
           <form id="fm1" class="fm-v clearfix" method="post" action="<?= str_replace('.php', '', $_SERVER['PHP_SELF']) ?>" onsubmit="submitMyCredential();">
             
