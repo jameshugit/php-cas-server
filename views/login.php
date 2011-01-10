@@ -1,7 +1,28 @@
+<?php
+//------------------------------------------------------------------------------
+// Callback viewLoginForm
+//------------------------------------------------------------------------------
+function viewLoginForm($t) {
+	print_r($_SERVER);
+	print_r($t);
+	$url_service = $t["SERVICE"];
+}
+
+//------------------------------------------------------------------------------
+// Callback viewLoginSuccess
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// Callback viewLoginFailure
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
-    <title>lcCAS - Central Authentication Service</title>
+    <title>Service d'Authentification Central de laclasse.com</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
       <style type="text/css" media="screen">@import 'css/cas-laclasse.css'/**/;</style>
       <!--[if gte IE 6]><style type="text/css" media="screen">@import 'css/ie_cas.css';</style><![endif]-->
@@ -14,7 +35,7 @@
         <div id="mire"><!--Pierre Gilles-->
           
 <!--          <form id="fm1" class="fm-v clearfix" method="post" action="<?= str_replace('.php', '', $_SERVER['PHP_SELF']) ?>" onsubmit="submitMyCredential();"> -->
-          <form id="fm1" class="fm-v clearfix" method="post" action="" onsubmit="submitMyCredential();"> 
+          <form id="fm1" class="fm-v clearfix" method="post" action="<? echo $url_service; ?>" onsubmit="submitMyCredential();"> 
             
             <div class="box" id="login">
               <h2>Entrez votre identifiant et votre mot de passe.</h2>
@@ -61,7 +82,7 @@
         </div>
         <div id="footer">
           <div>
-            <p>Copyright &copy; 2011 ERASME. Tout droits reserves.</p>
+            <p>Copyright &copy; 2011 ERASME. Tout droits r&eacute;serv&eacute;s.</p>
             <p>Maintenu par ERASME</p>
           </div>
           <a href="http://www.laclasse.com" title="http://www.laclasse.com">http://www.laclasse.com</a>

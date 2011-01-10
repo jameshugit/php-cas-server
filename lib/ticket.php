@@ -3,6 +3,8 @@
 	@filename : ticket.php 
 	@description : Classe de gestion des tickets ST et TGT. Comporte 2 méthodes 
 	publiques de restitution de tickets.
+	
+	TGT-1-kFisTM5FtfkwZ6hnPBF96hQPAnpl9sd6oWpZdkR3HJTECFYbHY
 *******************************************************************************/
 class ticket {
 	const ST_PREFIX = 'ST';
@@ -30,7 +32,7 @@ class ticket {
 
 	// Renvoyer une clé 
 	private function getUniqueKey($pLen = 20) {
-		return ticket::getRadomString(self::ALPHABETICAL, $pLen);
+		return ticket::getRadomString(self::ALPHABETICAL.self::NUMERICAL, $pLen);
 	}
 
 	// Revouyer un service Ticket.
@@ -40,7 +42,7 @@ class ticket {
 	
 	// Revouyer un service Ticket.
 	public function getTicketGrantingTicket() {
-		return self::TGT_PREFIX.self::SEPARATOR.ticket::getUniqueId(6).self::SEPARATOR.ticket::getUniqueKey(30);
+		return self::TGT_PREFIX.self::SEPARATOR.ticket::getUniqueId(6).self::SEPARATOR.ticket::getUniqueKey(50);
 	}
 }
 
