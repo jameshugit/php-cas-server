@@ -13,7 +13,8 @@
         <h1 id="app-name">Service d'Authentification Central de l'ENT laclasse.com</h1>
         <div id="mire"><!--Pierre Gilles-->
           
-          <form id="fm1" class="fm-v clearfix" method="post" action="<?= str_replace('.php', '', $_SERVER['PHP_SELF']) ?>" onsubmit="submitMyCredential();">
+<!--          <form id="fm1" class="fm-v clearfix" method="post" action="<?= str_replace('.php', '', $_SERVER['PHP_SELF']) ?>" onsubmit="submitMyCredential();"> -->
+          <form id="fm1" class="fm-v clearfix" method="post" action="" onsubmit="submitMyCredential();"> 
             
             <div class="box" id="login">
               <h2>Entrez votre identifiant et votre mot de passe.</h2>
