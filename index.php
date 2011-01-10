@@ -41,8 +41,8 @@ function login() {
       require_once("views/login.php");
 
       $srv = array_key_exists('service',$_GET) ? $_GET['service'] : '';
-      viewLoginForm(array('SERVICE' => $srv,
-                          'ACTION'  => $selfurl));
+      viewLoginForm(array('service' => $srv,
+                          'action'  => $selfurl));
       return;
     } else {
       /* user has no TGC but is trying to post credentials
