@@ -41,11 +41,8 @@ function login() {
 				$monTicket = new ticket();
 				setcookie ("CASTGC", $monTicket->getTicketGrantingTicket(), 0);
 			}
-		}
-	
-		
-	} else if (
-
+		}	
+	}	
 }
 
 function logout() {
