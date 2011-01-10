@@ -3,14 +3,11 @@ require_once('footer.php');
 require_once('header.php');
 
 //------------------------------------------------------------------------------
-// Callback viewLoginForm
+// Callback getFormLogin
 //------------------------------------------------------------------------------
-function viewLoginForm($t) {
+function getFormLogin($t) {
 	$actionForm = $t["ACTION"];
-	$url_service = $t["SERVICE"];
-	
-	getHeader();
-	echo '<form id="fm1" class="fm-v clearfix" method="post" action="<? echo $actionForm; ?>" onsubmit="submitMyCredential();"> 
+	echo '<form id="fm1" class="fm-v clearfix" method="post" action="'.$actionForm.'" onsubmit="submitMyCredential();"> 
             
             <div class="box" id="login">
               <h2>Entrez votre identifiant et votre mot de passe.</h2>
@@ -54,22 +51,44 @@ function viewLoginForm($t) {
             p.value = p.value.toLowerCase();
           }
           </script>';
+}
+
+//------------------------------------------------------------------------------
+// Callback viewLoginForm
+//------------------------------------------------------------------------------
+function viewLoginForm($t) {
+	
+	getHeader();
+	getFormLogin($t);
 	getFooter();
 }
 
 //------------------------------------------------------------------------------
 // Callback viewLoginSuccess
 //------------------------------------------------------------------------------
-function viewLoginSuccess($t) {
+function viewLoginSuccess() {
 	getHeader();
-	echo 'Bravo !';
+	echo '
+		<div id="msg" class="success">
+			<h2>Connexion réussie</h2>
+			<p>Vous vous êtes authentifié(e) auprès du Service Central d\'Authentification.</p>
+			<p>Pour des raisons de sécurité, veuillez vous déconnecter et fermer votre navigateur lorsque vous avez fini d\'accéder aux services authentifiés.</p>
+		</div>
+';
 	getFooter();
 }
 
 //------------------------------------------------------------------------------
 // Callback viewLoginFailure
 //------------------------------------------------------------------------------
-
+function viewLoginFailure($t) {
+	getHeader();
+	echo '
+		<div id="status" class="errors">Les informations transmises n\'ont pas permis de vous authentifier.</div>
+';
+	getFormLogin($t);
+	getFooter();
+}
 
 //------------------------------------------------------------------------------
 ?>
