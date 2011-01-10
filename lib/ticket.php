@@ -13,7 +13,7 @@ class ticket {
 
 
 	// Constructeur
-	function __construct($pTypeTicket) {
+	function __construct() {
 	}
 
 	// Renvoie une chaine de caractère random en fonction du charset et de la longueur désirée
@@ -25,12 +25,12 @@ class ticket {
 	
 	// Renvoyer un nombre compris entre 1 et 99999
 	private function getUniqueId($pLen = 5) {
-		return getRadomString(self::NUMERICAL, $pLen);
+		return ticket::getRadomString(self::NUMERICAL, $pLen);
 	}
 
 	// Renvoyer une clé 
 	private function getUniqueKey($pLen = 20) {
-		return getRadomString(self::ALPHABETICAL, $pLen);
+		return ticket::getRadomString(self::ALPHABETICAL, $pLen);
 	}
 
 	// Revouyer un service Ticket.
