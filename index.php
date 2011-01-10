@@ -30,7 +30,10 @@ Application Controller
 
 
 function login() {
-  $selfurl = str_replace('index.php', 'login', $_SERVER['PHP_SELF']);
+  $selfurl = str_replace('index.php/', 'login', $_SERVER['PHP_SELF']);
+	$service = array_key_exists('service',$_GET) ? $_GET['service'] : '';
+
+	require_once("views/login.php");
 
   if (!array_key_exists('CASTGC',$_COOKIE)) {     /*** user has no TGC ***/
     if (!array_key_exists('username',$_POST)) {
@@ -38,9 +41,6 @@ function login() {
          => present login/pass form, 
          => store initial GET parameters somewhere (service)
       */
-      require_once("views/login.php");
-
-      $srv = array_key_exists('service',$_GET) ? $_GET['service'] : '';
       viewLoginForm(array('service' => $srv,
                           'action'  => $selfurl));
       return;
@@ -57,10 +57,11 @@ function login() {
         /* send TGC */
         setcookie ("CASTGC", $monTicket->getTicketGrantingTicket(), 0);
         /* Redirect to /login */
-        http_redirect($selfurl);
+				header("Location: $selfurl");
       } else { 
         /* credentials failed */
-        viewError("Too bad : wrong username or password !");
+        viewLoginFailure(array('service' => $srv,
+															 'action'  => $selfurl));
       }
     } 
   } else { /*** user has TGC ***/ 
@@ -70,9 +71,9 @@ function login() {
     */
     require_once("lib/ticket.php"); 
     if (array_key_exists('renew',$_GET) && $_GET['renew'] == 'true') {
-      setcookie ("CASTGC", "", time() - 3600);
+      setcookie ("CASTGC", FALSE, 0);
       $srv = array_key_exists('service',$_GET) ? $_GET['service'] : '';
-      http_redirect($selfurl, array('service' => $srv));
+      header("Location: $selfurl?service=$srv");
       return;
     }
 
@@ -90,9 +91,10 @@ function login() {
     
     if (array_key_exists('service',$_GET)) {
       // TODO : build a service ticket
-      http_redirect($_GET['service'], array('ST' => $st));
+      header("Location: " . $_GET['service'] . "?ST=$st");
     } else {
       // No service, user just wanted to login to SSO
+			require_once("views/login.php");
       viewLoginSuccess();
     }
   }
@@ -101,7 +103,8 @@ function login() {
 function logout() {
   require_once("views/logout.php");
 
-  setcookie ("CASTGC", "", time() - 3600);
+  //setcookie ("CASTGC", "", time() - 3600);
+	setcookie ("CASTGC", FALSE, 0);
 
   if (array_key_exists('url', $_GET))
     viewLogoutSuccess(array('url' => $_GET['url']));

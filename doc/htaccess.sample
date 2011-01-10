@@ -1,0 +1,11 @@
+# Use un Vhost file 
+# (assuming code is below /var/www/cas and document root is /var/www/cas/
+<Location /cas>
+  Options +FollowSymLinks
+	RewriteEngine On
+	RewriteCond %{REQUEST_FILENAME} !-f
+	RewriteCond %{REQUEST_FILENAME} !-d
+	RewriteRule ^/var/www/cas/(.*) /cas/index.php/?action=$1 [L,QSA]
+</Location>
+RewriteLogLevel 3 
+RewriteLog /var/log/apache2/rewrite.log
