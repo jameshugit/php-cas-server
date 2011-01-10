@@ -1,41 +1,16 @@
 <?php
+require_once('footer.php');
+require_once('header.php');
+
 //------------------------------------------------------------------------------
 // Callback viewLoginForm
 //------------------------------------------------------------------------------
 function viewLoginForm($t) {
-	print_r($_SERVER);
-	print_r($t);
+	$actionForm = $t["ACTION"];
 	$url_service = $t["SERVICE"];
-}
-
-//------------------------------------------------------------------------------
-// Callback viewLoginSuccess
-//------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-// Callback viewLoginFailure
-//------------------------------------------------------------------------------
-
-
-//------------------------------------------------------------------------------
-?>
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
-  <head>
-    <title>Service d'Authentification Central de laclasse.com</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-      <style type="text/css" media="screen">@import 'css/cas-laclasse.css'/**/;</style>
-      <!--[if gte IE 6]><style type="text/css" media="screen">@import 'css/ie_cas.css';</style><![endif]-->
-      <script type="text/javascript" src="js/common_rosters.js"></script>
-    </head>
-    
-    <body id="cas" onload="init();">
-      <div id="page">
-        <h1 id="app-name">Service d'Authentification Central de l'ENT laclasse.com</h1>
-        <div id="mire"><!--Pierre Gilles-->
-          
-<!--          <form id="fm1" class="fm-v clearfix" method="post" action="<?= str_replace('.php', '', $_SERVER['PHP_SELF']) ?>" onsubmit="submitMyCredential();"> -->
-          <form id="fm1" class="fm-v clearfix" method="post" action="<? echo $url_service; ?>" onsubmit="submitMyCredential();"> 
+	
+	getHeader();
+	echo '<form id="fm1" class="fm-v clearfix" method="post" action="<? echo $actionForm; ?>" onsubmit="submitMyCredential();"> 
             
             <div class="box" id="login">
               <h2>Entrez votre identifiant et votre mot de passe.</h2>
@@ -58,36 +33,43 @@ function viewLoginForm($t) {
 
               <div class="row" style="padding:20px 0 0 27px;">
                 <a href="http://www.laclasse.com/pls/public/!page.laclasse?contexte=QUESTION&rubrique=0">Mot de passe perdu</a>&nbsp;
-                <a href="javascript:void()" onClick="javascript:open('http://www.laclasse.com/pls/public/!page.laclasse?contexte=CONTACT&rubrique=1','win', 'resizable=yes')">Trouver de l'aide</a>
+                <a href="javascript:void()" onClick="javascript:open(\'http://www.laclasse.com/pls/public/!page.laclasse?contexte=CONTACT&rubrique=1\',\'win\', \'resizable=yes\')">Trouver de l\'aide</a>
               </div>
-              <br class="clear" /><!--PGL-->
-              <br /><!--PGL-->
+              <br class="clear" />
+              <br />
             </div>
                
             <div id="sidebar">
-              <p>Pour des raisons de sécurité, veuillez vous déconnecter et fermer votre navigateur lorsque vous avez fini d'accéder aux services authentifiés.</p>
+              <p>Pour des raisons de sécurité, veuillez vous déconnecter et fermer votre navigateur lorsque vous avez fini d\'accéder aux services authentifiés.</p>
               <div id="list-languages">
               </div>
             </div>
           </form>
           <script>
           function submitMyCredential() {
-            //document.getElementById('username').value=document.getElementById('username').value.toUpperCase();
-            var u = document.getElementById('username');
-            var p = document.getElementById('password');
+            //document.getElementById(\'username\').value=document.getElementById(\'username\').value.toUpperCase();
+            var u = document.getElementById(\'username\');
+            var p = document.getElementById(\'password\');
             u.value = u.value.toUpperCase();
             p.value = p.value.toLowerCase();
           }
-          </script>
-        </div>
-        <div id="footer">
-          <div>
-            <p>Copyright &copy; 2011 ERASME. Tout droits r&eacute;serv&eacute;s.</p>
-            <p>Maintenu par ERASME</p>
-          </div>
-          <a href="http://www.laclasse.com" title="http://www.laclasse.com">http://www.laclasse.com</a>
-        </div>
-      </div>
-    </body>
-</html>
+          </script>';
+	getFooter();
+}
 
+//------------------------------------------------------------------------------
+// Callback viewLoginSuccess
+//------------------------------------------------------------------------------
+function viewLoginSuccess($t) {
+	getHeader();
+	echo 'Bravo !';
+	getFooter();
+}
+
+//------------------------------------------------------------------------------
+// Callback viewLoginFailure
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+?>
