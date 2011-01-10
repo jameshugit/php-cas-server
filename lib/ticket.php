@@ -1,7 +1,7 @@
 <?php 
 /*******************************************************************************
 	@filename : ticket.php 
-	@description : Classe de gestion des tickets ST et TGT. Comporte 2 mŽthodes 
+	@description : Classe de gestion des tickets ST et TGT. Comporte 2 mÃ©thodes 
 	publiques de restitution de tickets.
 	
 	TGT-1-kFisTM5FtfkwZ6hnPBF96hQPAnpl9sd6oWpZdkR3HJTECFYbHY
@@ -19,7 +19,7 @@ class ticket {
 	}
 
 	// Renvoie une chaine de caractre random en fonction du charset et de la longueur dŽsirŽe
-	private function getRadomString($pCharSet, $pLength){
+	private function getRandomString($pCharSet, $pLength){
 		$randomString = "";
 		for ($i=0; $i<$pLength; $i++) $randomString .= $pCharSet[(mt_rand(0,(strlen($pCharSet)-1)))];
 		return $randomString;
@@ -27,12 +27,12 @@ class ticket {
 	
 	// Renvoyer un nombre compris entre 1 et 99999
 	private function getUniqueId($pLen = 5) {
-		return ticket::getRadomString(self::NUMERICAL, $pLen);
+		return ticket::getRandomString(self::NUMERICAL, $pLen);
 	}
 
 	// Renvoyer une clŽ 
 	private function getUniqueKey($pLen = 20) {
-		return ticket::getRadomString(self::ALPHABETICAL.self::NUMERICAL, $pLen);
+		return ticket::getRandomString(self::ALPHABETICAL.self::NUMERICAL, $pLen);
 	}
 
 	// Revouyer un service Ticket.
