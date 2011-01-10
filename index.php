@@ -27,22 +27,52 @@ Application Controller
 
 
 function login() {
-	if (!array_key_exists('CASTGC',$_COOKIE)) {
-		// user has no TGC
+	$selfurl = str_replace('index.php', 'login', $_SERVER['PHP_SELF']);
+
+	if (!array_key_exists('CASTGC',$_COOKIE)) { 		/*** user has no TGC ***/
 		if (!array_key_exists('username',$_POST)) {
-			// user has no TGC and is not trying to post credentials => present login/pass form, store initial GET parameters somewhere (service)
+			/* user has no TGC and is not trying to post credentials :
+				 => present login/pass form, 
+				 => store initial GET parameters somewhere (service)
+			*/
 			require_once("views/login.php");
-			viewLoginForm(array('SERVICE' => $_GET['service']));
+
+			$srv = array_key_exists('service',$_GET) ? $_GET['service'] : '';
+			viewLoginForm(array('SERVICE' => $srv,
+													'ACTION'  => $selfurl));
 			return;
 		} else {
-			// user has no TGC but is trying to post credentials => check credentials, send TGT, redirect to login
-			if (($_POST['username'] == 'root') and $_POST['password'] == 'toortoor') {
+			/* user has no TGC but is trying to post credentials
+				 => check credentials
+				 => send TGT
+				 => redirect to login
+			*/
+			if (($_POST['username'] == 'root') and $_POST['password'] == 'toortoor') { 
+				/* credentials ok */
 				require_once("lib/ticket.php"); 
 				$monTicket = new ticket();
+				/* send TGC */
 				setcookie ("CASTGC", $monTicket->getTicketGrantingTicket(), 0);
+				/* Redirect to /login */
+				http_redirect($selfurl);
+			} else { 
+				/* credentials failed */
+				viewError("Too bad : wrong username or password !");
 			}
 		}	
-	}	
+	} else { /*** user has TGC ***/	
+		// If renew is set, just logout and renew
+		require_once("lib/ticket.php"); 
+		if (array_key_exists('renew',$_GET) && $_GET['renew'] == 'true') {
+			setcookie ("CASTGC", "", time() - 3600);
+			$srv = array_key_exists('service',$_GET) ? $_GET['service'] : '';
+			http_redirect($selfurl, array('service' => $srv));
+			return;
+		}
+
+		// Assert validity of TGC
+		//$_COOKIE['CASTGC']
+	}
 }
 
 function logout() {
