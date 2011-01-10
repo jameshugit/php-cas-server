@@ -1,7 +1,7 @@
 <?php 
 /*******************************************************************************
 	@filename : ticket.php 
-	@description : Classe de gestion des tickets ST et TGT. Comporte 2 mŽthodes 
+	@description : Classe de gestion des tickets ST et TGT. Comporte 2 mÃ©thodes 
 	publiques de restitution de tickets.
 	
 	TGT-1-kFisTM5FtfkwZ6hnPBF96hQPAnpl9sd6oWpZdkR3HJTECFYbHY
