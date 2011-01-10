@@ -1,5 +1,8 @@
 <?php
 
+require_once('config.php');
+require_once('views/error.php');
+
 /*
 
 Application Controller
@@ -18,7 +21,7 @@ Application Controller
    * client has no TGC => display blank page
 
   /serviceValidate :
-	 * checks that ST is valid for service S
+   * checks that ST is valid for service S
 
  * 'action' parameter is internal for routing purposes between login/logout/serviceValidate
 
@@ -27,83 +30,83 @@ Application Controller
 
 
 function login() {
-	$selfurl = str_replace('index.php', 'login', $_SERVER['PHP_SELF']);
+  $selfurl = str_replace('index.php', 'login', $_SERVER['PHP_SELF']);
 
-	if (!array_key_exists('CASTGC',$_COOKIE)) { 		/*** user has no TGC ***/
-		if (!array_key_exists('username',$_POST)) {
-			/* user has no TGC and is not trying to post credentials :
-				 => present login/pass form, 
-				 => store initial GET parameters somewhere (service)
-			*/
-			require_once("views/login.php");
+  if (!array_key_exists('CASTGC',$_COOKIE)) {     /*** user has no TGC ***/
+    if (!array_key_exists('username',$_POST)) {
+      /* user has no TGC and is not trying to post credentials :
+         => present login/pass form, 
+         => store initial GET parameters somewhere (service)
+      */
+      require_once("views/login.php");
 
-			$srv = array_key_exists('service',$_GET) ? $_GET['service'] : '';
-			viewLoginForm(array('SERVICE' => $srv,
-													'ACTION'  => $selfurl));
-			return;
-		} else {
-			/* user has no TGC but is trying to post credentials
-				 => check credentials
-				 => send TGT
-				 => redirect to login
-			*/
-			if (($_POST['username'] == 'root') and $_POST['password'] == 'toortoor') { 
-				/* credentials ok */
-				require_once("lib/ticket.php"); 
-				$monTicket = new ticket();
-				/* send TGC */
-				setcookie ("CASTGC", $monTicket->getTicketGrantingTicket(), 0);
-				/* Redirect to /login */
-				http_redirect($selfurl);
-			} else { 
-				/* credentials failed */
-				viewError("Too bad : wrong username or password !");
-			}
-		}	
-	} else { /*** user has TGC ***/	
-		/* client has TGT and renew parameter set to true 
-			 => destroy TGC
-			 => present login form
-		*/
-		require_once("lib/ticket.php"); 
-		if (array_key_exists('renew',$_GET) && $_GET['renew'] == 'true') {
-			setcookie ("CASTGC", "", time() - 3600);
-			$srv = array_key_exists('service',$_GET) ? $_GET['service'] : '';
-			http_redirect($selfurl, array('service' => $srv));
-			return;
-		}
+      $srv = array_key_exists('service',$_GET) ? $_GET['service'] : '';
+      viewLoginForm(array('SERVICE' => $srv,
+                          'ACTION'  => $selfurl));
+      return;
+    } else {
+      /* user has no TGC but is trying to post credentials
+         => check credentials
+         => send TGT
+         => redirect to login
+      */
+      if (($_POST['username'] == 'root') and $_POST['password'] == 'toortoor') { 
+        /* credentials ok */
+        require_once("lib/ticket.php"); 
+        $monTicket = new ticket();
+        /* send TGC */
+        setcookie ("CASTGC", $monTicket->getTicketGrantingTicket(), 0);
+        /* Redirect to /login */
+        http_redirect($selfurl);
+      } else { 
+        /* credentials failed */
+        viewError("Too bad : wrong username or password !");
+      }
+    } 
+  } else { /*** user has TGC ***/ 
+    /* client has TGT and renew parameter set to true 
+       => destroy TGC
+       => present login form
+    */
+    require_once("lib/ticket.php"); 
+    if (array_key_exists('renew',$_GET) && $_GET['renew'] == 'true') {
+      setcookie ("CASTGC", "", time() - 3600);
+      $srv = array_key_exists('service',$_GET) ? $_GET['service'] : '';
+      http_redirect($selfurl, array('service' => $srv));
+      return;
+    }
 
-		/* client has valid TGT
-			 => build a service ticket
-			 => send a redirect to 'service' url with newly created ST as GET param
-		*/
+    /* client has valid TGT
+       => build a service ticket
+       => send a redirect to 'service' url with newly created ST as GET param
+    */
 
-		// Assert validity of TGC
-		/*		$m = new Memcached();
-		$m->addServer('localhost', 11211);
-		if ($m->get($_COOKIE['CASTGC']) == '') {
-			
-		}*/
-		
-		if (array_key_exists('service',$_GET)) {
-			// TODO : build a service ticket
-			http_redirect($_GET['service'], array('ST' => $st));
-		} else {
-			// No service, user just wanted to login to SSO
-			viewLoginSuccess();
-		}
-	}
+    // Assert validity of TGC
+    /*    $m = new Memcached();
+    $m->addServer('localhost', 11211);
+    if ($m->get($_COOKIE['CASTGC']) == '') {
+      
+    }*/
+    
+    if (array_key_exists('service',$_GET)) {
+      // TODO : build a service ticket
+      http_redirect($_GET['service'], array('ST' => $st));
+    } else {
+      // No service, user just wanted to login to SSO
+      viewLoginSuccess();
+    }
+  }
 }
 
 function logout() {
-	require_once("views/logout.php");
+  require_once("views/logout.php");
 
-	setcookie ("CASTGC", "", time() - 3600);
+  setcookie ("CASTGC", "", time() - 3600);
 
-	if (array_key_exists('url', $_GET))
-		viewLogoutSuccess(array('url' => $_GET['url']));
-	else 	
-		viewLogoutSuccess(array('url'=>''));
+  if (array_key_exists('url', $_GET))
+    viewLogoutSuccess(array('url' => $_GET['url']));
+  else  
+    viewLogoutSuccess(array('url'=>''));
 }
 
 function serviceValidate() {
@@ -114,9 +117,9 @@ function serviceValidate() {
  * Loads error template and display errors
  */
 function showError($msg) {
-	require_once("views/error.php");
+  require_once("views/error.php");
 
-	viewError($msg);
+  viewError($msg);
 }
 
 
@@ -129,20 +132,20 @@ $parameters = array_merge($_GET, $_POST);
 
 // Basic app routing
 if (array_key_exists('action', $parameters)) {
-	switch ($parameters['action']) {
-	case "login" :
-		login();
-		break;
-	case "logout" :
-		logout();
-		break;
-	case "serviceValidate" :
-		serviceValidate();
-		break;
-	default :
-		showError("Unknown action");
-	}
+  switch ($parameters['action']) {
+  case "login" :
+    login();
+    break;
+  case "logout" :
+    logout();
+    break;
+  case "serviceValidate" :
+    serviceValidate();
+    break;
+  default :
+    showError("Unknown action");
+  }
 } else { // no action key
-	showError("Action not set");
+  showError("Action not set");
 }
 
