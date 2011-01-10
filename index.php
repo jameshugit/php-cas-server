@@ -10,7 +10,7 @@ Application Controller
   /login : 
    * client has no TGT => present login/pass form, store initial GET parameters somewhere (service)
    * client POSTing credentials => check credentials, send TGT, redirect to login
-   * client has valid TGT, renew parameter set to true => destroy TGC, present login form
+   * client has TGT, renew parameter set to true => destroy TGC, present login form
    * client has valid TGT => send a redirect to 'service' url with newly created ST
 
   /logout :
@@ -61,7 +61,10 @@ function login() {
 			}
 		}	
 	} else { /*** user has TGC ***/	
-		// If renew is set, just logout and renew
+		/* client has TGT and renew parameter set to true 
+			 => destroy TGC
+			 => present login form
+		*/
 		require_once("lib/ticket.php"); 
 		if (array_key_exists('renew',$_GET) && $_GET['renew'] == 'true') {
 			setcookie ("CASTGC", "", time() - 3600);
@@ -70,8 +73,25 @@ function login() {
 			return;
 		}
 
+		/* client has valid TGT
+			 => build a service ticket
+			 => send a redirect to 'service' url with newly created ST as GET param
+		*/
+
 		// Assert validity of TGC
-		//$_COOKIE['CASTGC']
+		/*		$m = new Memcached();
+		$m->addServer('localhost', 11211);
+		if ($m->get($_COOKIE['CASTGC']) == '') {
+			
+		}*/
+		
+		if (array_key_exists('service',$_GET)) {
+			// TODO : build a service ticket
+			http_redirect($_GET['service'], array('ST' => $st));
+		} else {
+			// No service, user just wanted to login to SSO
+			viewLoginSuccess();
+		}
 	}
 }
 
@@ -81,9 +101,9 @@ function logout() {
 	setcookie ("CASTGC", "", time() - 3600);
 
 	if (array_key_exists('url', $_GET))
-		viewLogout($_GET['url']);
+		viewLogoutSuccess(array('url' => $_GET['url']));
 	else 	
-		viewLogout($_GET['url']);
+		viewLogoutSuccess(array('url'=>''));
 }
 
 function serviceValidate() {

@@ -19,7 +19,7 @@ class ticket {
 	}
 
 	// Renvoie une chaine de caractère random en fonction du charset et de la longueur désirée
-	private function getRadomString($pCharSet, $pLength){
+	private function getRandomString($pCharSet, $pLength){
 		$randomString = "";
 		for ($i=0; $i<$pLength; $i++) $randomString .= $pCharSet[(mt_rand(0,(strlen($pCharSet)-1)))];
 		return $randomString;
@@ -27,12 +27,12 @@ class ticket {
 	
 	// Renvoyer un nombre compris entre 1 et 99999
 	private function getUniqueId($pLen = 5) {
-		return ticket::getRadomString(self::NUMERICAL, $pLen);
+		return ticket::getRandomString(self::NUMERICAL, $pLen);
 	}
 
 	// Renvoyer une clé 
 	private function getUniqueKey($pLen = 20) {
-		return ticket::getRadomString(self::ALPHABETICAL.self::NUMERICAL, $pLen);
+		return ticket::getRandomString(self::ALPHABETICAL.self::NUMERICAL, $pLen);
 	}
 
 	// Revouyer un service Ticket.
