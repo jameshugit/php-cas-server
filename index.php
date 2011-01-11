@@ -1,6 +1,6 @@
 <?php
 
-require_once('config.php');
+require_once('config.inc.php');
 require_once('views/error.php');
 
 /*
@@ -30,10 +30,24 @@ Application Controller
 
 
 function login() {
-  $selfurl = str_replace('index.php/', 'login', $_SERVER['PHP_SELF']);
+	$selfurl = str_replace('index.php/', 'login', $_SERVER['PHP_SELF']);
 	$service = array_key_exists('service',$_GET) ? $_GET['service'] : '';
-
+	$siteIsAutoriezd = false;
+	global $autorized_sites;
+	
 	require_once("views/login.php");
+
+	/* Verifying the service is listed in autorized_sites array. */
+	foreach($autorized_sites as $k => $site) {
+		if (preg_match($autorized_sites[$k]['url'], $service) > 0) {
+				$siteIsAutoriezd = true;
+			break;
+		}
+	}
+	
+  if ( !$siteIsAutoriezd ) {
+  	showError("Cette application n'est pas autoris&eacute;e &agrave; s'authentifier sur le service de SSO.");
+  }
 
   if (!array_key_exists('CASTGC',$_COOKIE)) {     /*** user has no TGC ***/
     if (!array_key_exists('username',$_POST)) {
@@ -61,7 +75,7 @@ function login() {
       } else { 
         /* credentials failed */
         viewLoginFailure(array('service' => $srv,
-															 'action'  => $selfurl));
+							   'action'  => $selfurl));
       }
     } 
   } else { /*** user has TGC ***/ 
