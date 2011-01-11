@@ -1,24 +1,51 @@
 <?php 
-/*******************************************************************************
-	@filename : ticket.php 
-	@description : Classe de gestion des tickets ST et TGT. Comporte 2 méhodes 
-	publiques de restitution de tickets.
-	
-	TGT-1-kFisTM5FtfkwZ6hnPBF96hQPAnpl9sd6oWpZdkR3HJTECFYbHY
-*******************************************************************************/
+
+/**
+ * @file ticket.php 
+ * @description ST and TGT handling classes
+ */
+
+/** 
+ * Ticket class
+ */
 
 class Ticket {
+	/**
+	 * The prefix used to generate a random key
+	 */
 	protected $_prefix;
+
+	/**
+	 * The username related to the key
+	 */	
 	protected $_username;
+
+	/**
+	 * The key itself
+	 */	
 	protected $_value =  false;
 
+	/**
+	 * The key itself
+	 */	
+	protected $_value =  false;
+
+	/**
+	 * Character classes for key generation
+	 */
 	const SEPARATOR = '-';
 	const NUMERICAL = "0123456789";
 	const ALPHABETICAL = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
+	/** 
+	 * Pure virtual function generateTicket has to be overloaded by child classes
+	 */
 	abstract protected function generateTicket();
 
-	// Constructeur
+	/**
+	 * Base class constructor
+	 * @param id Ticket id as parameter; a new ticket will be generated if no id id provided
+	 */
 	function __construct($id = "") {
 		$_prefix = $prefix;
 		if ($id != "")
@@ -30,22 +57,31 @@ class Ticket {
 		}
 	}
 
-	// Renvoie une chaine de caractère random en fonction du charset et de la longueur désirée
+	/*
+	 * Utility that returns a random string of given length build with given charset
+	 * @param pCharSet String containing charset used to build the random string
+	 * @param pLength Required length for the randopm string
+	 */
 	final protected function getRandomString($pCharSet, $pLength){
 		$randomString = "";
 		for ($i=0; $i<$pLength; $i++) $randomString .= $pCharSet[(mt_rand(0,(strlen($pCharSet)-1)))];
 		return $randomString;
 	}
 	
-	// Renvoyer un nombre compris entre 1 et 99999
-	final protected function getUniqueId($pLen = 5) {
+	/* Returns a zero left padded number
+	 * @param pLen How many digits to genarate, default is 5
+ 
+	final protected function getRandomId($pLen = 5) {
 		return ticket::getRandomString(self::NUMERICAL, $pLen);
 	}
+	*/
 
-	// Renvoyer une clé
-	final protected function getUniqueKey($pLen = 20) {
+	/* Returns a random alphanuerical key
+	 * @param pLen Key length, default 20
+	final protected function getRandomKey($pLen = 20) {
 		return ticket::getRandomString(self::ALPHABETICAL.self::NUMERICAL, $pLen);
 	}
+	*/
 
 	protected function storeTicket($duration = 300) {
 		$m = new Memcached();
@@ -73,6 +109,10 @@ class Ticket {
 	}
 }
 
+/** 
+ * TicketGrantingTicket class
+ */
+
 class TicketGrantingTicket extends Ticket {
 	const PREFIX = 'TGT';
 
@@ -82,9 +122,13 @@ class TicketGrantingTicket extends Ticket {
 	}
 
 	private function generateTicket() {
-		return PREFIX . self::SEPARATOR . getUniqueId(6) . self::SEPARATOR . getUniqueKey(50);
+		return PREFIX . self::SEPARATOR . getRandomString(self::NUMERICAL, 6) . self::SEPARATOR . getRandomString(self::ALPHABETICAL.self::NUMERICAL, 50);
 	}	
 }
+
+/** 
+ * ServiceTicket class
+ */
 
 class ServiceTicket extends Ticket {
 	const PREFIX = 'ST';
@@ -95,7 +139,7 @@ class ServiceTicket extends Ticket {
 	}
 
 	public function generateTicket() {
-		return PREFIX . self::SEPARATOR . getUniqueId(5) . self::SEPARATOR . getUniqueKey(20);
+		return PREFIX . self::SEPARATOR . getRandomString(self::NUMERICAL, 5) . self::SEPARATOR . getRandomString(self::ALPHABETICAL.self::NUMERICAL, 20);
 	}
 }
 
