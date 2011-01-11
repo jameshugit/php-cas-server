@@ -1,9 +1,9 @@
 .PHONY: all clean doc publish pubpilou pubmb
 
-ARCH=`uname`
+ARCH:=$(shell uname)
 
 ifeq ($(ARCH),Darwin)
-	DOXYGEN="/Applications/Doxygen.app/Contents/Ressources/doxygen"
+	DOXYGEN=/Applications/Doxygen.app/Contents/Resources/doxygen
 else
 	DOXYGEN=doxygen
 endif
@@ -16,6 +16,7 @@ clean:
 	rm -rf doc/generated/html
 
 doc:
+	@echo $(ARCH)
 	${DOXYGEN} Doxyfile
 
 publish: pubpilou
