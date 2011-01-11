@@ -1,2 +1,16 @@
 publish.sh
-Makefile
+doc/generated/*
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+.elc
+auto-save-list
+tramp
+.*
+*~
+*.sw[a-p]
+.DS_Store?
+Icon?
+# Thumbnails
+._*
