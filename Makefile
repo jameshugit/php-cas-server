@@ -1,5 +1,22 @@
+.PHONY: all clean doc publish pubpilou pubmb
+
+ARCH=`uname`
+
+ifeq ($(ARCH),Darwin)
+	DOXYGEN="/Applications/Doxygen.app/Contents/Ressources/doxygen"
+else
+	DOXYGEN=doxygen
+endif
+
+all:
+	publish
+
+clean:
+	rm -rf doc/generated/html
+	rm -rf doc/generated/html
+
 doc:
-	doxygen Doxyfile
+	${DOXYGEN} Doxyfile
 
 publish: pubpilou
 
