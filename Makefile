@@ -21,7 +21,7 @@ doc:
 publish: pubpilou
 
 pubpilou:
-	rsync -avz . root@cas-erasme.erasme.lan:/var/www/cas/ --exclude .git* --exclude doc/
+	rsync -avz . root@cas-erasme.erasme.lan:/var/www/cas/ --exclude .git --exclude .gitignore --exclude doc/
 
 pubmb:
-	rsync -avz . root@cas-erasme.erasme.lan:/var/www/cm/ --exclude .git* --exclude doc/
+	rsync -avz . root@cas-erasme.erasme.lan:/var/www/cm/ --exclude .git ---exclude .gitignore -exclude doc/

@@ -9,26 +9,16 @@
  * Ticket class
  */
 
-class Ticket {
-	/**
-	 * The prefix used to generate a random key
-	 */
-	protected $_prefix;
-
+abstract class Ticket {
 	/**
 	 * The username related to the key
 	 */	
-	protected $_username;
+	protected $_username = false;
 
 	/**
 	 * The key itself
 	 */	
-	protected $_value =  false;
-
-	/**
-	 * The key itself
-	 */	
-	protected $_value =  false;
+	protected $_value = false;
 
 	/**
 	 * @defgroup Constants Character classes for key generation
@@ -55,18 +45,51 @@ class Ticket {
 
 	/**
 	 * Base class constructor
-	 * @param id Ticket id as parameter; a new ticket will be generated if no id id provided
+	 * @param $username Username the ticket will be created for. 
+	 *   If this ticket is created just for look up, username should not be provided
 	 */
-	function __construct($id = "") {
-		$_prefix = $prefix;
-		if ($id != "")
-			// They want me to retrieve a stored ticket
-			lookupTicket($id);
-		else {
-			generateUniqueTicket();
-			storeTicket();
-		}
+	function __construct($username = false) {
+		$this->_username = $username;
+		//		var_dump($this);
 	}
+
+	/**
+	 * getTicket returns a ticket
+	 *
+	 * This method returns an existing ticket if id is passed as a parameter or creates a ticket
+	 * if a username ha been set (@see ::setUsername).
+	 *
+	 * @param id Id of existing ticket to look up
+	 * @return ticket value
+	 * @todo there should be some error handling around...
+	 */
+
+	public function getTicket($id = false) {
+		if ($this->_value === false) {
+			if ($id !== false) {
+				// They want me to retrieve a stored ticket
+				echo "&gt;lookup&lt;";
+				$this->lookupTicket($id);
+			}	else if ($this->_username !== false) {
+				echo "&gt;store&lt;";
+				$this->generateUniqueTicket();
+				$this->storeTicket();
+			} else {
+				echo "&gt;error&lt;";
+				var_dump($this);
+				/** @todo Raise error since this is not a creation or a retrieval */
+			}
+		}
+		return $this->_value;
+	}
+
+	public function getUsername() {	return $this->_username; }
+
+	/**
+	 *
+	 */
+	//	public function getUsername() {	return $this->_username; }
+	//public function setUsername($value) {	$this->_username = $value; }
 
 	/*
 	 * Utility that returns a random string of given length build with given charset
@@ -98,25 +121,27 @@ class Ticket {
 		$m = new Memcached();
 		$m->addServer('localhost', 11211);
 		
-		// TODO : assert $_ticket & $_username are ok
-		$m->set("SSO".$_ticket, $self);
+		// TODO : assert $_value & $_username are ok
+		$m->set("SSO-".$this->_value, $this);
 	}
 	
-	protected function lookupTicket() {
+	protected function lookupTicket($id) {
 		$m = new Memcached();
 		$m->addServer('localhost', 11211);
 		
-		// TODO : assert $_ticket & $_username are ok
-		$self = $m->get("SSO" . $_ticket);
+		// @todo : assert $_value is ok
+		$object = $m->get("SSO-".$id);
+		if ($object !== false) {
+			$this->_username = $object->getUsername();
+			$this->_value = $object->getTicket();
+		} else {
+			/// @todo Handle error here
+		}
 	}
 
 	protected function generateUniqueTicket() {
-		if (!$_value)
-			$_value = generateTicket();
-	}
-
-	public getTicket() {
-		return $_ticket;
+		if (!$this->_value)
+			$this->_value = $this->generateTicket();
 	}
 }
 
@@ -128,12 +153,12 @@ class TicketGrantingTicket extends Ticket {
 	const PREFIX = 'TGT';
 
 	// Constructeur
-	function __construct() {
-		parent::__construct(PREFIX);
+	function __construct($username = false) {
+		parent::__construct($username);
 	}
 
-	private function generateTicket() {
-		return PREFIX . self::SEPARATOR . getRandomString(self::NUMERICAL, 6) . self::SEPARATOR . getRandomString(self::ALPHABETICAL.self::NUMERICAL, 50);
+	protected function generateTicket() {
+		return self::PREFIX . self::SEPARATOR . $this->getRandomString(self::NUMERICAL, 6) . self::SEPARATOR . $this->getRandomString(self::ALPHABETICAL.self::NUMERICAL, 50);
 	}	
 }
 
@@ -145,12 +170,12 @@ class ServiceTicket extends Ticket {
 	const PREFIX = 'ST';
 
 	// Constructeur
-	function __construct($id = "") {
-		parent::__construct($id);
+	function __construct($username = false) {
+		parent::__construct($username);
 	}
 
-	public function generateTicket() {
-		return PREFIX . self::SEPARATOR . getRandomString(self::NUMERICAL, 5) . self::SEPARATOR . getRandomString(self::ALPHABETICAL.self::NUMERICAL, 20);
+	protected function generateTicket() {
+		return self::PREFIX . self::SEPARATOR . $this->getRandomString(self::NUMERICAL, 5) . self::SEPARATOR . $this->getRandomString(self::ALPHABETICAL.self::NUMERICAL, 20);
 	}
 }
 
