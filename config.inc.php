@@ -10,6 +10,11 @@
 include_once('lib/backend.db.oracle.php');
 
 //------------------------------------------------------------------------------
+// Memcached servers
+//------------------------------------------------------------------------------
+$CONFIG['MEMCACHED_SERVERS'] = array(array('localhost', 11211));
+
+//------------------------------------------------------------------------------
 // Constantes de connexion au Backend.
 //------------------------------------------------------------------------------
 define('BACKEND_DBNAME', 'MAQ1020');
@@ -22,7 +27,7 @@ define('BACKEND_DBPASS', '6n2ml29y');
 define('SQL_AUTH', 'select count(1) from utilisateurs u where u.login = lower(?) and u.pwd = lower(?)');
 
 //------------------------------------------------------------------------------
-// Requete SQL d'extration des données pour le jeton d'authentification CAS.
+// Requete SQL d'extration des donn√©es pour le jeton d'authentification CAS.
 //------------------------------------------------------------------------------
 define('SQL_TOKEN', 
 		'select  distinct u.login login, u.id ent_id, u.uid_ldap "uid",
