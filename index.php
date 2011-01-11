@@ -64,9 +64,9 @@ function login() {
       if (($_POST['username'] == 'root') and $_POST['password'] == 'toortoor') { 
         /* credentials ok */
         require_once("lib/ticket.php"); 
-        $monTicket = new ticket();
+        $monTicket = new TicketGrantingTicket($_POST['username']);
         /* send TGC */
-        setcookie ("CASTGC", $monTicket->getTicketGrantingTicket(), 0);
+        setcookie ("CASTGC", $monTicket->getTicket(), 0);
         /* Redirect to /login */
 				header("Location: $selfurl");
       } else { 
@@ -82,6 +82,9 @@ function login() {
     */
     require_once("lib/ticket.php"); 
     if (array_key_exists('renew',$_GET) && $_GET['renew'] == 'true') {
+			$tgt = new TicketGrantingTicket();
+			$tgt->getTicket($_COOKIE["CASTGC"]);
+			$tgt->delete();
       setcookie ("CASTGC", FALSE, 0);
       $srv = array_key_exists('service',$_GET) ? $_GET['service'] : '';
       header("Location: $selfurl?service=$srv");
@@ -94,11 +97,10 @@ function login() {
     */
 
     // Assert validity of TGC
-    /*    $m = new Memcached();
-    $m->addServer('localhost', 11211);
-    if ($m->get($_COOKIE['CASTGC']) == '') {
+		$tgt = new TicketGrantingTicket();
+    if ($tgt->getTicket($_COOKIE["CASTGC"])) {
       
-    }*/
+    }
     
     if (array_key_exists('service',$_GET)) {
       // TODO : build a service ticket

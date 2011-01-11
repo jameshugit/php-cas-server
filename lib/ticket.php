@@ -5,6 +5,8 @@
  * @description ST and TGT handling classes
  */
 
+require_once('../config.inc.php');
+
 /** 
  * Ticket class
  */
@@ -49,8 +51,18 @@ abstract class Ticket {
 	 *   If this ticket is created just for look up, username should not be provided
 	 */
 	function __construct($username = false) {
+		global $CONFIG;
 		$this->_username = $username;
-		//		var_dump($this);
+
+		/** Create Memcached instance **/
+		$this->_cache = new Memcached();
+		$this->_cache->addServers($CONFIG['MEMCACHED_SERVERS']);
+
+		/** @warning Persistant Memcached instance cause apache process to core dump
+		 * so cache object is actually created from scratch everytime
+		 */
+			var_dump($this->_cache);
+			//}
 	}
 
 	/**
@@ -86,6 +98,16 @@ abstract class Ticket {
 	public function getUsername() {	return $this->_username; }
 
 	/**
+	 * Delete ticket from storage
+	 */
+	public function delete() {
+		if ($this->_value !== false) {
+			$this->_cache->delete($this->_value);
+			$this->_value = false;
+			}
+	}
+
+	/**
 	 *
 	 */
 	//	public function getUsername() {	return $this->_username; }
@@ -118,19 +140,17 @@ abstract class Ticket {
 	*/
 
 	protected function storeTicket($duration = 300) {
-		$m = new Memcached();
-		$m->addServer('localhost', 11211);
-		
 		// TODO : assert $_value & $_username are ok
-		$m->set("SSO-".$this->_value, $this);
+		if (! $this->_cache->set("SSO-".$this->_value, $this)) {
+			echo "Unable to store TGT to database, error " . $this->_cache->getResultCode() . "(" . $this->_cache->getResultMessage() . ")";
+			exit;			
+		}
 	}
 	
 	protected function lookupTicket($id) {
-		$m = new Memcached();
-		$m->addServer('localhost', 11211);
-		
 		// @todo : assert $_value is ok
-		$object = $m->get("SSO-".$id);
+		$object = $this->_cache->get("SSO-".$id);
+		var_dump($object);
 		if ($object !== false) {
 			$this->_username = $object->getUsername();
 			$this->_value = $object->getTicket();
@@ -159,7 +179,10 @@ class TicketGrantingTicket extends Ticket {
 
 	protected function generateTicket() {
 		return self::PREFIX . self::SEPARATOR . $this->getRandomString(self::NUMERICAL, 6) . self::SEPARATOR . $this->getRandomString(self::ALPHABETICAL.self::NUMERICAL, 50);
-	}	
+	}
+
+	public function delete() {
+	}
 }
 
 /** 
