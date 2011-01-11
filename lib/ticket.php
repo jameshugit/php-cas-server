@@ -31,11 +31,22 @@ class Ticket {
 	protected $_value =  false;
 
 	/**
-	 * Character classes for key generation
+	 * @defgroup Constants Character classes for key generation
+	 * @{
 	 */
+
+	/** SEPARATOR character class **/
 	const SEPARATOR = '-';
+
+	/** NUMERICAL characted class contains all 10 decimal digits **/
 	const NUMERICAL = "0123456789";
+
+	/** ALPHABETICAL character class contains all upper case and lower case characters **/
 	const ALPHABETICAL = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+	/**
+	 * @}
+	 */
 
 	/** 
 	 * Pure virtual function generateTicket has to be overloaded by child classes

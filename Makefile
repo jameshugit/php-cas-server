@@ -8,8 +8,7 @@ else
 	DOXYGEN=doxygen
 endif
 
-all:
-	publish
+all: clean doc publish
 
 clean:
 	rm -rf doc/generated/html
