@@ -1,6 +1,7 @@
 <?php
 
 require_once('config.inc.php');
+require_once('lib/functions.php');
 require_once('views/error.php');
 
 /*
@@ -27,25 +28,21 @@ Application Controller
 
 */ 
 
-
-
+/**
+	Login : handles sso login requests.
+	
+	@author MB mblanc@erasme.org, PGL pgl@erasme.org
+	@param 
+	@returns void
+*/
 function login() {
 	$selfurl = str_replace('index.php/', 'login', $_SERVER['PHP_SELF']);
 	$service = array_key_exists('service',$_GET) ? $_GET['service'] : '';
-	$siteIsAutoriezd = false;
-	global $autorized_sites;
 	
 	require_once("views/login.php");
 
-	/* Verifying the service is listed in autorized_sites array. */
-	foreach($autorized_sites as $k => $site) {
-		if (preg_match($autorized_sites[$k]['url'], $service) > 0) {
-				$siteIsAutoriezd = true;
-			break;
-		}
-	}
 	
-  if ( !$siteIsAutoriezd ) {
+  if ( !isServiceAutorized($service) ) {
   	showError("Cette application n'est pas autoris&eacute;e &agrave; s'authentifier sur le service de SSO.");
   }
 
