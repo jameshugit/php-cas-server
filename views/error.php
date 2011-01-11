@@ -1,7 +1,7 @@
 <?
 /*******************************************************************************
-	@filename : error.php 
-	@description : Gestion de template des errors.
+	@file : error.php 
+	Gestion de template des errors.
 *******************************************************************************/
 require_once('footer.php');
 require_once('header.php');

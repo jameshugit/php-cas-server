@@ -41,9 +41,10 @@ function login() {
 	
 	require_once("views/login.php");
 
-	
-  if ( !isServiceAutorized($service) ) {
+  // If service is null : no matter this ok for CAS.
+  if ( !isServiceAutorized($service) && $service != "" ) {
   	showError("Cette application n'est pas autoris&eacute;e &agrave; s'authentifier sur le service de SSO.");
+  	die();
   }
 
   if (!array_key_exists('CASTGC',$_COOKIE)) {     /*** user has no TGC ***/
@@ -134,7 +135,6 @@ function serviceValidate() {
  */
 function showError($msg) {
   require_once("views/error.php");
-
   viewError($msg);
 }
 
