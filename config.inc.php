@@ -17,14 +17,14 @@ $CONFIG['MEMCACHED_SERVERS'] = array(array('localhost', 11211));
 //------------------------------------------------------------------------------
 // Constantes de connexion au Backend.
 //------------------------------------------------------------------------------
-define('BACKEND_DBNAME', 'MAQ1020');
+define('BACKEND_DBNAME', '//db.dev.laclasse.com:1521/MAQ1020');
 define('BACKEND_DBUSER', 'laclasse_frmwrk');
 define('BACKEND_DBPASS', '6n2ml29y');
 
 //------------------------------------------------------------------------------
 // Requete SQL de validation des login/pwd
 //------------------------------------------------------------------------------
-define('SQL_AUTH', 'select count(1) from utilisateurs u where u.login = lower(?) and u.pwd = lower(?)');
+define('SQL_AUTH', 'select count(1) from utilisateurs u where u.login = lower(:LOGIN) and u.pwd = lower(:PWD)');
 
 //------------------------------------------------------------------------------
 // Requete SQL d'extration des données pour le jeton d'authentification CAS.
