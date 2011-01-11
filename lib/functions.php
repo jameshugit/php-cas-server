@@ -15,15 +15,22 @@ function isServiceAutorized($pService){
 	global $autorized_sites;
 	$siteIsAutoriezd = false;
 	/* Verifying the service is listed in autorized_sites array. */
-	foreach($autorized_sites as $k => $site) {
-		$pattern  = preg_quote($autorized_sites[$k]['url']);
-		$pattern = str_replace('\\*', '.*', $pattern);
-		$pattern = str_replace('/', '\/', $pattern);
-		preg_match($pattern, $pService, $matches);
-		if (isset($matches) && $matches[0] == $pService) {
-			$siteIsAutoriezd = true;
-			break;
+	if ($pService != "") {
+		foreach($autorized_sites as $k => $site) {
+
+			$pattern  = preg_quote($autorized_sites[$k]['url']);
+			$pattern = str_replace('\\*', '.*', $pattern);
+			$pattern = str_replace('/', '\/', $pattern);
+	
+			preg_match("/$pattern/", $pService, $matches);
+			if (isset($matches) && count($matches) > 0 && $matches[0] == $pService) {
+				$siteIsAutoriezd = true;
+				break;
+			}
 		}
+	} 
+	else {
+		return true; // Service is null
 	}
 	return $siteIsAutoriezd;
 }
