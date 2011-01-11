@@ -1,6 +1,6 @@
 <?php
 /*
- * Test de la classe de g始屍ation de tickets.
+ * Test de la classe de génération de tickets.
  */
 include('../lib/ticket.php'); 
 
