@@ -117,6 +117,12 @@ function login() {
 function logout() {
   require_once("views/logout.php");
 
+	/* No cookie ? No logout ! */
+  if (!array_key_exists('CASTGC',$_COOKIE)) {
+		viewError("Vous êtes déja déconnecté !");
+		return;
+	}
+
   //setcookie ("CASTGC", "", time() - 3600);
 	setcookie ("CASTGC", FALSE, 0);
 

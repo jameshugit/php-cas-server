@@ -5,8 +5,6 @@
  * @description ST and TGT handling classes
  */
 
-require_once('../config.inc.php');
-
 /** 
  * Ticket class
  */
@@ -61,7 +59,7 @@ abstract class Ticket {
 		/** @warning Persistant Memcached instance cause apache process to core dump
 		 * so cache object is actually created from scratch everytime
 		 */
-			var_dump($this->_cache);
+		//			var_dump($this->_cache);
 			//}
 	}
 

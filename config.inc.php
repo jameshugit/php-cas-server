@@ -3,16 +3,17 @@
 	@filename : config.inc.php 
 	@description : Fichier de configuration du serveur.
 *******************************************************************************/
-// 
-// Choose backend
-//
-//include_once('lib/backend.ldap.php');
-include_once('lib/backend.db.oracle.php');
 
 //------------------------------------------------------------------------------
 // Memcached servers
 //------------------------------------------------------------------------------
 $CONFIG['MEMCACHED_SERVERS'] = array(array('localhost', 11211));
+
+// 
+// Choose backend
+//
+//include_once('lib/backend.ldap.php');
+include_once('lib/backend.db.oracle.php');
 
 //------------------------------------------------------------------------------
 // Constantes de connexion au Backend.

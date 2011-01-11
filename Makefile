@@ -18,10 +18,11 @@ doc:
 	@echo $(ARCH)
 	${DOXYGEN} Doxyfile
 
-publish: pubpilou
+publish: send fixperms
 
-pubpilou:
+send:
 	rsync -avz . root@cas-erasme.erasme.lan:/var/www/cas/ --exclude .git --exclude .gitignore --exclude doc/
 
-pubmb:
-	rsync -avz . root@cas-erasme.erasme.lan:/var/www/cm/ --exclude .git ---exclude .gitignore -exclude doc/
+fixperms:
+	ssh root@cas-erasme.erasme.lan "chown -R www-data:www-data /var/www/cas/"
+
