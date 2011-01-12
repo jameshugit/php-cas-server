@@ -1,3 +1,6 @@
+
+#: index.php
+
 msgid "This application is not allowed to authenticate on this server"
 msgstr "Cette application n'est pas autoris&eacute;e &agrave; s'authentifier sur ce serveur"
 
@@ -7,8 +10,8 @@ msgstr "Vous &ecirc;tes d&eacute;ja connect&eacute;"
 msgid "Error : this script can only be used with HTTPS"
 msgstr "Erreur : ce script ne peut &ecirc;tre utilis&eacute; qu'en HTTPS"
 
-msgid "Error : unknown running mode. Must be 'prod' or 'dev'"
-msgstr "Erreur : mode d'ex&eacute;cution inconnu. Ce doit &ecirc;tre "
+msgid "Error : unknown running mode. Must be "
+msgstr "Erreur : mode d'ex&eacute;cution inconnu. Il doit &ecirc;tre "
 
 msgid "or"
 msgstr "ou"
@@ -18,3 +21,9 @@ msgstr "Action inconnue"
 
 msgid "Action not set"
 msgstr "Action non positionn&eacute;e"
+
+#: ticket.php
+
+msgid "Unable to store TGT to database, error "
+msgstr "Impossible de stocker le TGT dans la base, erreur "
+

@@ -205,8 +205,6 @@ function showError($msg) {
  * 'Main' starts here 
  */
 
-var_dump(getPrefLanguageArray());
-
 /* Verify that this thing is happening over https
 	 if we are using a production running mode.
 	 HTTP can only be used in dev mode */
@@ -218,7 +216,7 @@ if ($CONFIG['MODE'] == 'prod') {
 	}
 } else if ($CONFIG['MODE'] != 'dev') {
 		require_once("views/error.php");
-		viewError(_("Error : unknown running mode. Must be 'prod' or 'dev'"));
+		viewError(_("Error : unknown running mode. Must be ") . "'prod'" . _("or") . "'dev'"));
 		die();
 }
 

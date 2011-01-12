@@ -140,7 +140,7 @@ abstract class Ticket {
 	protected function storeTicket($duration = 300) {
 		// TODO : assert $_value & $_username are ok
 		if (! $this->_cache->set("SSO-".$this->_value, $this)) {
-			echo "Unable to store TGT to database, error " . $this->_cache->getResultCode() . "(" . $this->_cache->getResultMessage() . ")";
+			echo _("Unable to store TGT to database, error ") . $this->_cache->getResultCode() . "(" . $this->_cache->getResultMessage() . ")";
 			exit;			
 		}
 	}
@@ -148,7 +148,6 @@ abstract class Ticket {
 	protected function lookupTicket($id) {
 		// @todo : assert $_value is ok
 		$object = $this->_cache->get("SSO-".$id);
-		var_dump($object);
 		if ($object !== false) {
 			$this->_username = $object->getUsername();
 			$this->_value = $object->getTicket();
