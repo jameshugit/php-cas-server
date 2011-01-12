@@ -2,7 +2,7 @@
 
 /**
  * @file ticket.php 
- * @description ST and TGT handling classes
+ * ST and TGT handling classes
  */
 
 /** 

@@ -1,4 +1,4 @@
-.PHONY: all clean doc publish pubpilou pubmb
+.PHONY: all clean doc lang publish pubpilou pubmb
 
 ARCH:=$(shell uname)
 
@@ -8,15 +8,20 @@ else
 	DOXYGEN=doxygen
 endif
 
-all: clean doc publish
+all: clean doc lang publish
 
-clean:
+clean:	
 	rm -rf doc/generated/html
 	rm -rf doc/generated/html
 
 doc:
 	@echo $(ARCH)
 	${DOXYGEN} Doxyfile
+
+lang:
+	@echo -n Builfing translations...
+	@for i in locale/*/LC_MESSAGES; do echo -n $$i | sed -e 's/.*\/\(.*\)\/.*/\1/'; echo -n "..."; msgfmt -o $$i/traductions.mo $$i/traductions.po; done
+	@echo "done"
 
 publish: send fixperms
 

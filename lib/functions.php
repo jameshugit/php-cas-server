@@ -1,16 +1,17 @@
 <?php
 /*******************************************************************************
-	@file : functions.php 
+	@file functions.php 
 	All useful and various functions 
 *******************************************************************************/
 
 /**
-	isServiceAutorized : Verifying if the requested service is autorized to request SSO
-	
-	@author PGL pgl@erasme.org
-	@param $pService url of the service.
-	@returns boolean
-*/
+ * Verifying if the requested service is autorized to request SSO
+ *	
+ * @author PGL pgl@erasme.org
+ * @param $pService url of the service.
+ * @returns boolean
+ */
+
 function isServiceAutorized($pService){
 	global $autorized_sites;
 	$siteIsAutoriezd = false;
@@ -33,6 +34,45 @@ function isServiceAutorized($pService){
 		return true; // Service is null
 	}
 	return $siteIsAutoriezd;
+}
+
+/**
+ * Sanitizes HTTP_ACCEPT_LANGUAGE server variable and returns array of
+ * preferred languages
+ *	
+ * @returns ordered array of languages
+ */
+function getPrefLanguageArray() {
+  $langs = explode(',', $_SERVER["HTTP_ACCEPT_LANGUAGE"]);
+  $qcandidat = 0;
+  $nblang = count($langs);
+
+  for ($i=0; $i<$nblang; $i++) {
+    for ($j=0; $j<count($langs); $j++) {
+      $lang = trim($langs[$j]);
+      
+      if (!strstr($lang, ';') && $qcandidat != 1) {
+        $candidat = $lang;
+        $qcandidat = 1;
+        $indicecandidat = $j;
+      } else {
+        $q = ereg_replace('.*;q=(.*)', '\\1', $lang);
+				
+        if ($q > $qcandidat) {
+          $candidat = ereg_replace('(.*);.*', '\\1', $lang); ;
+          $qcandidat = $q;
+          $indicecandidat = $j;     
+        }
+      }
+    }
+    
+    $resultat[$i] = $candidat;
+		
+    $qcandidat=0;
+    unset($langs[$indicecandidat]);   
+    $langs = array_values($langs);
+  }
+  return $resultat;
 }
 
 ?>
