@@ -216,7 +216,7 @@ if ($CONFIG['MODE'] == 'prod') {
 	}
 } else if ($CONFIG['MODE'] != 'dev') {
 		require_once("views/error.php");
-		viewError(_("Error : unknown running mode. Must be ") . "'prod'" . _("or") . "'dev'"));
+		viewError(_("Error : unknown running mode. Must be ") . "'prod'" . _("or") . "'dev'");
 		die();
 }
 

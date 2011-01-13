@@ -102,7 +102,8 @@ abstract class Ticket {
 		if ($this->_value !== false) {
 			$this->_cache->delete($this->_value);
 			$this->_value = false;
-			}
+			echo "<DODELETE>";
+		}
 	}
 
 	/**
@@ -177,9 +178,6 @@ class TicketGrantingTicket extends Ticket {
 	protected function generateTicket() {
 		return self::PREFIX . self::SEPARATOR . $this->getRandomString(self::NUMERICAL, 6) . self::SEPARATOR . $this->getRandomString(self::ALPHABETICAL.self::NUMERICAL, 50);
 	}
-
-	public function delete() {
-	}
 }
 
 /** 
@@ -196,6 +194,22 @@ class ServiceTicket extends Ticket {
 
 	protected function generateTicket() {
 		return self::PREFIX . self::SEPARATOR . $this->getRandomString(self::NUMERICAL, 5) . self::SEPARATOR . $this->getRandomString(self::ALPHABETICAL.self::NUMERICAL, 20);
+	}
+
+	public function getTicket($id = false) {
+		parent::getTicket($id);
+
+		$key = $this->_value;
+
+		/* When called with a parameter, we will return a stored ticket 
+		 since tickets can only be used once, we enforce this here and delete 
+		 the ticket after retrieval */
+		if ($id) {
+			echo "<DELETE>";
+			$this->delete();
+		}
+
+		return $key;
 	}
 }
 
