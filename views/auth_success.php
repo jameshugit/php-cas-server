@@ -18,12 +18,13 @@ require_once('auth_attribute.php');
 	@returns
 */
 function viewAuthSuccess($t){
-	viewAuthHeader();
+	$token = viewAuthHeader();
 	if (is_array($t)){
 		foreach($t as $k => $v) {
-			viewAuthAtttribute($k, $v);
+			$token .= viewAuthAtttribute($k, $v);
 		}
 	}
-	viewAuthFooter();
+	$token .= viewAuthFooter();
+	return $token;
 }
 ?>

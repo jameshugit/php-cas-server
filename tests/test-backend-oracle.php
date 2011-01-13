@@ -114,9 +114,9 @@ if ($_GET['test'] == "token") {
 		echo "<li>service = ".$_POST['psite']."</li></ul>";
 		echo "<li>the index of this service is ".getServiceIndex($_POST['psite'])."</li></ul>";
 		echo "<pre>";
-		getServiceValidate($_POST['plogin'], $_POST['psite']);
+		htmlentities(getServiceValidate($_POST['plogin'], $_POST['psite']));
 		echo "</pre>";
-		echo "<textarea name='psql' cols='60' rows='20'/>".getServiceValidate($_POST['plogin'], $_POST['psite'])."</textarea>";
+		echo "<textarea name='ptoken' cols='60' rows='20'>".getServiceValidate($_POST['plogin'], $_POST['psite'])."</textarea>";
 	
 	}
 }

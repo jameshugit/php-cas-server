@@ -93,6 +93,10 @@ $autorized_sites[0]['siteName'] 	= 'ENT Laclasse.com';
 $autorized_sites[0]['url'] 			= '*://*dev.laclasse.com/pls/education/*';
 $autorized_sites[0]['autorizedAttributes'] = 'uid, LaclasseNom, LaclassePrenom, LaclasseEmail';
 
+$autorized_sites[1]['siteName'] 	= 'Blogs de Laclasse.com';
+$autorized_sites[1]['url'] 			= '*://*blogs.dev.laclasse.com/*';
+$autorized_sites[1]['autorizedAttributes'] = 'uid, LaclasseNom, LaclassePrenom, LaclasseEmail';
+
 
 //------------------------------------------------------------------------------
 // Attributs Applicatifs renvoyés dans le jeton d'authentification
