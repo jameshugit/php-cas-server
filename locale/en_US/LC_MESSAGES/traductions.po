@@ -25,6 +25,12 @@ msgstr "Unknown action"
 msgid "Action not set"
 msgstr "Action not set"
 
+msgid "serviceValidate require at least two parameters : ticket and service."
+msgstr "serviceValidate require at least two parameters : ticket and service."
+
+msgid " is not recognized."
+msgstr " is not recognized."
+
 #: ticket.php
 
 msgid "Unable to store TGT to database, error "
