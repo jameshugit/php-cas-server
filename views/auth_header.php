@@ -8,9 +8,8 @@
 	@returns a string containg the xml header
 */
 function viewAuthHeader() {
-return "<cas:serviceResponse xmlns:cas='http://www.yale.edu/tp/cas'>
-	<cas:authenticationSuccess>
-		";
+return "<cas:serviceResponse xmlns:cas='http://www.yale.edu/tp/cas'>\n".
+	   "	<cas:authenticationSuccess>\n";
 }
 
 ?>

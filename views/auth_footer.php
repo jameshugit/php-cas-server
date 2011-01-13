@@ -8,9 +8,8 @@
 	@returns a string containg the xml footer
 */
 function viewAuthFooter() {
-	return "		
-	</cas:authenticationSuccess>
-</cas:serviceResponse>";
+	return "	</cas:authenticationSuccess>\n".
+		   "</cas:serviceResponse>\n";
 }
 
 ?>

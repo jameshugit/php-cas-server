@@ -39,32 +39,33 @@ define('SQL_FOR_ATTRIBUTES',
 		'select  distinct u.login login, u.id ent_id, u.uid_ldap "uid",
                  case ui.prof_id
                     when 8 then enfant.etb_id
-                    else ui.etb_id end entpersonstructrattach,
+                    else ui.etb_id end "ENTPersonStructRattach",
                  case ui.prof_id
                     when 8 then null 
-                    else ui.cls_id end enteleveclasses,
-                 e.code_rne entpersonstructrattachrne, p.lib_men entpersonprofils,
-                 comptes.formate_nivclasse_for_cas(n.nom) entelevenivformation,
+                    else ui.cls_id end "ENTEleveClasses",
+                 e.code_rne "ENTPersonStructRattachRne", 
+                 p.lib_men "ENTPersonProfils",
+                 comptes.formate_nivclasse_for_cas(n.nom) "ENTEleveNivFormation",
                  
-                 comptes.formate_us7ascii(u.nom) LaclasseNom, 
-                 comptes.formate_us7ascii(u.prenom) LaclassePrenom,
-                 u.dt_naissance LaclasseDateNais,
-                 ui.civilite LaclasseCivilite,
-                 ui.sexe LaclasseSexe,
-                 u.adr LaclasseAdresse,
-                 comptes.formate_cp(u.adr) ENTPersonCodePostal,
+                 comptes.formate_us7ascii(u.nom) "LaclasseNom", 
+                 comptes.formate_us7ascii(u.prenom) "LaclassePrenom",
+                 u.dt_naissance "LaclasseDateNais",
+                 ui.civilite "LaclasseCivilite",
+                 ui.sexe "LaclasseSexe",
+                 u.adr "LaclasseAdresse",
+                 comptes.formate_cp(u.adr) "ENTPersonCodePostal",
                  p.lib LaclasseProfil,
-                 comptes.formate_nivclasse_for_cas(c.nom) LaclasseNomClasse,
-                 u.email LaclasseEmail, 
-                 ui.mail_institutionnel LaclasseEmailAca,
+                 comptes.formate_nivclasse_for_cas(c.nom) "LaclasseNomClasse",
+                 u.email "LaclasseEmail", 
+                 ui.mail_institutionnel "LaclasseEmailAca",
                  
-                 comptes.formate_us7ascii(u.nom) PronoteNom, 
-                 comptes.formate_us7ascii(u.prenom) PronotePrenom,
-                 u.dt_naissance PronoteDateNais,
-                 u.uid_ldap PronoteUid, 
-                 u.login PronoteLogin,
-                 p.lib_men PronoteENTPersonProfils,
-                 comptes.formate_nivclasse_for_cas(c.nom) PronoteENTEleveClasses
+                 comptes.formate_us7ascii(u.nom) "PronoteNom", 
+                 comptes.formate_us7ascii(u.prenom) "PronotePrenom",
+                 u.dt_naissance "PronoteDateNais",
+                 u.uid_ldap "PronoteUid", 
+                 u.login "PronoteLogin",
+                 p.lib_men "PronoteENTPersonProfils",
+                 comptes.formate_nivclasse_for_cas(c.nom) "PronoteENTEleveClasses"
                  
  	from   	utilisateurs u, 
  			utilisateurs_info ui, 
@@ -91,7 +92,7 @@ $autorized_sites = array();
 
 $autorized_sites[0]['siteName'] 	= 'ENT Laclasse.com';
 $autorized_sites[0]['url'] 			= '*://*dev.laclasse.com/pls/education/*';
-$autorized_sites[0]['autorizedAttributes'] = 'uid, LaclasseNom, LaclassePrenom, LaclasseEmail';
+$autorized_sites[0]['autorizedAttributes'] = 'uid, LaclasseNom, LaclassePrenom, LaclasseEmail, ENTPersonStructRattachRne, ENTPersonStructRattach';
 
 $autorized_sites[1]['siteName'] 	= 'Blogs de Laclasse.com';
 $autorized_sites[1]['url'] 			= '*://*blogs.dev.laclasse.com/*';

@@ -151,7 +151,6 @@ function getServiceValidate($login, $service) {
 	global $autorized_sites;
 	// index of the global array containing the list of autorized sites.
 	$idxOfAutorizedSiteArray = getServiceIndex($service);
-	echo "<h5>idxOfAutorizedSiteArray=$idxOfAutorizedSiteArray</h5>";
 	// An array with the needed attributes for this service.
 	$neededAttr = explode(",", 
 					str_replace(" ", "", 
