@@ -70,6 +70,7 @@ function getServiceIndex($pService) {
 		foreach($autorized_sites as $k => $site) {
 			matchString($pService, $autorized_sites[$k]['url']);
 			if (isset($matches) && count($matches) > 0 && $matches[0] == $pService) {
+				echo "<h5>index=$k</h5>";
 				return $k;
 			}
 		} 

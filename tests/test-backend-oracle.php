@@ -71,7 +71,6 @@ if ($_GET['test'] == "oci") {
 		$r = _dbExecuteSQL($db, $select_stmt, array());
 		print_r($r);
 		echo "<table border='1'>\n";
-		//echo "<tr><th>"."COL1"."</th><th>"."COL2"."</th></tr>";
 		
 		foreach ($r as $k => $row) {
 			
@@ -113,8 +112,11 @@ if ($_GET['test'] == "token") {
 		echo "Received :<br/>";
 		echo "<ul><li>login = ".$_POST['plogin']."</li>";
 		echo "<li>service = ".$_POST['psite']."</li></ul>";
-		echo "<li>the index of this service is ".getServiceIndex($service)."</li></ul>";
+		echo "<li>the index of this service is ".getServiceIndex($_POST['psite'])."</li></ul>";
+		echo "<pre>";
 		getServiceValidate($_POST['plogin'], $_POST['psite']);
+		echo "</pre>";
+		echo "<textarea name='psql' cols='60' rows='20'/>".getServiceValidate($_POST['plogin'], $_POST['psite'])."</textarea>";
 	
 	}
 }
