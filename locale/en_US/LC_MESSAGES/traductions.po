@@ -7,6 +7,9 @@ msgstr "This application is not allowed to authenticate on this server"
 msgid "You are already connected"
 msgstr "You are already connected"
 
+msgid "You are already disconnected"
+msgstr "You are already disconnected"
+
 msgid "Error : this script can only be used with HTTPS"
 msgstr "Error : this script can only be used with HTTPS"
 

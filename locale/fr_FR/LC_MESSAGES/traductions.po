@@ -7,6 +7,9 @@ msgstr "Cette application n'est pas autoris&eacute;e &agrave; s'authentifier sur
 msgid "You are already connected"
 msgstr "Vous &ecirc;tes d&eacute;ja connect&eacute;"
 
+msgid "You are already diconnected"
+msgstr "Vous &ecirc;tes d&eacute;ja d&eacute;connect&eacute;"
+
 msgid "Error : this script can only be used with HTTPS"
 msgstr "Erreur : ce script ne peut &ecirc;tre utilis&eacute; qu'en HTTPS"
 

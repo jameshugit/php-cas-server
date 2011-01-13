@@ -83,12 +83,6 @@ function login() {
 	
 	require_once("views/login.php");
 
-  // If service is null : no matter this ok for CAS.
-  if ( $service && !isServiceAutorized($service)) {
-  	showError(_("This application is not allowed to authenticate on this server"));
-  	die();
-  }
-
   if (!array_key_exists('CASTGC',$_COOKIE)) {     /*** user has no TGC ***/
     if (!array_key_exists('username',$_POST)) {
       /* user has no TGC and is not trying to post credentials :
@@ -107,9 +101,11 @@ function login() {
       if (($_POST['username'] == 'root') and $_POST['password'] == 'toortoor') { 
         /* credentials ok */
         require_once("lib/ticket.php"); 
-        $monTicket = new TicketGrantingTicket($_POST['username']);
+        $ticket = new TicketGrantingTicket();
+				$ticket->create($_POST['username']);
+
         /* send TGC */
-        setcookie ("CASTGC", $monTicket->getTicket(), 0);
+        setcookie ("CASTGC", $ticket->key(), 0);
         /* Redirect to /login */
 				header("Location: $selfurl");
       } else { 
@@ -126,7 +122,7 @@ function login() {
     require_once("lib/ticket.php"); 
     if (array_key_exists('renew',$_GET) && $_GET['renew'] == 'true') {
 			$tgt = new TicketGrantingTicket();
-			$tgt->getTicket($_COOKIE["CASTGC"]);
+			$tgt->find($_COOKIE["CASTGC"]);
 			$tgt->delete();
       setcookie ("CASTGC", FALSE, 0);
 			if ($service) 
@@ -143,12 +139,20 @@ function login() {
 
     // Assert validity of TGC
 		$tgt = new TicketGrantingTicket();
-    if ($tgt->getTicket($_COOKIE["CASTGC"])) {
-      
+		/// @todo Well, do something meaningful...
+    if (! $tgt->find($_COOKIE["CASTGC"])) {
+      viewError("Oh noes !");
+			die();
     }
     
     if ($service) {
-      // TODO : build a service ticket
+			if (!isServiceAutorized($service)) {
+				showError(_("This application is not allowed to authenticate on this server"));
+				die();
+			}
+
+      // @todo build a service ticket
+			
       header("Location: $service?ST=$st");
     } else {
       // No service, user just wanted to login to SSO
@@ -168,9 +172,14 @@ function logout() {
 
 	/* No cookie ? No logout ! */
   if (!array_key_exists('CASTGC',$_COOKIE)) {
-		viewError(_("You are already connected"));
+		viewError(_("You are already disconnected"));
 		return;
 	}
+
+	/* Remove TGT */
+	$tgt = new TicketGrantingTicket();
+	$tgt->find($_COOKIE["CASTGC"]);
+	$tgt->delete();
 
 	/* Remove cookie from client */
 	setcookie ("CASTGC", FALSE, 0);

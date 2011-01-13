@@ -18,12 +18,20 @@ interface casAuthentication {
 	public function verifyLoginPasswordCredential($login, $password);
 
 	/** 
-	 * Returns the serviceValidate XML fragment response
+	 * Returns the serviceValidate CAS 2.0 XML fragment response
 	 * @param login Login for user (as returned by verifyLoginPasswordCredential)
 	 * @param service Service that requests ST validation
 	 * @return string containing loads of XML
 	 */
 	public function getServiceValidate($login, $service);
+
+	/** 
+	 * Returns the validate CAS 1.0 response
+	 * @param login Login for user (as returned by verifyLoginPasswordCredential)
+	 * @param service Service that requests ST validation
+	 * @return string containing loads of XML
+	 */
+	public function getValidate($login, $service);
 }
 
 ?>
