@@ -26,7 +26,7 @@ define('BACKEND_DBPASS', '6n2ml29y');
 //------------------------------------------------------------------------------
 // Requete SQL de validation des login/pwd
 //------------------------------------------------------------------------------
-define('SQL_AUTH', 'select count(1) from utilisateurs u where u.login = lower(:LOGIN) and u.pwd = lower(:PWD)');
+define('SQL_AUTH', 'select login from utilisateurs u where u.login = lower(:LOGIN) and u.pwd = lower(:PWD)');
 
 //------------------------------------------------------------------------------
 // Requete SQL d'extration des données pour le jeton d'authentification CAS.
