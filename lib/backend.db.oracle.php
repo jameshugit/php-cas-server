@@ -116,4 +116,73 @@ function verifyLoginPasswordCredential($login, $pwd) {
 	return "";
 }
 
+
+/**
+	getServiceValidate : Implementation of the CAS like token
+	
+	If the version of cas protocol desired is 2.0, this function should 
+	return some attributes from a second sql statment called SQL_FOR_ATTRIBUTES
+	
+	The format of the generated token is xml as follows :
+	@code
+	<cas:serviceResponse xmlns:cas='http://www.yale.edu/tp/cas'>
+    	<cas:authenticationSuccess>
+       	 	<cas:user>PLEVALLOIS</cas:user>
+       	 	
+       	 	<!-- Here are the CAS2 Attributes -->
+        	<cas:uid>87654321</cas:uid>
+       	 	<cas:ENTPersonStructRattachRNE>0690001B</cas:ENTPersonStructRattachRNE>
+        	<cas:ENT_id>10010</cas:ENT_id>
+        	<cas:ENTPersonProfils>National_3</cas:ENTPersonProfils>
+        	
+    	</cas:authenticationSuccess>
+	</cas:serviceResponse>
+	@endcode
+	
+	@file backend.db.oracle.php
+	@author PGL pgl@erasme.org
+	@param $login : the login which was autenticated.
+	@param $service : the associated service.
+	@returns string containing loads of XML
+*/
+function getServiceValidate($login, $service) {
+	// index of the global array containing the list of autorized sites.
+	$idxOfAutorizedSiteArray = getServiceIndex($service);
+	// An array with the needed attributes for this service.
+	$neededAttr = explode(",", 
+					str_replace(" ", "", 
+						strtoupper($autorized_sites[$idxOfAutorizedSiteArray]['autorizedAttributes'])
+					)
+				  );
+	$attributes = array(); // What to pass to the function that generate token
+	
+	/// @note : no need for the moment... global $CONFIG;
+	/// @note : no need for the moment... $CASversion = $CONFIG['CAS_VERSION'];
+	
+	// loading models...
+	require_once("../views/auth_success.php");
+	// Adding data to the array for displaying.
+	// user attribute is requiered in any way.
+	$attributes['user'] = $login;
+	
+	// executing second SQL Statment for other attributes.
+	$db = _dbConnect();
+	$r = _dbExecuteSQL($db, SQL_FOR_ATTRIBUTES, array('LOGIN'=>$login));
+	_dbDisconnect($db);
+	
+	// Should have only one row returned.
+	$rowSet = $r[0];
+	if (isset($rowSet)) {
+		// For all attributes returned
+		foreach($rowSet as $idx => $val) {
+			if (in_array(strtoupper($idx), $neededAttr)) {
+				$attributes[$idx] = $val;
+			}
+		}
+	}
+	
+	// call the token model
+	viewAuthSuccess($attributes);
+}
+
 ?>

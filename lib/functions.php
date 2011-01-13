@@ -3,27 +3,46 @@
 	@file functions.php 
 	All useful and various functions 
 *******************************************************************************/
+/**
+	Function that does matching with a regular expression
+	@file
+	@author PGL pgl@erasme.org
+	@param string to match
+	@param matching pattern
+	@returns array of matches
+*/
+function matchString($str, $pattern){
+	$pattern  = preg_quote($pattern);
+	$pattern = str_replace('\\*', '.*', $pattern);
+	$pattern = str_replace('/', '\/', $pattern);
+	preg_match("/$pattern/", $str, $matches);
+	return $matches;
+}
 
 /**
- * Verifying if the requested service is autorized to request SSO
+ * Verifying if the requested service is autorized to request SSO. 
+ 
+ If ok then returns true.
+ If the site is not autorized the return false.
  *	
  * @author PGL pgl@erasme.org
  * @param $pService url of the service.
  * @returns boolean
  */
-
 function isServiceAutorized($pService){
 	global $autorized_sites;
 	$siteIsAutoriezd = false;
 	/* Verifying the service is listed in autorized_sites array. */
 	if ($pService != "") {
 		foreach($autorized_sites as $k => $site) {
-
+/*
 			$pattern  = preg_quote($autorized_sites[$k]['url']);
 			$pattern = str_replace('\\*', '.*', $pattern);
 			$pattern = str_replace('/', '\/', $pattern);
 	
 			preg_match("/$pattern/", $pService, $matches);
+*/			
+			matchString($pService, $autorized_sites[$k]['url']);
 			if (isset($matches) && count($matches) > 0 && $matches[0] == $pService) {
 				$siteIsAutoriezd = true;
 				break;
@@ -34,6 +53,27 @@ function isServiceAutorized($pService){
 		return true; // Service is null
 	}
 	return $siteIsAutoriezd;
+}
+
+/**
+ * Retrieves the index of array $autorized_sites for a service.
+ 
+ If the servie is not in the list of autorized service, this function returns null
+ *	
+ * @author PGL pgl@erasme.org
+ * @param $pService url of the service.
+ * @returns the index of array $autorized_sites
+ */
+function getServiceIndex($pService) {
+	global $autorized_sites;
+	/* Verifying the service is listed in autorized_sites array. */
+		foreach($autorized_sites as $k => $site) {
+			matchString($pService, $autorized_sites[$k]['url']);
+			if (isset($matches) && count($matches) > 0 && $matches[0] == $pService) {
+				return $k;
+			}
+		} 
+	return null;
 }
 
 /**
