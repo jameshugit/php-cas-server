@@ -40,8 +40,9 @@ abstract class Ticket {
 
 	/** 
 	 * Pure virtual function generateTicket has to be overloaded by child classes
+	 * This function generates a ticket and stores it
 	 */
-	abstract protected function generateTicket();
+	abstract public function generateTicket();
 
 	/**
 	 * Base class constructor
@@ -78,14 +79,14 @@ abstract class Ticket {
 		if ($this->_value === false) {
 			if ($id !== false) {
 				// They want me to retrieve a stored ticket
-				echo "&gt;lookup&lt;";
+				echo "...&gt;lookup&lt;...";
 				$this->lookupTicket($id);
 			}	else if ($this->_username !== false) {
-				echo "&gt;store&lt;";
+				echo "...&gt;store&lt;...";
 				$this->generateUniqueTicket();
 				$this->storeTicket();
 			} else {
-				echo "&gt;error&lt;";
+				echo "...&gt;error&lt;...";
 				var_dump($this);
 				/** @todo Raise error since this is not a creation or a retrieval */
 			}
@@ -102,7 +103,7 @@ abstract class Ticket {
 		if ($this->_value !== false) {
 			$this->_cache->delete($this->_value);
 			$this->_value = false;
-			echo "<DODELETE>";
+			echo "...>delete<...";
 		}
 	}
 
@@ -187,6 +188,11 @@ class TicketGrantingTicket extends Ticket {
 class ServiceTicket extends Ticket {
 	const PREFIX = 'ST';
 
+	/**
+	 * Whether the key was consumed
+	 */	
+	private $_consumed = false;
+
 	// Constructeur
 	function __construct($username = false) {
 		parent::__construct($username);
@@ -197,7 +203,8 @@ class ServiceTicket extends Ticket {
 	}
 
 	public function getTicket($id = false) {
-		parent::getTicket($id);
+		if (! $this->_consumed)
+			parent::getTicket($id);
 
 		$key = $this->_value;
 
@@ -205,12 +212,27 @@ class ServiceTicket extends Ticket {
 		 since tickets can only be used once, we enforce this here and delete 
 		 the ticket after retrieval */
 		if ($id) {
-			echo "<DELETE>";
+			echo "...>ask_delete<...";
 			$this->delete();
+			$this->_consumed = true;
 		}
 
 		return $key;
 	}
+
+	/**
+	 * "Delete" ticket from storage
+	 * ST tickets are not deleted
+	 */
+	public function delete() {
+		if ($this->_value !== false) {
+			$this->_cache->delete($this->_value);
+			$this->_value = false;
+			echo "...>delete<...";
+		}
+	}	
+
+	
 }
 
 
