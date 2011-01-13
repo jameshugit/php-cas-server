@@ -19,7 +19,7 @@ require_once('auth_attribute.php');
 */
 function viewAuthSuccess($t){
 	viewAuthHeader();
-	if (is_array($t))){
+	if (is_array($t)){
 		foreach($t as $k => $v) {
 			viewAuthAtttribute($k, $v);
 		}

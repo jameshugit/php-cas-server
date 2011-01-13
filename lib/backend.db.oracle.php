@@ -1,4 +1,6 @@
 <?php 
+include_once('functions.php');
+
 /**
 	Functions to implement oracle connectivity backend 
 	
@@ -146,6 +148,7 @@ function verifyLoginPasswordCredential($login, $pwd) {
 	@returns string containing loads of XML
 */
 function getServiceValidate($login, $service) {
+	global $autorized_sites;
 	// index of the global array containing the list of autorized sites.
 	$idxOfAutorizedSiteArray = getServiceIndex($service);
 	// An array with the needed attributes for this service.
