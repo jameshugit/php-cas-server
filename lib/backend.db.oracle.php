@@ -12,36 +12,6 @@
 
 */
 
-/*
-
-// Préparation de la requête
-$stid = oci_parse($conn, "select count(1) from utilisateurs where upper(login) = 'PLEVALLOIS' and upper(pwd) = 'UHN953!'");
-if (!$stid) {
-    $e = oci_error($conn);
-    trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
-}
-
-// Exécution de la logique de la requête
-$r = oci_execute($stid);
-if (!$r) {
-    $e = oci_error($stid);
-    trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
-}
-
-// Récupération des résultats de la requête
-print "<table border='1'>\n";
-while ($row = oci_fetch_array($stid, OCI_ASSOC+OCI_RETURN_NULLS)) {
-    print "<tr>\n";
-    foreach ($row as $item) {
-        print "    <td>" . ($item !== null ? htmlentities($item, ENT_QUOTES) : "") . "</td>\n";
-    }
-    print "</tr>\n";
-}
-print "</table>\n";
-
-oci_free_statement($stid);
-
-*/
 
 /**
 	Conecting to oracle database via OCI8.
@@ -78,10 +48,23 @@ function _dbDisconnect($conn) {
 	@returns a recordset
 */
 function _dbExecuteSQL($conn, $sql, $param){
+	$recordSet = array();
+	$idx = 0;
 	// Prepare SQL
-	$stid = oci_parse($conn, "select count(1) from utilisateurs where upper(login) = 'PLEVALLOIS' and upper(pwd) = 'UHN953!'");
-	oci_bind_by_name($stid, ':LOGIN', $param['LOGIN']);
-	oci_bind_by_name($stid, ':PWD', $param['PWD']);
+	$stid = oci_parse($conn, SQL_AUTH);
+	
+	
+//	oci_bind_by_name($stid, ':LOGIN', $param['LOGIN']);
+//	oci_bind_by_name($stid, ':PWD', $param['PWD']);
+
+
+	foreach ($param as $key => $val) {
+    	// oci_bind_by_name($stid, $key, $val) does not work
+    	// because it binds each placeholder to the same location: $val
+    	// instead use the actual location of the data: $ba[$key]
+    	oci_bind_by_name($stid, $key, $param[$key]);
+	}
+
 	if (!$stid) {
     	$e = oci_error($conn);
     	trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
@@ -94,20 +77,45 @@ function _dbExecuteSQL($conn, $sql, $param){
     	trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
 	}
 	
+	// Récupération des résultats de la requête
+	while ($row = oci_fetch_array($stid, OCI_ASSOC+OCI_RETURN_NULLS)) {
+		$recordSet[$idx] = $row;
+		$idx++;
+	}	
+	
 	// Frre oci's mem
 	oci_free_statement($stid);
 	
 	// Returning dataset
-	return $r;
+	return $recordSet;
 }
 
-
+/**
+	verifyLoginPasswordCredential : implementation of authentication on db backend.
+	
+	If authentication is successful the username is returned, else an empty string is returned.
+	
+	@file backend.db.oracle.php
+	@author PGL pgl@erasme.org
+	@param $login : the login which was entered on the web autentication form.
+	@param $pwd : the password of the login user account.
+	@returns the username or empty string ""
+*/
 function verifyLoginPasswordCredential($login, $pwd) {
 	$sqlParam = array('LOGIN'=>$login, 'PWD'=>$pwd);
 	$db = _dbConnect();
 	$r = _dbExecuteSQL($db, SQL_AUTH, $sqlParam);
-	print_r($r);
 	_dbDisconnect($db);
+	// See what we have to do.
+	if (isset($r[0])) {
+		print_r(($r[0]));
+		if (strtoupper($r[0]) == strtoupper($login)) {
+			// Yes ! this was successfull
+			return strtoupper($r[0]);
+		}
+	}
+	// here is an unsuccessful attempt...
+	return "";
 }
 
 ?>
