@@ -10,7 +10,7 @@ interface casAuthentication {
 	 * Validates login and password
 	 * This function returns the username that has to be associated to the TGT
 	 * This is useful, for instance, if you want to change the username on the fly after authentication
-	 * e.g. changin the username to uppercase, or appending some string, etc...
+	 * e.g. changing the username to uppercase, or appending some string, etc...
 	 * @param login User login
 	 * @param password User password
 	 * @return string containing the user login (credentials ok) or an empty string (authentication failed)

@@ -7,7 +7,11 @@
 /**
  * Configuration directives
  */
+// Server mode : 'dev' = http protocol allowed, prod stands for https requiered.
 $CONFIG['MODE'] = 'dev';
+// CAS protocol compatibility. Possible values are : 1.0, 2.0.
+/// @ note no need of this for the moment. $CONFIG['CAS_VERSION'] = '2.0';
+//
 $CONFIG['MEMCACHED_SERVERS'] = array(array('localhost', 11211));
 
 /**
@@ -26,12 +30,12 @@ define('BACKEND_DBPASS', '6n2ml29y');
 //------------------------------------------------------------------------------
 // Requete SQL de validation des login/pwd
 //------------------------------------------------------------------------------
-define('SQL_AUTH', 'select login from utilisateurs u where u.login = lower(:LOGIN) and u.pwd = lower(:PWD)');
+define('SQL_AUTH', 'select login from utilisateurs u where u.login = upper(:LOGIN) and upper(u.pwd) = upper(:PWD)');
 
 //------------------------------------------------------------------------------
 // Requete SQL d'extration des données pour le jeton d'authentification CAS.
 //------------------------------------------------------------------------------
-define('SQL_TOKEN', 
+define('SQL_FOR_ATTRIBUTES', 
 		'select  distinct u.login login, u.id ent_id, u.uid_ldap "uid",
                  case ui.prof_id
                     when 8 then enfant.etb_id
@@ -71,7 +75,7 @@ define('SQL_TOKEN',
         	niveaux n, 
         	dispositif_formation d, 
         	profil p
-	where   {0} and ui.id = u.id
+	where   u.login = upper(:LOGIN) and ui.id = u.id
         	and e.id(+) = ui.etb_id
        		and ui.prof_id = p.id
         	and ui.cls_id = c.id(+)
