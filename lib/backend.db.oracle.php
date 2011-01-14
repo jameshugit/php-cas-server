@@ -2,25 +2,25 @@
 include_once('functions.php');
 
 /**
-	Functions to implement oracle connectivity backend 
-	
-	This stands for login/pwd validation and CAS2 like authentication token.
-	It is possible to develop various backend so as to handle with ldap, mysaq, activeDirectory,etc ...
-	connectivity.
-	We just MUST assume that functions have the same signature for the public functions.
-	
-	@file backend.db.oracle.php
-	@author PGL pgl@erasme.org
-
-*/
+ * Functions to implement oracle connectivity backend 
+ *
+ * This stands for login/pwd validation and CAS2 like authentication token.
+ * It is possible to develop various backend so as to handle with ldap, mysaq, activeDirectory,etc ...
+ * connectivity.
+ * We just MUST assume that functions have the same signature for the public functions.
+ *
+ * @file backend.db.oracle.php
+ * @author PGL pgl@erasme.org
+ *
+ */
 
 
 /**
-	Conecting to oracle database via OCI8.
-	
-	@author PGL pgl@erasme.org
-	@returns connection object
-*/
+ * Connecting to oracle database via OCI8.
+ *	
+ * @author PGL pgl@erasme.org
+ * @returns connection object
+ */
 function _dbConnect() {
 	$conn = oci_connect(BACKEND_DBUSER, BACKEND_DBPASS, BACKEND_DBNAME);
 	if (!$conn)		   {
@@ -31,11 +31,11 @@ function _dbConnect() {
 }
 
 /**
-	Disconecting from oracle database via OCI8.
-	
-	@author PGL pgl@erasme.org
-	@param $conn the db connection object
-*/
+ * Disconecting from oracle database via OCI8.
+ *
+ * @author PGL pgl@erasme.org
+ * @param $conn the db connection object
+ */
 function _dbDisconnect($conn) {
 	oci_close($conn);
 }
@@ -148,15 +148,14 @@ function verifyLoginPasswordCredential($login, $pwd) {
 	@returns string containing loads of XML
 */
 function getServiceValidate($login, $service) {
-	global $autorized_sites;
+	global $CONFIG['AUTHORIZED_SITES'];
 	// index of the global array containing the list of autorized sites.
 	$idxOfAutorizedSiteArray = getServiceIndex($service);
 	// An array with the needed attributes for this service.
 	$neededAttr = explode(",", 
-					str_replace(" ", "", 
-						strtoupper($autorized_sites[$idxOfAutorizedSiteArray]['autorizedAttributes'])
-					)
-				  );
+												str_replace(" ", "", 
+																		strtoupper($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['autorizedAttributes']))
+												);
 	$attributes = array(); // What to pass to the function that generate token
 	
 	/// @note : no need for the moment... global $CONFIG;

@@ -1,20 +1,61 @@
 <?php
-/*******************************************************************************
-	@filename : config.inc.php 
-	@description : Fichier de configuration du serveur.
-*******************************************************************************/
-
 /**
- * Configuration directives
+ * @file config.inc.php 
+ * Server configuration directives
+ *
+ * @defgroup confdir Configuration Directives
+ * Configuration directives for CAS server
+ * @{
  */
-// Server mode : 'dev' = http protocol allowed, prod stands for https requiered.
+
+/** Server mode
+ * @param MODE
+ *  - 'dev'   : http protocol allowed
+ *  - 'prod'  : https required
+ *  - 'debug' : 'dev' mode plus debug info display
+ */
 $CONFIG['MODE'] = 'dev';
-// CAS protocol compatibility. Possible values are : 1.0, 2.0.
-/// @ note no need of this for the moment. $CONFIG['CAS_VERSION'] = '2.0';
-//
+
+/** CAS protocol compatibility
+ * @param CAS_VERSION Possible values are : 1.0, 2.0.
+ * @note Not used ATM
+ */
+$CONFIG['CAS_VERSION'] = '2.0';
+
+/** Memcached server array
+ * @param MEMCACHED_SERVERS Array of servers. Each server is an array of (host, port).
+ * Thus, MEMCACHED_SERVERS contains an array of arrays. It is passed as parameters to
+ * Memcached::addservers as is.
+ */
 $CONFIG['MEMCACHED_SERVERS'] = array(array('localhost', 11211));
 
-/**
+
+//------------------------------------------------------------------------------
+// Services autorisÃ©s Ã  s'authentifier avec le service CAS.
+//------------------------------------------------------------------------------
+/*
+$autorized_sites = array();
+
+$autorized_sites[0]['siteName'] 	= 'ENT Laclasse.com';
+$autorized_sites[0]['url'] 			= '*://*dev.laclasse.com/pls/education/*';
+$autorized_sites[0]['autorizedAttributes'] = 'uid, LaclasseNom, LaclassePrenom, LaclasseEmail, ENTPersonStructRattachRne, ENTPersonStructRattach';
+
+$autorized_sites[1]['siteName'] 	= 'Blogs de Laclasse.com';
+$autorized_sites[1]['url'] 			= '*://*blogs.dev.laclasse.com/*';
+$autorized_sites[1]['autorizedAttributes'] = 'uid, LaclasseNom, LaclassePrenom, LaclasseEmail';
+*/
+/** Site allowed to use this CAS server for authentication
+ * @param AUTHORIZED_SITES Array of authorized sites. Each authorized site is itself an associative array
+ * having the following keys : sitename, url and authorizedAttributes which respectively contain the site name, the site URL
+ * and the attributes that the site will get in serviceValidate.
+ */
+$CONFIG['AUTHORIZED_SITES'] = array(array('sitename'            => 'ENT Laclasse.com',
+																					 'url'                 => '*://*dev.laclasse.com/pls/education/*',
+																					 'authorizedAttributes' => 'uid, LaclasseNom, LaclassePrenom, LaclasseEmail, ENTPersonStructRattachRne, ENTPersonStructRattach'),
+																		 array('sitename'            => 'Blogs de Laclasse.com',
+																					 'url'                 => '*://*blogs.dev.laclasse.com/*',
+																					 'authorizedAttributes' => 'uid, LaclasseNom, LaclassePrenom, LaclasseEmail'));
+/*
  * Authentication backend
  */
 include_once('lib/backend.db.oracle.php');
@@ -23,8 +64,11 @@ include_once('lib/backend.db.oracle.php');
 //------------------------------------------------------------------------------
 // Constantes de connexion au Backend.
 //------------------------------------------------------------------------------
+/** Database name */
 define('BACKEND_DBNAME', '//db.dev.laclasse.com:1521/MAQ1020');
+/** Database username */
 define('BACKEND_DBUSER', 'laclasse_frmwrk');
+/** Database password */
 define('BACKEND_DBPASS', '6n2ml29y');
 
 //------------------------------------------------------------------------------
@@ -85,25 +129,17 @@ define('SQL_FOR_ATTRIBUTES',
         	and ui.id = parent_de.usr_id(+)
         	and parent_de.elv_id = enfant.id(+)');
 
-//------------------------------------------------------------------------------
-// Services autorisŽs ˆ s'authentifier avec le service CAS.
-//------------------------------------------------------------------------------
-$autorized_sites = array();
-
-$autorized_sites[0]['siteName'] 	= 'ENT Laclasse.com';
-$autorized_sites[0]['url'] 			= '*://*dev.laclasse.com/pls/education/*';
-$autorized_sites[0]['autorizedAttributes'] = 'uid, LaclasseNom, LaclassePrenom, LaclasseEmail, ENTPersonStructRattachRne, ENTPersonStructRattach';
-
-$autorized_sites[1]['siteName'] 	= 'Blogs de Laclasse.com';
-$autorized_sites[1]['url'] 			= '*://*blogs.dev.laclasse.com/*';
-$autorized_sites[1]['autorizedAttributes'] = 'uid, LaclasseNom, LaclassePrenom, LaclasseEmail';
 
 
 //------------------------------------------------------------------------------
-// Attributs Applicatifs renvoyŽs dans le jeton d'authentification
+// Attributs Applicatifs renvoyÃ©s dans le jeton d'authentification
 // Modifier ce tableau avec 
 //------------------------------------------------------------------------------
 $authorized_keys = "";
 
+
+/**
+ * @}
+ */
 
 ?>

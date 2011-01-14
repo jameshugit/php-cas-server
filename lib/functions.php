@@ -5,7 +5,6 @@
 *******************************************************************************/
 /**
 	Function that does matching with a regular expression
-	@file
 	@author PGL pgl@erasme.org
 	@param string to match
 	@param matching pattern
@@ -32,44 +31,40 @@ function matchString($str, $model){
  * @returns boolean
  */
 function isServiceAutorized($pService){
-	global $autorized_sites;
-	$siteIsAutoriezd = false;
-	/* Verifying the service is listed in autorized_sites array. */
-	if ($pService != "") {
-		foreach($autorized_sites as $k => $site) {
+	global $CONFIG;
 
-			$pattern  = preg_quote($autorized_sites[$k]['url']);
+	/* Verifying the service is listed in $CONFIG['AUTHORIZED_SITES'] array. */
+	if ($pService != "") {
+		foreach($CONFIG['AUTHORIZED_SITES'] as $k => $site) {
+			$pattern  = preg_quote($CONFIG['AUTHORIZED_SITES'][$k]['url']);
 			$pattern = str_replace('\\*', '.*', $pattern);
 			$pattern = str_replace('/', '\/', $pattern);
 			preg_match("/$pattern/", $pService, $matches);
 			
 			if (isset($matches) && count($matches) > 0 && $matches[0] == $pService) {
-				$siteIsAutoriezd = true;
-				break;
+				return true;
 			}
 		}
-	} 
-	else {
+	} else {
 		return true; // Service is null
 	}
-	return $siteIsAutoriezd;
+
+	return false;
 }
 
 /**
- * Retrieves the index of array $autorized_sites for a service.
- 
- If the servie is not in the list of autorized service, this function returns null
+ * Retrieves the index of array $CONFIG['AUTHORIZED_SITES'] for a service.
+ * If the service is not in the list of authorized services, this function returns null
  *	
  * @author PGL pgl@erasme.org
- * @param $pService url of the service.
- * @returns the index of array $autorized_sites
+ * @param pService url of the service.
+ * @returns index of array $CONFIG['AUTHORIZED_SITES'] or null
  */
 function getServiceIndex($pService) {
-	global $autorized_sites;
-	/* Verifying the service is listed in autorized_sites array. */
-		foreach($autorized_sites as $k => $site) {
-		
-			$pattern  = preg_quote($autorized_sites[$k]['url']);
+	global $CONFIG;
+	/* Verifying the service is listed in $CONFIG['AUTHORIZED_SITES'] array. */
+		foreach($CONFIG['AUTHORIZED_SITES'] as $k => $site) {
+			$pattern  = preg_quote($CONFIG['AUTHORIZED_SITES'][$k]['url']);
 			$pattern = str_replace('\\*', '.*', $pattern);
 			$pattern = str_replace('/', '\/', $pattern);
 			preg_match("/$pattern/", $pService, $matches);
@@ -77,7 +72,7 @@ function getServiceIndex($pService) {
 			if (isset($matches) && count($matches) > 0 && $matches[0] == $pService) {
 				return $k;
 			}
-		} 
+		}
 	return null;
 }
 

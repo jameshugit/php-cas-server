@@ -94,7 +94,7 @@ if ($_GET['test'] == "oci") {
 //
 
 if ($_GET['test'] == "token") {
-	global $autorized_sites;
+	global $CONFIG['AUTHORIZED_SITES'];
 	
 	echo "Here are the possible sites to test :<br/>";
 	echo "

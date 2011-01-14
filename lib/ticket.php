@@ -80,7 +80,8 @@ final class TicketStorage {
 		if ($this->_value !== false) {
 			$retval = $this->_cache->delete("SSO-".$this->_key);
 			$this->_key = $this->_value = false;
-			echo ".>d<.";
+			if ($CONFIG['debug'])
+				echo ".>d<.";
 			return $retval;
 		}
 		return false;
@@ -100,7 +101,8 @@ final class TicketStorage {
 
 	public function store($duration = 300) {
 		// TODO : assert $_value & $_username are ok
-		echo ".>s<.";
+		if ($CONFIG['debug'])
+			echo ".>s<.";
 
 		echo "<br>storing " . $this->_key . "</br>";
 
@@ -111,7 +113,8 @@ final class TicketStorage {
 	}
 	
 	public function lookup($key) {
-		echo ".>l<.";
+		if ($CONFIG['debug'])
+			echo ".>l<.";
 		// @todo : assert $_value is ok
 		echo "<br>looking up " . $key . "</br>";
 		$object = $this->_cache->get("SSO-".$key);
