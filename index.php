@@ -90,7 +90,7 @@ function login() {
          => present login/pass form, 
          => store initial GET parameters somewhere (service)
       */
-      viewLoginForm(array('service' => $srv,
+      viewLoginForm(array('service' => $service,
                           'action'  => $selfurl));
       return;
     } else {
@@ -202,6 +202,8 @@ function logout() {
 	
 */
 function serviceValidate() {
+	echo "ENTERING serviceValidate !";
+	RETURN;
 	$ticket 	= isset($_GET['ticket']) ? $_GET['ticket'] : "";
 	$service 	= isset($_GET['service']) ? $_GET['service'] : "";
 	$renew 		= isset($_GET['renew']) ? $_GET['renew'] : "";

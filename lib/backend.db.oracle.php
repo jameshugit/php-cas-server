@@ -105,6 +105,10 @@ function verifyLoginPasswordCredential($login, $pwd) {
 	$db = _dbConnect();
 	$r = _dbExecuteSQL($db, SQL_AUTH, $sqlParam);
 	_dbDisconnect($db);
+	
+	// If no record returned, credential is not valid.
+	if (!$r) return "";
+
 	// See what we have to do.
 	// just deal with the first reccord.
 	$rowSet = $r[0];
