@@ -69,6 +69,7 @@
 
 require_once('config.inc.php');
 require_once('lib/functions.php');
+require_once('lib/ticket.php');
 require_once('views/error.php');
 
 /**
@@ -197,13 +198,13 @@ function logout() {
 /**
 	serviceValidate
 	Validation of the ST ticket.
-	@param $ticket the ST ticket.
-	@param $service the servie which is requesting for ticket validation.
-	@param $renew if the ticket is issued from the presentation of a 
 	user's primary credential and not from an single sign on session.
 	
 */
-function serviceValidate($ticket, $service, $renew) {
+function serviceValidate() {
+	$ticket 	= isset($_GET['ticket']) ? $_GET['ticket'] : "";
+	$service 	= isset($_GET['service']) ? $_GET['service'] : "";
+	$renew 		= isset($_GET['renew']) ? $_GET['renew'] : "";
 	/** 
 	@todo
 	 3. validating ST ticket.
@@ -218,11 +219,17 @@ function serviceValidate($ticket, $service, $renew) {
 	}
 	
 	// 2. verifying ST ticket is valid.
-	// @todo APPELER LA CLASSE TICKET ET ALLER CHERCHER CE P... DE TICKET ST...
+
+	$st = new ServiceTicket();
+	$newst = $st->find($ticket, $service);
+
+/*
 	if (!$ticket) {
 		viewAuthFailure(array('code'=>'INVALID_TICKET', 'message'=> "Ticket ".$ticket._(" is not recognized.")));
 	}
+	*/
 }
+
 
 /**
  * showError
@@ -283,7 +290,8 @@ if (array_key_exists('action', $parameters)) {
     logout();
     break;
   case "serviceValidate" :
-    serviceValidate($parameters['ticket'], $parameters['service'], $parameters['renew']);
+  case "servicevalidate" :
+    serviceValidate();
     break;
   default :
     showError(_("Unknown action"));
