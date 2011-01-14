@@ -156,9 +156,6 @@ function getServiceValidate($login, $service) {
 	// index of the global array containing the list of autorized sites.
 	$idxOfAutorizedSiteArray = getServiceIndex($service);
 	// An array with the needed attributes for this service.
-
-	echo "idxOfAutorizedSiteArray=$idxOfAutorizedSiteArray";
-	print_r($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]);
 	$neededAttr = explode(	",", 
 							str_replace(" ", "", 
 							strtoupper($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['allowedAttributes']))
@@ -169,7 +166,7 @@ function getServiceValidate($login, $service) {
 	/// @note : no need for the moment... $CASversion = $CONFIG['CAS_VERSION'];
 	
 	// loading models...
-	require_once("../views/auth_success.php");
+	require_once("views/auth_success.php");
 	// Adding data to the array for displaying.
 	// user attribute is requiered in any way.
 	$attributes['user'] = $login;

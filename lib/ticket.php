@@ -244,7 +244,7 @@ class ServiceTicket {
 	}
 
 	public function delete() {
-		assert($self->_ticket);
+		assert($this->_ticket);
 		return $this->_ticket->delete();
 	}
 }

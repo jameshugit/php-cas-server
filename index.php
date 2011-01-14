@@ -72,11 +72,6 @@ require_once('lib/functions.php');
 require_once('lib/ticket.php');
 require_once('views/error.php');
 
-function logIt($msg){
-	global $CONFIG;
-	if ($CONFIG['MODE'] == 'debug') echo "<li>$msg</li>";
-}
-
 /**
  * login
  * Handles sso login requests.
@@ -88,25 +83,18 @@ function login() {
 	$selfurl = str_replace('index.php/', 'login', $_SERVER['PHP_SELF']);
 	$service = isset($_GET['service'])? $_GET['service'] : (isset($_POST['service'])? $_POST['service'] : false);
 	require_once("views/login.php");
-	logIt(">> Entering login function");
-	logIt("selfurl=$selfurl");
-	logIt("service=$service");
 	
   if (!array_key_exists('CASTGC',$_COOKIE)) {     /*** user has no TGC ***/
-  	logIt("user has no TGC");
     if (!array_key_exists('username',$_POST)) {
       /* user has no TGC and is not trying to post credentials :
          => present login/pass form, 
          => store initial GET parameters somewhere (service)
       */
       // displaying login Form
-      logIt("displaying login Form");
       viewLoginForm(array('service' => $service,
                           'action'  => $selfurl));
-      logIt("<< Exiting login function");
       return;
     } else {
-    	logIt("user has no TGC but is trying to post credentials");
       /* user has no TGC but is trying to post credentials
          => check credentials
          => send TGT
@@ -114,19 +102,14 @@ function login() {
       */
       if (strtoupper(verifyLoginPasswordCredential($_POST['username'], $_POST['password'])) == strtoupper($_POST['username'])) {
         /* credentials ok */
-        logIt("credentials ok");
         require_once("lib/ticket.php"); 
-        logIt("Creating TGT");
         $ticket = new TicketGrantingTicket();
 				$ticket->create($_POST['username']);
 
         /* send TGC */
-        logIt("Sending cookie with TGT");
         setcookie ("CASTGC", $ticket->key(), 0);
         /* Redirect to /login */
-        logIt("Redirect to '$selfurl?service=$service'");
-		if ($CONFIG['MODE'] != 'debug') header("Location: $selfurl?service=$service");
-		logIt("<< Exiting login function");
+		header("Location: $selfurl?service=$service");
       } else { 
         /* credentials failed */
         viewLoginFailure(array('service' => $service,
@@ -138,29 +121,21 @@ function login() {
        => destroy TGC
        => present login form
     */
-    logIt("user has TGC.");
     require_once("lib/ticket.php"); 
     if (array_key_exists('renew',$_GET) && $_GET['renew'] == 'true') {
-   		logIt("renew = true");
 		$tgt = new TicketGrantingTicket();
-		logIt("Finding TGT");
 		$tgt->find($_COOKIE["CASTGC"]);
-		logIt("Deleting TGT");
 		$tgt->delete();
-		logIt("Expiringcookie");
-   		setcookie ("CASTGC", FALSE, 0);      		
-		if ($service) {
-			logIt("Redirecting to '$selfurl?service=$service'");
-			if ($CONFIG['MODE'] != 'debug') header("Location: $selfurl?service=$service");
-			}
-							else {
-			logIt("Redirecting to '$selfurl'");
-			if ($CONFIG['MODE'] != 'debug') header("Location: $selfurl");
-		}
-		logIt("<< Exiting login function");
+		
+		// Sendign cookie to the client
+   		setcookie ("CASTGC", FALSE, 0); 
+   		     
+   		// Choosing redirection
+		if ($service) header("Location: $selfurl?service=$service");
+		else header("Location: $selfurl");
+		
       	return;
     }
-	logIt("client has valid TGT");
     /* client has valid TGT
        => build a service ticket
        => send a redirect to 'service' url with newly created ST as GET param
@@ -170,10 +145,8 @@ function login() {
 		$tgt = new TicketGrantingTicket();
 		/// @todo Well, do something meaningful...
     if (! $tgt->find($_COOKIE["CASTGC"])) {
-    	logIt("Well, do something meaningful...");
       	viewError("Oh noes !");
-      	logIt("<< Exiting login function");
-			die();
+		die();
     }
 	logIt("service='$service'");
     if ($service) {
@@ -187,18 +160,15 @@ function login() {
       $st = new ServiceTicket();
       $st->create($tgt->key(), $service, $tgt->username());
       
- 	  		
-      logIt("Redirecting to '$service?ticket=".$st->key()."'");
-			if ($CONFIG['MODE'] != 'debug') header("Location: $service?ticket=".$st->key()."");
-    } else {
-	logIt("No service, user just wanted to login to SSO");
+ 	  // Redirecting for futher client requet for serviceValidate
+	  header("Location: $service?ticket=".$st->key()."");
+    } 
+    else {
       // No service, user just wanted to login to SSO
-	 require_once("views/login.php");
-	  logIt("Serving viewLoginSuccess");
+      require_once("views/login.php");
       viewLoginSuccess();
     }
   }
-  logIt("<< Exiting login function");
 }
 
 /** 
@@ -240,23 +210,23 @@ function logout() {
 	
 */
 function serviceValidate() {
-	logIt("ENTERING serviceValidate !");
-	RETURN;
 	$ticket 	= isset($_GET['ticket']) ? $_GET['ticket'] : "";
-	$service 	= isset($_GET['service']) ? $_GET['service'] : "";
+	$service 	= urldecode(isset($_GET['service']) ? $_GET['service'] : "");
 	$renew 		= isset($_GET['renew']) ? $_GET['renew'] : "";
-
+	
 	require_once("views/auth_failure.php");
 	
 	// 1. verifying parameters ST ticket and service should not be empty.
 	if (!isset($ticket) || !isset($service)) {
 		viewAuthFailure(array('code'=>'INVALID_REQUEST', 'message'=> _("serviceValidate require at least two parameters : ticket and service.")));
+		die();
 	}
 	
 	// 2. verifying if ST ticket is valid.
 	$st = new ServiceTicket();
 	if (!$st->find($ticket)) {
 		viewAuthFailure(array('code'=>'INVALID_TICKET',  'message'=> "Ticket ".$ticket._(" is not recognized.")));
+		die();
 	}
 	
 	// 3. validating ST ticket.
@@ -264,6 +234,7 @@ function serviceValidate() {
 		viewAuthFailure(array('code'=>'INVALID_SERVICE',  'message'=> _("The service ").$service._(" is not valid.")));
 		// Destroy this ticket from memCache because it is not valid anyway.
 		$st->delete();
+		die();
 	} 
 	
 	// If we pass here, ticket and service are validated
@@ -285,19 +256,19 @@ function serviceValidate() {
  * @return void
  */
 function showError($msg) {
-  require_once("views/error.php");
-  viewError($msg);
-
+	require_once("views/error.php");
+	viewError($msg);
 	return;
 }
 
-/*
+/*******************************************************************************
  * 'Main' starts here 
- */
+ *******************************************************************************/
 
 /* Verify that this thing is happening over https
 	 if we are using a production running mode.
-	 HTTP can only be used in dev mode */
+	 HTTP can only be used in dev mode 
+*/
 if ($CONFIG['MODE'] == 'prod') {
 	if (! $_SERVER['HTTPS']) {
 		require_once("views/error.php");
@@ -330,7 +301,7 @@ if ($CONFIG['MODE'] == 'prod') {
 $action = array_key_exists('action', $_GET) ? $_GET['action'] : $_POST['action'];
 
 if ($action == "") {
-  showError(_("Action not set"));
+	showError(_("Action not set"));
 	die();
 }
 
