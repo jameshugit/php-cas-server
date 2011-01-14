@@ -115,7 +115,6 @@ final class TicketStorage {
 		// @todo : assert $_value is ok
 		echo "<br>looking up " . $key . "</br>";
 		$object = $this->_cache->get("SSO-".$key);
-		var_dump($object);
 		if ($object !== false) {
 			$this->_key = $key;
 			$this->_value = $object;

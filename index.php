@@ -271,25 +271,27 @@ if ($CONFIG['MODE'] == 'prod') {
 
 
 /* Merging GET & POST so lookups are easier */
-$parameters = array_merge($_GET, $_POST);
+$action = array_key_exists('action', $_GET) ? $_GET['action'] : $_POST['action'];
+
+if ($action == "") {
+  showError(_("Action not set"));
+	die();
+}
 
 /* Basic application routing */
-if (array_key_exists('action', $parameters)) {
-  switch ($parameters['action']) {
-  case "login" :
-    login();
-    break;
-  case "logout" :
-    logout();
-    break;
-  case "serviceValidate" :
-    serviceValidate($parameters['ticket'], $parameters['service'], $parameters['renew']);
-    break;
-  default :
-    showError(_("Unknown action"));
-  }
-} else { // no action key
-  showError(_("Action not set"));
+switch ($action) {
+case "login" :
+	login();
+	break;
+case "logout" :
+	logout();
+	break;
+case "serviceValidate" :
+	serviceValidate($parameters['ticket'], $parameters['service'], $parameters['renew']);
+	break;
+default :
+	showError(_("Unknown action"));
 }
+
 
 
