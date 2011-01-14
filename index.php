@@ -98,7 +98,7 @@ function login() {
          => send TGT
          => redirect to login
       */
-      if (($_POST['username'] == 'root') and $_POST['password'] == 'toortoor') { 
+      if (strtoupper(verifyLoginPasswordCredential($_POST['username'], $_POST['password'])) == strtoupper($_POST['username'])) {
         /* credentials ok */
         require_once("lib/ticket.php"); 
         $ticket = new TicketGrantingTicket();
@@ -194,7 +194,34 @@ function logout() {
 	return;
 }
 
-function serviceValidate() {
+/**
+	serviceValidate
+	Validation of the ST ticket.
+	@param $ticket the ST ticket.
+	@param $service the servie which is requesting for ticket validation.
+	@param $renew if the ticket is issued from the presentation of a 
+	user's primary credential and not from an single sign on session.
+	
+*/
+function serviceValidate($ticket, $service, $renew) {
+	/** 
+	@todo
+	 3. validating ST ticket.
+	 4. destroy ST ticket because this is a one shot ticket.
+	 5. return CAS2 like token
+	 */
+	require_once("views/auth_failure.php");
+	
+	// 1. verifying parameters ST ticket and service should not be empty.
+	if (!isset($ticket) || !isset($service)) {
+		viewAuthFailure(array('code'=>'INVALID_REQUEST', 'message'=> _("serviceValidate require at least two parameters : ticket and service.")));
+	}
+	
+	// 2. verifying ST ticket is valid.
+	// @todo APPELER LA CLASSE TICKET ET ALLER CHERCHER CE P... DE TICKET ST...
+	if (!$ticket) {
+		viewAuthFailure(array('code'=>'INVALID_TICKET', 'message'=> "Ticket ".$ticket._(" is not recognized.")));
+	}
 }
 
 /**
@@ -256,7 +283,7 @@ if (array_key_exists('action', $parameters)) {
     logout();
     break;
   case "serviceValidate" :
-    serviceValidate();
+    serviceValidate($parameters['ticket'], $parameters['service'], $parameters['renew']);
     break;
   default :
     showError(_("Unknown action"));

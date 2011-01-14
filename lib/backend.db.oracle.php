@@ -185,7 +185,7 @@ function getServiceValidate($login, $service) {
 	}
 	
 	// call the token model
-	viewAuthSuccess($attributes);
+	return viewAuthSuccess($attributes);
 }
 
 ?>

@@ -10,14 +10,16 @@
 	@param string to match
 	@param matching pattern
 	@returns array of matches
-*/
-function matchString($str, $pattern){
-	$pattern  = preg_quote($pattern);
+	@bug does'nt work ????
+*
+function matchString($str, $model){
+	$pattern  = preg_quote($model);
 	$pattern = str_replace('\\*', '.*', $pattern);
 	$pattern = str_replace('/', '\/', $pattern);
 	preg_match("/$pattern/", $str, $matches);
 	return $matches;
 }
+*/
 
 /**
  * Verifying if the requested service is autorized to request SSO. 
@@ -35,14 +37,12 @@ function isServiceAutorized($pService){
 	/* Verifying the service is listed in autorized_sites array. */
 	if ($pService != "") {
 		foreach($autorized_sites as $k => $site) {
-/*
+
 			$pattern  = preg_quote($autorized_sites[$k]['url']);
 			$pattern = str_replace('\\*', '.*', $pattern);
 			$pattern = str_replace('/', '\/', $pattern);
-	
 			preg_match("/$pattern/", $pService, $matches);
-*/			
-			matchString($pService, $autorized_sites[$k]['url']);
+			
 			if (isset($matches) && count($matches) > 0 && $matches[0] == $pService) {
 				$siteIsAutoriezd = true;
 				break;
@@ -68,7 +68,12 @@ function getServiceIndex($pService) {
 	global $autorized_sites;
 	/* Verifying the service is listed in autorized_sites array. */
 		foreach($autorized_sites as $k => $site) {
-			matchString($pService, $autorized_sites[$k]['url']);
+		
+			$pattern  = preg_quote($autorized_sites[$k]['url']);
+			$pattern = str_replace('\\*', '.*', $pattern);
+			$pattern = str_replace('/', '\/', $pattern);
+			preg_match("/$pattern/", $pService, $matches);
+			
 			if (isset($matches) && count($matches) > 0 && $matches[0] == $pService) {
 				return $k;
 			}
