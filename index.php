@@ -109,7 +109,7 @@ function login() {
         /* send TGC */
         setcookie ("CASTGC", $ticket->key(), 0);
         /* Redirect to /login */
-		header("Location: $selfurl?service=$service");
+		header("Location: ".url($selfurl)."service=".urlencode($service)."");
       } else { 
         /* credentials failed */
         viewLoginFailure(array('service' => $service,
@@ -131,7 +131,7 @@ function login() {
    		setcookie ("CASTGC", FALSE, 0); 
    		     
    		// Choosing redirection
-		if ($service) header("Location: $selfurl?service=$service");
+		if ($service) header("Location: ".url($selfurl)."service=".urlencode($service)."");
 		else header("Location: $selfurl");
 		
       	return;
@@ -148,7 +148,6 @@ function login() {
       	viewError("Oh noes !");
 		die();
     }
-	logIt("service='$service'");
     if ($service) {
 			if (!isServiceAutorized($service)) {
 				showError(_("This application is not allowed to authenticate on this server"));
@@ -156,12 +155,11 @@ function login() {
 			}
 
 	  // build a service ticket
-      logIt("build a service ticket");
       $st = new ServiceTicket();
       $st->create($tgt->key(), $service, $tgt->username());
       
  	  // Redirecting for futher client requet for serviceValidate
-	  header("Location: $service?ticket=".$st->key()."");
+	  header("Location: ".url($service)."ticket=".$st->key()."");
     } 
     else {
       // No service, user just wanted to login to SSO
@@ -199,7 +197,6 @@ function logout() {
     viewLogoutSuccess(array('url' => $_GET['url']));
   else  
     viewLogoutSuccess(array('url'=>''));
-
 	return;
 }
 
@@ -276,7 +273,7 @@ if ($CONFIG['MODE'] == 'prod') {
 		die();
 	}
 } else if ($CONFIG['MODE'] == 'debug') {
-		logIt("<h3>DEBUG MODE ACTIVATED</h3>");
+		echo("<h3>DEBUG MODE ACTIVATED</h3>");
 } else if ($CONFIG['MODE'] != 'dev') {
 		require_once("views/error.php");
 		viewError(_("Error : unknown running mode. Must be ") . "'prod' " . _("or") . " 'dev' ". _("or") . " 'debug'.");
@@ -298,7 +295,7 @@ if ($CONFIG['MODE'] == 'prod') {
 
 
 /* Merging GET & POST so lookups are easier */
-$action = array_key_exists('action', $_GET) ? $_GET['action'] : $_POST['action'];
+$action = array_key_exists('action', $_GET) ? $_GET['action'] : (array_key_exists('action', $_POST) ? $_POST['action'] : "");
 
 if ($action == "") {
 	showError(_("Action not set"));

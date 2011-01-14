@@ -114,4 +114,20 @@ function getPrefLanguageArray() {
   return $resultat;
 }
 
+
+/**
+	url : rewrite the url correctly with adding '&' at the end if the url has got some parameters
+	or adding '?' if the url has no parameter.
+	
+	
+	@file
+	@author PGL pgl@erasme.org
+	@param $url  : the url we want to deal with
+	@returns string
+*/
+function url($url){
+	$t = parse_url($url);
+	if (isset($t['query'])) if ($t['query'] != "") return $url."&";
+	return $url.'?';
+}
 ?>
