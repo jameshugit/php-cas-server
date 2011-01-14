@@ -68,7 +68,6 @@ function getServiceIndex($pService) {
 			$pattern = str_replace('\\*', '.*', $pattern);
 			$pattern = str_replace('/', '\/', $pattern);
 			preg_match("/$pattern/", $pService, $matches);
-			
 			if (isset($matches) && count($matches) > 0 && $matches[0] == $pService) {
 				return $k;
 			}

@@ -33,28 +33,38 @@ $CONFIG['MEMCACHED_SERVERS'] = array(array('localhost', 11211));
 //------------------------------------------------------------------------------
 // Services autorisés à s'authentifier avec le service CAS.
 //------------------------------------------------------------------------------
-/*
-$autorized_sites = array();
-
-$autorized_sites[0]['siteName'] 	= 'ENT Laclasse.com';
-$autorized_sites[0]['url'] 			= '*://*dev.laclasse.com/pls/education/*';
-$autorized_sites[0]['autorizedAttributes'] = 'uid, LaclasseNom, LaclassePrenom, LaclasseEmail, ENTPersonStructRattachRne, ENTPersonStructRattach';
-
-$autorized_sites[1]['siteName'] 	= 'Blogs de Laclasse.com';
-$autorized_sites[1]['url'] 			= '*://*blogs.dev.laclasse.com/*';
-$autorized_sites[1]['autorizedAttributes'] = 'uid, LaclasseNom, LaclassePrenom, LaclasseEmail';
-*/
 /** Site allowed to use this CAS server for authentication
  * @param AUTHORIZED_SITES Array of authorized sites. Each authorized site is itself an associative array
  * having the following keys : sitename, url and authorizedAttributes which respectively contain the site name, the site URL
  * and the attributes that the site will get in serviceValidate.
  */
-$CONFIG['AUTHORIZED_SITES'] = array(array('sitename'            => 'ENT Laclasse.com',
-																					 'url'                 => '*://*dev.laclasse.com/pls/education/*',
-																					 'authorizedAttributes' => 'uid, LaclasseNom, LaclassePrenom, LaclasseEmail, ENTPersonStructRattachRne, ENTPersonStructRattach'),
-																		 array('sitename'            => 'Blogs de Laclasse.com',
-																					 'url'                 => '*://*blogs.dev.laclasse.com/*',
-																					 'authorizedAttributes' => 'uid, LaclasseNom, LaclassePrenom, LaclasseEmail'));
+$CONFIG['AUTHORIZED_SITES'] = array(
+			array(	'sitename'  		=>  'Partenaire_SESAMATH',
+					'url'  				=>  '*://sesamath2.sesamath.net/*',
+					'allowedAttributes' =>  'LOGIN,uid,ENTPersonStructRattach,ENTEleveClasses,ENTPersonStructRattachRNE,ENTPersonProfils,ENTEleveNivFormation'),
+			
+			array(	'sitename'  		=>  'Partenaire_CNS',
+					'url'  				=>  'https://www.e-interforum.com/auth/casservice/*/aas/48/*',
+					'allowedAttributes' =>  'LOGIN,uid,ENTPersonStructRattach,ENTEleveClasses,ENTPersonStructRattachRNE,ENTPersonProfils,ENTEleveNivFormation'),
+			
+			array(	'sitename'  		=>  'Partenaire_KNE',
+					'url'  				=>  '*://www.kiosque-edu.com/*',
+					'allowedAttributes' =>  'LOGIN,uid,ENTPersonStructRattach,ENTEleveClasses,ENTPersonStructRattachRNE,ENTPersonProfils,ENTEleveNivFormation'),
+			
+			array(	'sitename'  		=>  'Pronote_Cas_2010',
+					'url'  				=>  '*://sso.dev.laclasse.com/PronoteCAS2010/*',
+					'allowedAttributes' =>  'nom,prenom,user,login,categories,dateNaissance,codePostal,eleveClasses'),
+			
+			array(	'sitename'  		=>  'Blogs_Wordpress_Laclasse.com',
+					'url'  				=>  '*://*blogs.dev.laclasse.com/*',
+					'allowedAttributes' =>  'LOGIN,ENT_id,uid,ENTPersonStructRattach,ENTEleveClasses,ENTPersonStructRattachRNE,ENTPersonProfils,ENTEleveNivFormation,LaclasseNom,LaclassePrenom,LaclasseDateNais,LaclasseCivilite,LaclasseSexe,LaclasseProfil,LaclasseNomClasse,LaclasseEmail,LaclasseEmailAca'),
+			
+			array(	'sitename'  		=>  'Plateforme_Laclasse.com',
+					'url'  				=>  '*://*.laclasse.com/pls/education/!page.*',
+					'allowedAttributes' =>  'LOGIN,ENT_id,uid, ENTPersonStructRattach,ENTEleveClasses,ENTPersonStructRattachRNE,ENTPersonProfils,ENTEleveNivFormation'),
+				);
+			
+	
 /*
  * Authentication backend
  */
@@ -80,7 +90,7 @@ define('SQL_AUTH', 'select login from utilisateurs u where u.login = upper(:LOGI
 // Requete SQL d'extration des données pour le jeton d'authentification CAS.
 //------------------------------------------------------------------------------
 define('SQL_FOR_ATTRIBUTES', 
-		'select  distinct u.login login, u.id ent_id, u.uid_ldap "uid",
+		'select  distinct u.login login, u.id "ENT_id", u.uid_ldap "uid",
                  case ui.prof_id
                     when 8 then enfant.etb_id
                     else ui.etb_id end "ENTPersonStructRattach",
@@ -129,17 +139,5 @@ define('SQL_FOR_ATTRIBUTES',
         	and ui.id = parent_de.usr_id(+)
         	and parent_de.elv_id = enfant.id(+)');
 
-
-
-//------------------------------------------------------------------------------
-// Attributs Applicatifs renvoyés dans le jeton d'authentification
-// Modifier ce tableau avec 
-//------------------------------------------------------------------------------
-$authorized_keys = "";
-
-
-/**
- * @}
- */
 
 ?>

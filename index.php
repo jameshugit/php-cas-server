@@ -72,6 +72,11 @@ require_once('lib/functions.php');
 require_once('lib/ticket.php');
 require_once('views/error.php');
 
+function logIt($msg){
+	global $CONFIG;
+	if ($CONFIG['MODE'] == 'debug') echo "<li>$msg</li>";
+}
+
 /**
  * login
  * Handles sso login requests.
@@ -79,21 +84,29 @@ require_once('views/error.php');
  * @returns void
  */
 function login() {
+	global $CONFIG;
 	$selfurl = str_replace('index.php/', 'login', $_SERVER['PHP_SELF']);
-	$service = array_key_exists('service',$_GET) ? $_GET['service'] : false;
-	
+	$service = isset($_GET['service'])? $_GET['service'] : (isset($_POST['service'])? $_POST['service'] : false);
 	require_once("views/login.php");
-
+	logIt(">> Entering login function");
+	logIt("selfurl=$selfurl");
+	logIt("service=$service");
+	
   if (!array_key_exists('CASTGC',$_COOKIE)) {     /*** user has no TGC ***/
+  	logIt("user has no TGC");
     if (!array_key_exists('username',$_POST)) {
       /* user has no TGC and is not trying to post credentials :
          => present login/pass form, 
          => store initial GET parameters somewhere (service)
       */
+      // displaying login Form
+      logIt("displaying login Form");
       viewLoginForm(array('service' => $service,
                           'action'  => $selfurl));
+      logIt("<< Exiting login function");
       return;
     } else {
+    	logIt("user has no TGC but is trying to post credentials");
       /* user has no TGC but is trying to post credentials
          => check credentials
          => send TGT
@@ -101,18 +114,23 @@ function login() {
       */
       if (strtoupper(verifyLoginPasswordCredential($_POST['username'], $_POST['password'])) == strtoupper($_POST['username'])) {
         /* credentials ok */
+        logIt("credentials ok");
         require_once("lib/ticket.php"); 
+        logIt("Creating TGT");
         $ticket = new TicketGrantingTicket();
 				$ticket->create($_POST['username']);
 
         /* send TGC */
+        logIt("Sending cookie with TGT");
         setcookie ("CASTGC", $ticket->key(), 0);
         /* Redirect to /login */
-				header("Location: $selfurl");
+        logIt("Redirect to '$selfurl?service=$service'");
+		if ($CONFIG['MODE'] != 'debug') header("Location: $selfurl?service=$service");
+		logIt("<< Exiting login function");
       } else { 
         /* credentials failed */
-        viewLoginFailure(array('service' => $srv,
-															 'action'  => $selfurl));
+        viewLoginFailure(array('service' => $service,
+							   'action'  => $selfurl));
       }
     } 
   } else { /*** user has TGC ***/ 
@@ -120,19 +138,29 @@ function login() {
        => destroy TGC
        => present login form
     */
+    logIt("user has TGC.");
     require_once("lib/ticket.php"); 
     if (array_key_exists('renew',$_GET) && $_GET['renew'] == 'true') {
-			$tgt = new TicketGrantingTicket();
-			$tgt->find($_COOKIE["CASTGC"]);
-			$tgt->delete();
-      setcookie ("CASTGC", FALSE, 0);
-			if ($service) 
-				header("Location: $selfurl?service=$service");
-			else
-				header("Location: $selfurl");
-      return;
+   		logIt("renew = true");
+		$tgt = new TicketGrantingTicket();
+		logIt("Finding TGT");
+		$tgt->find($_COOKIE["CASTGC"]);
+		logIt("Deleting TGT");
+		$tgt->delete();
+		logIt("Expiringcookie");
+   		setcookie ("CASTGC", FALSE, 0);      		
+		if ($service) {
+			logIt("Redirecting to '$selfurl?service=$service'");
+			if ($CONFIG['MODE'] != 'debug') header("Location: $selfurl?service=$service");
+			}
+							else {
+			logIt("Redirecting to '$selfurl'");
+			if ($CONFIG['MODE'] != 'debug') header("Location: $selfurl");
+		}
+		logIt("<< Exiting login function");
+      	return;
     }
-
+	logIt("client has valid TGT");
     /* client has valid TGT
        => build a service ticket
        => send a redirect to 'service' url with newly created ST as GET param
@@ -142,25 +170,35 @@ function login() {
 		$tgt = new TicketGrantingTicket();
 		/// @todo Well, do something meaningful...
     if (! $tgt->find($_COOKIE["CASTGC"])) {
-      viewError("Oh noes !");
+    	logIt("Well, do something meaningful...");
+      	viewError("Oh noes !");
+      	logIt("<< Exiting login function");
 			die();
     }
-    
+	logIt("service='$service'");
     if ($service) {
 			if (!isServiceAutorized($service)) {
 				showError(_("This application is not allowed to authenticate on this server"));
 				die();
 			}
 
-      // @todo build a service ticket
-			
-      header("Location: $service?ST=$st");
+	  // build a service ticket
+      logIt("build a service ticket");
+      $st = new ServiceTicket();
+      $st->create($tgt->key(), $service, $tgt->username());
+      
+ 	  		
+      logIt("Redirecting to '$service?ticket=".$st->key()."'");
+			if ($CONFIG['MODE'] != 'debug') header("Location: $service?ticket=".$st->key()."");
     } else {
+	logIt("No service, user just wanted to login to SSO");
       // No service, user just wanted to login to SSO
-			require_once("views/login.php");
+	 require_once("views/login.php");
+	  logIt("Serving viewLoginSuccess");
       viewLoginSuccess();
     }
   }
+  logIt("<< Exiting login function");
 }
 
 /** 
@@ -202,7 +240,7 @@ function logout() {
 	
 */
 function serviceValidate() {
-	echo "ENTERING serviceValidate !";
+	logIt("ENTERING serviceValidate !");
 	RETURN;
 	$ticket 	= isset($_GET['ticket']) ? $_GET['ticket'] : "";
 	$service 	= isset($_GET['service']) ? $_GET['service'] : "";
@@ -235,8 +273,8 @@ function serviceValidate() {
 	// 4. destroy ST ticket because this is a one shot ticket.
 	$st->delete();
 	
-	// 5. return CAS2 like token
-	return $token;
+	// 5. echoing CAS2 like token
+	echo $token;
 }
 
 
@@ -266,9 +304,11 @@ if ($CONFIG['MODE'] == 'prod') {
 		viewError(_("Error : this script can only be used with HTTPS"));
 		die();
 	}
+} else if ($CONFIG['MODE'] == 'debug') {
+		logIt("<h3>DEBUG MODE ACTIVATED</h3>");
 } else if ($CONFIG['MODE'] != 'dev') {
 		require_once("views/error.php");
-		viewError(_("Error : unknown running mode. Must be ") . "'prod'" . _("or") . "'dev'");
+		viewError(_("Error : unknown running mode. Must be ") . "'prod' " . _("or") . " 'dev' ". _("or") . " 'debug'.");
 		die();
 }
 

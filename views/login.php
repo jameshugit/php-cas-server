@@ -11,11 +11,12 @@ require_once('header.php');
 //------------------------------------------------------------------------------
 function getFormLogin($t) {
 	$actionForm = $t["action"];
-	//$service = $t["service"];
+	$service = urldecode($t["service"]);
 	//onsubmit="submitMyCredential();"
 	echo '<form id="fm1" class="fm-v clearfix" method="post" action="'.$actionForm.'"> 
 	
             <input type="hidden" name="action" value="login"/>
+            <input type="hidden" name="service" value="'.$service.'"/>
             
             <div class="box" id="login">
               <h2>Entrez votre identifiant et votre mot de passe.</h2>

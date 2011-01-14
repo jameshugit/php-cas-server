@@ -106,7 +106,7 @@ function verifyLoginPasswordCredential($login, $pwd) {
 	$r = _dbExecuteSQL($db, SQL_AUTH, $sqlParam);
 	_dbDisconnect($db);
 	
-	// If no record returned, credential is not valid.
+	// If no record returned, credential is not valid.	
 	if (!$r) return "";
 
 	// See what we have to do.
@@ -152,14 +152,17 @@ function verifyLoginPasswordCredential($login, $pwd) {
 	@returns string containing loads of XML
 */
 function getServiceValidate($login, $service) {
-	global $CONFIG['AUTHORIZED_SITES'];
+	global $CONFIG;
 	// index of the global array containing the list of autorized sites.
 	$idxOfAutorizedSiteArray = getServiceIndex($service);
 	// An array with the needed attributes for this service.
-	$neededAttr = explode(",", 
-												str_replace(" ", "", 
-																		strtoupper($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['autorizedAttributes']))
-												);
+
+	echo "idxOfAutorizedSiteArray=$idxOfAutorizedSiteArray";
+	print_r($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]);
+	$neededAttr = explode(	",", 
+							str_replace(" ", "", 
+							strtoupper($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['allowedAttributes']))
+						);
 	$attributes = array(); // What to pass to the function that generate token
 	
 	/// @note : no need for the moment... global $CONFIG;
