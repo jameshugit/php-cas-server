@@ -1,4 +1,4 @@
-.PHONY: all clean doc lang publish pubpilou pubmb
+.PHONY: all clean doc fixmerms lang mbtest publish 
 
 ARCH:=$(shell uname)
 
@@ -27,6 +27,12 @@ publish: send fixperms
 
 send:
 	rsync -avz . root@cas-erasme.erasme.lan:/var/www/cas/ --exclude .git --exclude .gitignore --exclude doc/
+
+mbtest: ticket-test fixperms
+
+ticket-test:
+	rsync -avz ./lib/ticket.php  root@cas-erasme.erasme.lan:/var/www/cas/lib/
+	rsync -avz ./tests/test-ticket.php   root@cas-erasme.erasme.lan:/var/www/cas/tests/
 
 fixperms:
 	ssh root@cas-erasme.erasme.lan "chown -R www-data:www-data /var/www/cas/"

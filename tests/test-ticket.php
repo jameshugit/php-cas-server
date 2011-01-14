@@ -6,14 +6,14 @@
 require_once('../config.inc.php');
 require_once('../lib/ticket.php'); 
 
-$SERVICE  = 'Umpa-lumpa';
+$SERVICE  = 'Umpa-lumpa-Serv';
 $USERNAME = 'charlie';
 
 echo "<h1>TGT unit tests</h1>";
 
-echo "<h2>Testing ticket creation</h2><ul>";
+echo "<h2>Testing ticket creation</h2><ol>";
 
-echo "<li>TGT creation for user USER...";
+echo "<li>TGT creation for user $USERNAME...";
 $tgt = new TicketGrantingTicket();
 if ($tgt->create($USERNAME))
 	echo "...OK</li>";
@@ -22,16 +22,16 @@ else
 
 echo "<li>TGT value...";
 $key = $tgt->key();
-
+echo $key;
 if ($key)
 	echo "...OK</li>";
 else
 	echo "...FAILED</li>";
 
 
-echo "</ul><h2>Testing ticket retrieval</h2><ul>";
+echo "</ol><h2>Testing ticket retrieval</h2><ol>";
 
-echo "<li>Retrieving new ticket from storage...";
+echo "<li>Retrieving ticket $key from storage...";
 $tgt = new TicketGrantingTicket();
 if ($tgt->find($key)) 
 	echo "...OK</li>";
@@ -52,7 +52,7 @@ if ($tgt->username() == $USERNAME)
 else
 	echo "...FAILED!</li>";
 
-echo "</ul><h2>Testing ticket removal</h2><ul>";
+echo "</ol><h2>Testing ticket removal</h2><ol>";
 
 echo "<li>Retrieving previous ticket from storage...";
 $tgt = new TicketGrantingTicket();
@@ -74,12 +74,12 @@ if (!$tgt->find($key))
 else
 	echo "...FAILED!</li>";
 
-echo "</ul>";
+echo "</ol>";
 $tgt = $key;
 
 echo "<h1>ST unit tests</h1>";
 
-echo "<h2>Testing ticket creation</h2><ul>";
+echo "<h2>Testing ticket creation</h2><ol>";
 
 echo "<li>ST creation for TGT $tgt and service $SERVICE...";
 $st = new ServiceTicket();
@@ -96,22 +96,35 @@ if (strlen($stkey) == 29)
 else
 	echo "...FAILED!</li>";
 
-echo "<li>ST lookup for TGT $tgt and service $SERVICE...";
+echo "<li>ST lookup for ST key $stkey and service $SERVICE...";
 $st = new ServiceTicket();
-$newst = $st->find($tgt, $SERVICE);
-if ($newst == $stkey)
+if ($st->find($stkey))
 	echo "...OK</li>";
-else
+else {
 	echo "...FAILED!</li>";
+}
+
+
+echo "<li>ST checking match for ST key $stkey and service $SERVICE...";
+if ($st->key() == $stkey)
+	echo "...OK for user " . $st->username() . "</li>";
+else {
+	echo "...FAILED!</li>";
+	exit;	
+}
+
+var_dump($st);
 
 echo "<li>Ensuring second ST lookup for TGT $tgt and service $SERVICE fails...";
 $st = new ServiceTicket();
-if (!$st->find($tgt, $SERVICE))
+if (!$st->find($tgt))
 	echo "...OK</li>";
-else
+else {
 	echo "...FAILED!</li>";
+	exit;	
+}
 
-echo "</ul>";
+echo "</ol>";
 
 
 ?>

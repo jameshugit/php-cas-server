@@ -78,42 +78,13 @@ final class TicketStorage {
 	 */
 	public function delete() {
 		if ($this->_value !== false) {
-			$this->_cache->delete($this->_value);
+			$retval = $this->_cache->delete("SSO-".$this->_key);
 			$this->_key = $this->_value = false;
-			echo "...>delete<...";
+			echo ".>d<.";
+			return $retval;
 		}
+		return false;
 	}
-
-	/**
-	 * getTicket returns a ticket
-	 *
-	 * This method returns an existing ticket if id is passed as a parameter or creates a ticket
-	 * if a username ha been set (@see ::setUsername).
-	 *
-	 * @param id Id of existing ticket to look up
-	 * @return ticket value
-	 * @todo there should be some error handling around...
-	 */
-
-	public function getTicket($id = false) {
-		if ($this->_value === false) {
-			if ($id !== false) {
-				// They want me to retrieve a stored ticket
-				echo "...&gt;lookup&lt;...";
-				$this->lookupTicket($id);
-			}	else if ($this->_username !== false) {
-				echo "...&gt;store&lt;...";
-				$this->generateUniqueTicket();
-				$this->storeTicket();
-			} else {
-				echo "...&gt;error&lt;...";
-				var_dump($this);
-				/** @todo Raise error since this is not a creation or a retrieval */
-			}
-		}
-		return $this->_value;
-	}
-
 
 	/*
 	 * Utility that returns a random string of given length build with given charset
@@ -129,6 +100,10 @@ final class TicketStorage {
 
 	public function store($duration = 300) {
 		// TODO : assert $_value & $_username are ok
+		echo ".>s<.";
+
+		echo "<br>storing " . $this->_key . "</br>";
+
 		if (! $this->_cache->set("SSO-".$this->_key, $this->_value)) {
 			echo _("Unable to store TGT to database, error ") . $this->_cache->getResultCode() . "(" . $this->_cache->getResultMessage() . ")";
 			exit;			
@@ -136,9 +111,13 @@ final class TicketStorage {
 	}
 	
 	public function lookup($key) {
+		echo ".>l<.";
 		// @todo : assert $_value is ok
-		$object = $this->_cache->get("SSO-".$this->_key);
+		echo "<br>looking up " . $key . "</br>";
+		$object = $this->_cache->get("SSO-".$key);
+		var_dump($object);
 		if ($object !== false) {
+			$this->_key = $key;
 			$this->_value = $object;
 			return true;
 		} else {
@@ -215,7 +194,7 @@ class ServiceTicket {
 	function __construct() {
 	}
 
-	// creates a ticket for tgt
+	// creates a st ticket for tgt
 	public function create($tgt = false, $service = false, $username = false) {
 		assert($tgt && $service && $username);
 		assert(!$this->_ticket); // can only be initialized once
@@ -224,27 +203,24 @@ class ServiceTicket {
 		$this->_ticket = new TicketStorage();
 		
 		$this->_ticket->key('ST' . TicketStorage::SEPARATOR . TicketStorage::getRandomString(TicketStorage::NUMERICAL, 5) . 
-												TicketStorage::SEPARATOR . TicketStorage::getRandomString(TicketStorage::ALPHABETICAL.TicketStorage::NUMERICAL, 20) . "#" . $service);
+												TicketStorage::SEPARATOR . 
+												TicketStorage::getRandomString(TicketStorage::ALPHABETICAL.TicketStorage::NUMERICAL, 20));
 
-		$this->_ticket->value($username);
+		$this->_ticket->value(array($username,$service));
 		$this->_ticket->store(8*60*60);
 
 		return true;
 	}
 
 	// returns username associated to key
-	public function find($st = false, $service = false) {
-		assert($st && $service);
-		assert(strlen($st) * strlen($service));
-		assert(!$this->_ticket); // can only be initialized once
-		
+	public function find($st = false) {
+		assert($st !== false);
+		assert(strlen($st));
+		assert(!$this->_ticket); // can only be initialized once		
+
 		$this->_ticket = new TicketStorage();
 
-		$bag = $this->_ticket->lookup($st . "#" . $service);
-
-		$this->_ticket->delete();
-		$this->_ticket = false;
-		
+		$bag = $this->_ticket->lookup($st);
 		return $bag;
 	}
 
