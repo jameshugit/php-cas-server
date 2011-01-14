@@ -113,8 +113,6 @@ else {
 	exit;	
 }
 
-var_dump($st);
-
 echo "<li>Ensuring second ST lookup for TGT $tgt and service $SERVICE fails...";
 $st = new ServiceTicket();
 if (!$st->find($tgt))
