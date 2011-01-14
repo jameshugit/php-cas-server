@@ -31,6 +31,12 @@ msgstr "Le service serviceValidate a besoin de 2 param&egrave;tres : ticket et s
 msgid " is not recognized."
 msgstr " non reconnu."
 
+msgid " is not a valid."
+msgstr "n'est pas valide."
+
+msgid "The service "
+msgstr "Le service "
+
 
 #: ticket.php
 

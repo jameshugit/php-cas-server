@@ -31,6 +31,13 @@ msgstr "serviceValidate require at least two parameters : ticket and service."
 msgid " is not recognized."
 msgstr " is not recognized."
 
+msgid " is not a valid."
+msgstr "is not a valid."
+
+msgid "The service "
+msgstr "The service "
+
+
 #: ticket.php
 
 msgid "Unable to store TGT to database, error "

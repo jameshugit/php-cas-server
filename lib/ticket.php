@@ -77,10 +77,11 @@ final class TicketStorage {
 	 * Delete ticket from storage
 	 */
 	public function delete() {
+		global $CONFIG;
 		if ($this->_value !== false) {
 			$retval = $this->_cache->delete("SSO-".$this->_key);
 			$this->_key = $this->_value = false;
-			if ($CONFIG['debug'])
+			if ($CONFIG['MODE'] == 'debug')
 				echo ".>d<.";
 			return $retval;
 		}
@@ -100,11 +101,10 @@ final class TicketStorage {
 	
 
 	public function store($duration = 300) {
+		global $CONFIG;
 		// TODO : assert $_value & $_username are ok
-		if ($CONFIG['debug'])
+		if ($CONFIG['MODE'] == 'debug') 
 			echo ".>s<.";
-
-		echo "<br>storing " . $this->_key . "</br>";
 
 		if (! $this->_cache->set("SSO-".$this->_key, $this->_value)) {
 			echo _("Unable to store TGT to database, error ") . $this->_cache->getResultCode() . "(" . $this->_cache->getResultMessage() . ")";
@@ -113,10 +113,10 @@ final class TicketStorage {
 	}
 	
 	public function lookup($key) {
-		if ($CONFIG['debug'])
+		global $CONFIG;
+		if ($CONFIG['MODE'] == 'debug')
 			echo ".>l<.";
 		// @todo : assert $_value is ok
-		echo "<br>looking up " . $key . "</br>";
 		$object = $this->_cache->get("SSO-".$key);
 		if ($object !== false) {
 			$this->_key = $key;

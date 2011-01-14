@@ -205,12 +205,7 @@ function serviceValidate() {
 	$ticket 	= isset($_GET['ticket']) ? $_GET['ticket'] : "";
 	$service 	= isset($_GET['service']) ? $_GET['service'] : "";
 	$renew 		= isset($_GET['renew']) ? $_GET['renew'] : "";
-	/** 
-	@todo
-	 3. validating ST ticket.
-	 4. destroy ST ticket because this is a one shot ticket.
-	 5. return CAS2 like token
-	 */
+
 	require_once("views/auth_failure.php");
 	
 	// 1. verifying parameters ST ticket and service should not be empty.
@@ -218,16 +213,28 @@ function serviceValidate() {
 		viewAuthFailure(array('code'=>'INVALID_REQUEST', 'message'=> _("serviceValidate require at least two parameters : ticket and service.")));
 	}
 	
-	// 2. verifying ST ticket is valid.
-
+	// 2. verifying if ST ticket is valid.
 	$st = new ServiceTicket();
-	$newst = $st->find($ticket, $service);
-
-/*
-	if (!$ticket) {
-		viewAuthFailure(array('code'=>'INVALID_TICKET', 'message'=> "Ticket ".$ticket._(" is not recognized.")));
+	if (!$st->find($ticket)) {
+		viewAuthFailure(array('code'=>'INVALID_TICKET',  'message'=> "Ticket ".$ticket._(" is not recognized.")));
 	}
-	*/
+	
+	// 3. validating ST ticket.
+	if ($st->service() != $service) {
+		viewAuthFailure(array('code'=>'INVALID_SERVICE',  'message'=> _("The service ").$service._(" is not valid.")));
+		// Destroy this ticket from memCache because it is not valid anyway.
+		$st->delete();
+	} 
+	
+	// If we pass here, ticket and service are validated
+	// So give back the CAS2 like token
+	$token = getServiceValidate($st->username(), $service);
+
+	// 4. destroy ST ticket because this is a one shot ticket.
+	$st->delete();
+	
+	// 5. return CAS2 like token
+	return $token;
 }
 
 
