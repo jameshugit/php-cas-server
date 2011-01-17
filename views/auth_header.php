@@ -9,7 +9,8 @@
 */
 function viewAuthHeader() {
 return "<cas:serviceResponse xmlns:cas='http://www.yale.edu/tp/cas'>\n".
-	   "	<cas:authenticationSuccess>\n";
+	   "	<cas:authenticationSuccess>\n".
+	   "		<cas:attributes>";
 }
 
 ?>

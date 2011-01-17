@@ -97,7 +97,7 @@ define('SQL_FOR_ATTRIBUTES',
                  case ui.prof_id
                     when 8 then null 
                     else ui.cls_id end "ENTEleveClasses",
-                 e.code_rne "ENTPersonStructRattachRne", 
+                 e.code_rne "ENTPersonStructRattachRNE", 
                  p.lib_men "ENTPersonProfils",
                  comptes.formate_nivclasse_for_cas(n.nom) "ENTEleveNivFormation",
                  
@@ -108,7 +108,7 @@ define('SQL_FOR_ATTRIBUTES',
                  ui.sexe "LaclasseSexe",
                  u.adr "LaclasseAdresse",
                  comptes.formate_cp(u.adr) "ENTPersonCodePostal",
-                 p.lib LaclasseProfil,
+                 p.lib "LaclasseProfil",
                  comptes.formate_nivclasse_for_cas(c.nom) "LaclasseNomClasse",
                  u.email "LaclasseEmail", 
                  ui.mail_institutionnel "LaclasseEmailAca",

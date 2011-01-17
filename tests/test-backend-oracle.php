@@ -3,6 +3,8 @@
  * Test of the oracle backend.
  */
 require_once('../config.inc.php'); 
+require_once('../views/auth_success.php'); 
+require_once('../views/auth_failure.php'); 
 //include('../lib/backend.db.oracle.php'); 
 
 echo "<h1>Oracle Backend unit tests</h1>";

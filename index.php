@@ -177,11 +177,12 @@ function login() {
 function logout() {
   require_once("views/logout.php");
 
-	/* No cookie ? No logout ! */
+	/* No cookie ? No logout ! *
   if (!array_key_exists('CASTGC',$_COOKIE)) {
 		viewError(_("You are already disconnected"));
 		return;
 	}
+*/
 
 	/* Remove TGT */
 	$tgt = new TicketGrantingTicket();
@@ -242,6 +243,9 @@ function serviceValidate() {
 	$st->delete();
 	
 	// 5. echoing CAS2 like token
+	header("Content-length: ".strlen($token));
+	header("Content-type: text/xml");
+	
 	echo $token;
 }
 
@@ -310,6 +314,10 @@ case "login" :
 case "logout" :
 	logout();
 	break;
+// Sittin' on the dock of the PT...
+case "proxyValidate" :
+case "proxyvalidate" :
+// Consider that we can handle case insensitive (great ! this is not in CAS specs.)
 case "serviceValidate" :
 case "servicevalidate" :
 	serviceValidate();
