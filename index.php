@@ -90,9 +90,11 @@ function login() {
          => present login/pass form, 
          => store initial GET parameters somewhere (service)
       */
-      // displaying login Form
+      // displaying login Form wiht a new login ticket.
+      $lt = new LoginTicket();
       viewLoginForm(array('service' => $service,
-                          'action'  => $selfurl));
+                          'action'  => $selfurl,
+                          'loginTicket' => $lt->key()));
       return;
     } else {
       /* user has no TGC but is trying to post credentials
@@ -102,9 +104,8 @@ function login() {
       */
       if (strtoupper(verifyLoginPasswordCredential($_POST['username'], $_POST['password'])) == strtoupper($_POST['username'])) {
         /* credentials ok */
-        require_once("lib/ticket.php"); 
         $ticket = new TicketGrantingTicket();
-				$ticket->create($_POST['username']);
+		$ticket->create($_POST['username']);
 
         /* send TGC */
         setcookie ("CASTGC", $ticket->key(), 0);

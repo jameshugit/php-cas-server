@@ -249,4 +249,61 @@ class ServiceTicket {
 	}
 }
 
+/** 
+ * LoginTicket class
+ * 
+ * This kind of ticket is use to provide more security on the login form.
+ * LT Tickets are one shot tickets which are generated when display login Form, and
+ * are validated when the user posts its credential.
+ * Their cycle life are very short in way to avoid reposting credentials when typing 'back' on the navigator.
+ * @note : The ticket destruction occured when it times out.
+ *
+ */
+
+class LoginTicket {
+	private $_ticket = false;
+
+	// Constructeur
+	function __construct() {
+	}
+
+	// creates a st ticket for tgt
+	public function create() {
+
+		$this->_ticket = new TicketStorage();
+		
+		$this->_ticket->key('LT' . TicketStorage::SEPARATOR . TicketStorage::getRandomString(TicketStorage::NUMERICAL, 5) . 
+												TicketStorage::SEPARATOR . 
+												TicketStorage::getRandomString(TicketStorage::ALPHABETICAL.TicketStorage::NUMERICAL, 20));
+
+		$this->_ticket->value(array($username,$service));
+		// ticket is just valid for 5 minutes
+		$this->_ticket->store(5*60);
+
+		return true;
+	}
+
+	// returns username associated to key
+	public function find($lt = false) {
+		assert($lt !== false);
+		assert(!$this->_ticket); // can only be initialized once
+		
+		//$this->_ticket = new TicketStorage();
+		//$this->_initialized = true;
+
+		return $this->_ticket->lookup($lt);
+	}
+	
+	public function key() {
+		assert($this->_ticket);
+		return $this->_ticket->key();
+	}
+	
+	public function delete() {
+		assert($this->_ticket);
+		return $this->_ticket->delete();
+	}
+
+}
+
 ?>
