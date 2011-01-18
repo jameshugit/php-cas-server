@@ -84,7 +84,6 @@ require_once("views/login.php");
 function login() {
 	global $CONFIG;
 	$selfurl = str_replace('index.php/', 'login', $_SERVER['PHP_SELF']);
-//	$service = isset($_GET['service'])? $_GET['service'] : (isset($_POST['service'])? $_POST['service'] : false);
 	$service = isset($_REQUEST['service'])? $_REQUEST['service'] : false;
 	$loginTicketPosted = isset($_REQUEST['loginTicket'])? $_REQUEST['loginTicket'] : false;
 	
