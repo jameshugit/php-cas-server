@@ -37,3 +37,14 @@ ticket-test:
 fixperms:
 	ssh root@cas-erasme.erasme.lan "chown -R www-data:www-data /var/www/cas/"
 
+trans: updatetrans
+	msgfmt locale/fr.po -o locale/fr.mo
+	msgfmt locale/en.po -o locale/en.mo
+
+newtrans:
+	xgettext *.php lib/*.php -o locale/en.pot
+	cd locale && rm -f fr.po && msginit -l fr_FR 
+
+updatetrans:
+	xgettext *.php lib/*.php -o locale/en.pot
+	msgmerge locale/fr.po locale/en.pot > locale/fr.po
