@@ -269,14 +269,14 @@ class LoginTicket {
 
 	// creates a st ticket for tgt
 	public function create() {
-
+		
 		$this->_ticket = new TicketStorage();
 		
 		$this->_ticket->key('LT' . TicketStorage::SEPARATOR . TicketStorage::getRandomString(TicketStorage::NUMERICAL, 5) . 
 												TicketStorage::SEPARATOR . 
 												TicketStorage::getRandomString(TicketStorage::ALPHABETICAL.TicketStorage::NUMERICAL, 20));
 
-		$this->_ticket->value(array($username,$service));
+		$this->_ticket->value($this->_ticket->key());
 		// ticket is just valid for 5 minutes
 		$this->_ticket->store(5*60);
 
@@ -286,10 +286,10 @@ class LoginTicket {
 	// returns username associated to key
 	public function find($lt = false) {
 		assert($lt !== false);
-		assert(!$this->_ticket); // can only be initialized once
-		
-		//$this->_ticket = new TicketStorage();
-		//$this->_initialized = true;
+		assert(!$this->_ticket); 
+		// can only be initialized once
+		$this->_ticket = new TicketStorage();
+		$this->_initialized = true;
 
 		return $this->_ticket->lookup($lt);
 	}

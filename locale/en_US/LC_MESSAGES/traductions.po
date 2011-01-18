@@ -37,6 +37,14 @@ msgstr "is not a valid."
 msgid "The service "
 msgstr "The service "
 
+msgid "The username and password you provided couldn't authenticate you."
+msgstr "The username and password you provided couldn't authenticate you."
+
+msgid "Deconnection problem"
+msgstr "Deconnection problem"
+
+msgid "Deconnection success"
+msgstr "Deconnection success"
 
 #: ticket.php
 

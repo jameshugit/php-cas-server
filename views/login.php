@@ -96,9 +96,10 @@ function viewLoginSuccess() {
 // Callback viewLoginFailure
 //------------------------------------------------------------------------------
 function viewLoginFailure($t) {
+	$msg = array_key_exists('errorMsg', $t)? $t['errorMsg'] : _("The username and password you provided couldn't authenticate you.");
 	getHeader();
 	echo '
-		<div id="status" class="errors">Les informations transmises n\'ont pas permis de vous authentifier.</div>
+		<div id="status" class="errors">'.$msg.'</div>
 ';
 	getFormLogin($t);
 	getFooter();

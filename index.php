@@ -68,9 +68,12 @@
  */ 
 
 require_once('config.inc.php');
+
 require_once('lib/functions.php');
 require_once('lib/ticket.php');
+
 require_once('views/error.php');
+require_once("views/login.php");
 
 /**
  * login
@@ -81,8 +84,10 @@ require_once('views/error.php');
 function login() {
 	global $CONFIG;
 	$selfurl = str_replace('index.php/', 'login', $_SERVER['PHP_SELF']);
-	$service = isset($_GET['service'])? $_GET['service'] : (isset($_POST['service'])? $_POST['service'] : false);
-	require_once("views/login.php");
+//	$service = isset($_GET['service'])? $_GET['service'] : (isset($_POST['service'])? $_POST['service'] : false);
+	$service = isset($_REQUEST['service'])? $_REQUEST['service'] : false;
+	$loginTicketPosted = isset($_REQUEST['loginTicket'])? $_REQUEST['loginTicket'] : false;
+	
 	
   if (!array_key_exists('CASTGC',$_COOKIE)) {     /*** user has no TGC ***/
     if (!array_key_exists('username',$_POST)) {
@@ -92,16 +97,29 @@ function login() {
       */
       // displaying login Form wiht a new login ticket.
       $lt = new LoginTicket();
+      $lt->create();
       viewLoginForm(array('service' => $service,
                           'action'  => $selfurl,
                           'loginTicket' => $lt->key()));
       return;
     } else {
       /* user has no TGC but is trying to post credentials
+      	 user should have posted a valid LoginTicket.
          => check credentials
          => send TGT
          => redirect to login
       */
+      $lt = new LoginTicket();
+      // If the login Ticket is not valid, no need to go futher : redirect to login form
+      if (!$lt->find($loginTicketPosted)) {
+      		$lt->create();
+        	viewLoginFailure(array('service' => $service,
+							   	   'action'  => $selfurl,
+							   	   'errorMsg' => _("Your sso login session has expired ! Please retry now."),
+							   	   'loginTicket' => $lt->key()));
+      		return;
+      }
+      // 
       if (strtoupper(verifyLoginPasswordCredential($_POST['username'], $_POST['password'])) == strtoupper($_POST['username'])) {
         /* credentials ok */
         $ticket = new TicketGrantingTicket();
@@ -122,7 +140,6 @@ function login() {
        => destroy TGC
        => present login form
     */
-    require_once("lib/ticket.php"); 
     if (array_key_exists('renew',$_GET) && $_GET['renew'] == 'true') {
 		$tgt = new TicketGrantingTicket();
 		$tgt->find($_COOKIE["CASTGC"]);
@@ -164,7 +181,6 @@ function login() {
     } 
     else {
       // No service, user just wanted to login to SSO
-      require_once("views/login.php");
       viewLoginSuccess();
     }
   }
