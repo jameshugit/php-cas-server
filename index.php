@@ -194,20 +194,15 @@ function login() {
 function logout() {
   require_once("views/logout.php");
 
-	/* No cookie ? No logout ! *
-  if (!array_key_exists('CASTGC',$_COOKIE)) {
-		viewError(_("You are already disconnected"));
-		return;
+  if (array_key_exists('CASTGC',$_COOKIE)) {
+		/* Remove TGT */
+		$tgt = new TicketGrantingTicket();
+		$tgt->find($_COOKIE["CASTGC"]);
+		$tgt->delete();
+
+		/* Remove cookie from client */
+		setcookie ("CASTGC", FALSE, 0);
 	}
-*/
-
-	/* Remove TGT */
-	$tgt = new TicketGrantingTicket();
-	$tgt->find($_COOKIE["CASTGC"]);
-	$tgt->delete();
-
-	/* Remove cookie from client */
-	setcookie ("CASTGC", FALSE, 0);
 
 	/* If url param is in the GET request, we send it to the view
 		 so a link can be displayed */
