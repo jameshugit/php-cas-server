@@ -296,18 +296,21 @@ if ($CONFIG['MODE'] == 'prod') {
 		die();
 }
 
-/** @todo Use the best locale for user
- * getPrefLanguageArray
- * putenv("LANG=$langage"); // On modifie la variable d'environnement
- * setlocale(LC_ALL, $langage); // On modifie les informations de localisation en fonction de la langue
-	
- * $nomDesFichiersDeLangue = 'traductions'; // Le nom de nos fichiers .mo
-	
- * bindtextdomain($nomDesFichiersDeLangue, "./locale"); // On indique le chemin vers les fichiers .mo
- * textdomain($nomDesFichiersDeLangue); // Le nom du domaine par défaut
- *
+/* Pompé sur : 
  * http://www.siteduzero.com/tutoriel-3-74650-un-site-multilingue-avec-gettext.html#ss_part_1
  */
+$lang = getPrefLanguageArray();
+
+$lang='fr';
+
+putenv("LANG=$lang"); // On modifie la variable d'environnement
+putenv("LC_ALL=$lang"); // On modifie la variable d'environnement
+setlocale(LC_ALL, $lang); // On modifie les informations de localisation en fonction de la langue
+
+$langfiles = 'translations'; // Le nom de nos fichiers .mo
+	
+bindtextdomain($langfiles, "./locale"); // On indique le chemin vers les fichiers .mo
+textdomain($langfiles); // Le nom du domaine par défaut
 
 
 /* Merging GET & POST so lookups are easier */

@@ -82,6 +82,8 @@ function getServiceIndex($pService) {
  * @returns ordered array of languages
  */
 function getPrefLanguageArray() {
+	if (!array_key_exists('HTTP_ACCEPT_LANGUAGE', $_SERVER)) return;
+
   $langs = explode(',', $_SERVER["HTTP_ACCEPT_LANGUAGE"]);
   $qcandidat = 0;
   $nblang = count($langs);

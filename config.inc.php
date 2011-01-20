@@ -31,7 +31,7 @@ $CONFIG['MEMCACHED_SERVERS'] = array(array('localhost', 11211));
 
 
 //------------------------------------------------------------------------------
-// Services autorisÃ©s Ã  s'authentifier avec le service CAS.
+// Services autorisés à s'authentifier avec le service CAS.
 //------------------------------------------------------------------------------
 /** Site allowed to use this CAS server for authentication
  * @param AUTHORIZED_SITES Array of authorized sites. Each authorized site is itself an associative array

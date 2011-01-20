@@ -38,13 +38,15 @@ fixperms:
 	ssh root@cas-erasme.erasme.lan "chown -R www-data:www-data /var/www/cas/"
 
 trans: updatetrans
-	msgfmt locale/fr.po -o locale/fr.mo
-	msgfmt locale/en.po -o locale/en.mo
+	msgfmt locale/fr/LC_MESSAGES/translations.po -o locale/fr/LC_MESSAGES/translations.mo
+	msgfmt locale/en/LC_MESSAGES/translations.po -o locale/en/LC_MESSAGES/translations.mo
 
 newtrans:
-	xgettext *.php lib/*.php -o locale/en.pot
-	cd locale && rm -f fr.po && msginit -l fr_FR 
+	xgettext --from-code=utf-8 *.php lib/*.php -o locale/en.pot
+	cp locale/en.pot locale/en/LC_MESSAGES/translations.po
+	rm -f locale/fr/LC_MESSAGES/translations.po && cd locale && msginit -l fr_FR -o fr/LC_MESSAGES/translations.po
 
 updatetrans:
 	xgettext *.php lib/*.php -o locale/en.pot
-	msgmerge locale/fr.po locale/en.pot > locale/fr.po
+	cp locale/en.pot locale/en/LC_MESSAGES/translations.po
+	msgmerge --update --no-fuzzy-matching --backup=off locale/fr/LC_MESSAGES/translations.po locale/en.pot
