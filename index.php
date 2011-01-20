@@ -72,8 +72,10 @@ require_once('config.inc.php');
 require_once('lib/functions.php');
 require_once('lib/ticket.php');
 
-require_once('views/error.php');
+require_once("views/error.php");
 require_once("views/login.php");
+require_once("views/logout.php");
+require_once("views/auth_failure.php");
 
 /**
  * login
@@ -191,7 +193,6 @@ function login() {
  * @return void
  */
 function logout() {
-  require_once("views/logout.php");
 
 	/* No cookie ? No logout ! *
   if (!array_key_exists('CASTGC',$_COOKIE)) {
@@ -228,7 +229,6 @@ function serviceValidate() {
 	$service 	= urldecode(isset($_GET['service']) ? $_GET['service'] : "");
 	$renew 		= isset($_GET['renew']) ? $_GET['renew'] : "";
 	
-	require_once("views/auth_failure.php");
 	
 	// 1. verifying parameters ST ticket and service should not be empty.
 	if (!isset($ticket) || !isset($service)) {
@@ -265,6 +265,18 @@ function serviceValidate() {
 	echo $token;
 }
 
+/**
+	samlValidate
+	Validation of the ST ticket, with SAML
+	
+	@file
+	@author PGL pgl@erasme.org
+	@param 
+	@returns
+*/
+function samlValidate() {
+	// @todo here we have to speak SAML 1.0
+}
 
 /**
  * showError
@@ -273,7 +285,6 @@ function serviceValidate() {
  * @return void
  */
 function showError($msg) {
-	require_once("views/error.php");
 	viewError($msg);
 	return;
 }
@@ -288,14 +299,12 @@ function showError($msg) {
 */
 if ($CONFIG['MODE'] == 'prod') {
 	if (! $_SERVER['HTTPS']) {
-		require_once("views/error.php");
 		viewError(_("Error : this script can only be used with HTTPS"));
 		die();
 	}
 } else if ($CONFIG['MODE'] == 'debug') {
 		echo("<h3>DEBUG MODE ACTIVATED</h3>");
 } else if ($CONFIG['MODE'] != 'dev') {
-		require_once("views/error.php");
 		viewError(_("Error : unknown running mode. Must be ") . "'prod' " . _("or") . " 'dev' ". _("or") . " 'debug'.");
 		die();
 }
@@ -314,8 +323,7 @@ if ($CONFIG['MODE'] == 'prod') {
  */
 
 
-/* Merging GET & POST so lookups are easier */
-$action = array_key_exists('action', $_GET) ? $_GET['action'] : (array_key_exists('action', $_POST) ? $_POST['action'] : "");
+$action = array_key_exists('action', $_REQUEST) ? $_REQUEST['action'] : "";
 
 if ($action == "") {
 	showError(_("Action not set"));
@@ -337,6 +345,15 @@ case "proxyvalidate" :
 case "serviceValidate" :
 case "servicevalidate" :
 	serviceValidate();
+	break;
+// Consider that we can handle case insensitive (great ! this is not in CAS specs.)
+case "samlValidate" :
+case "samlvalidate" :
+	samlValidate();
+	break;
+case "infos" : 
+	echo gettext("Unknown action").'<br>';
+	echo _("Unknown action");
 	break;
 default :
 	showError(_("Unknown action"));

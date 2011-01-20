@@ -59,6 +59,10 @@ $CONFIG['AUTHORIZED_SITES'] = array(
 					'url'  				=>  '*://*blogs.dev.laclasse.com/*',
 					'allowedAttributes' =>  'LOGIN,ENT_id,uid,ENTPersonStructRattach,ENTEleveClasses,ENTPersonStructRattachRNE,ENTPersonProfils,ENTEleveNivFormation,LaclasseNom,LaclassePrenom,LaclasseDateNais,LaclasseCivilite,LaclasseSexe,LaclasseProfil,LaclasseNomClasse,LaclasseEmail,LaclasseEmailAca'),
 			
+			array(	'sitename'  		=>  'Passerelle vers Pronote',
+					'url'  				=>  '*://*cas.erasme.lan/PronoteCAS2010/*',
+					'allowedAttributes' =>  'LOGIN,ENT_id,uid,ENTPersonStructRattach,ENTEleveClasses,ENTPersonStructRattachRNE,ENTPersonProfils,ENTEleveNivFormation,LaclasseNom,LaclassePrenom,LaclasseDateNais,LaclasseCivilite,LaclasseSexe,LaclasseProfil,LaclasseNomClasse,LaclasseEmail,LaclasseEmailAca'),
+			
 			array(	'sitename'  		=>  'Plateforme_Laclasse.com',
 					'url'  				=>  '*://*.laclasse.com/pls/education/!page.*',
 					'allowedAttributes' =>  'LOGIN,ENT_id,uid, ENTPersonStructRattach,ENTEleveClasses,ENTPersonStructRattachRNE,ENTPersonProfils,ENTEleveNivFormation'),
