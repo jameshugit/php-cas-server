@@ -38,15 +38,17 @@ fixperms:
 	ssh root@cas-erasme.erasme.lan "chown -R www-data:www-data /var/www/cas/"
 
 trans: updatetrans
-	msgfmt locale/fr/LC_MESSAGES/translations.po -o locale/fr/LC_MESSAGES/translations.mo
-	msgfmt locale/en/LC_MESSAGES/translations.po -o locale/en/LC_MESSAGES/translations.mo
+	msgfmt locale/fr_FR/LC_MESSAGES/translations.po -o locale/fr_FR/LC_MESSAGES/translations.mo
+	msgfmt locale/en_US/LC_MESSAGES/translations.po -o locale/en_US/LC_MESSAGES/translations.mo
 
 newtrans:
 	xgettext --from-code=utf-8 *.php lib/*.php -o locale/en.pot
-	cp locale/en.pot locale/en/LC_MESSAGES/translations.po
-	rm -f locale/fr/LC_MESSAGES/translations.po && cd locale && msginit -l fr_FR -o fr/LC_MESSAGES/translations.po
+	sed -e 's/CHARSET/UTF-8/' <  locale/en.pot > locale/en.pot.save && mv locale/en.pot.save locale/en.pot
+	cp locale/en.pot locale/en_US/LC_MESSAGES/translations.po
+	rm -f locale/fr_FR/LC_MESSAGES/translations.po && cd locale && msginit -l fr_FR -o fr_FR/LC_MESSAGES/translations.po
 
 updatetrans:
 	xgettext *.php lib/*.php -o locale/en.pot
-	cp locale/en.pot locale/en/LC_MESSAGES/translations.po
-	msgmerge --update --no-fuzzy-matching --backup=off locale/fr/LC_MESSAGES/translations.po locale/en.pot
+	sed -e 's/CHARSET/UTF-8/' < locale/en.pot > locale/en.pot.save && mv locale/en.pot.save locale/en.pot
+	cp locale/en.pot locale/en_US/LC_MESSAGES/translations.po
+	msgmerge --update --no-fuzzy-matching --backup=off locale/fr_FR/LC_MESSAGES/translations.po locale/en.pot
