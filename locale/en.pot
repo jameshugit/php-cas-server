@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-20 17:37+0100\n"
+"POT-Creation-Date: 2011-01-21 14:28+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,11 +17,11 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: index.php:117
+#: index.php:119
 msgid "Your sso login session has expired ! Please retry now."
 msgstr ""
 
-#: index.php:170
+#: index.php:172
 msgid "This application is not allowed to authenticate on this server"
 msgstr ""
 
@@ -41,26 +41,26 @@ msgstr ""
 msgid " is not valid."
 msgstr ""
 
-#: index.php:287
+#: index.php:297
 msgid "Error : this script can only be used with HTTPS"
 msgstr ""
 
-#: index.php:294
+#: index.php:303
 msgid "Error : unknown running mode. Must be "
 msgstr ""
 
-#: index.php:294
+#: index.php:303
 msgid "or"
 msgstr ""
 
-#: index.php:319
+#: index.php:312
 msgid "Action not set"
 msgstr ""
 
-#: index.php:340
+#: index.php:338 index.php:339 index.php:342
 msgid "Unknown action"
 msgstr ""
 
-#: lib/ticket.php:110
+#: lib/ticket.php:163
 msgid "Unable to store TGT to database, error "
 msgstr ""

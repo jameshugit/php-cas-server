@@ -25,8 +25,16 @@ lang:
 
 publish: send fixperms
 
+www4: sendwww4 fixpermswww4
+
 send:
 	rsync -avz . root@cas-erasme.erasme.lan:/var/www/cas/ --exclude .git --exclude .gitignore --exclude doc/
+
+sendwww4:
+	rsync -avz . root@www4.erasme.org:/var/www/cas/ --exclude .git --exclude .gitignore --exclude doc/
+
+fixpermswww4:
+	ssh root@www4.erasme.org "chown -R www-data:www-data /var/www/cas/"
 
 mbtest: ticket-test fixperms
 
