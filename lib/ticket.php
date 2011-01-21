@@ -4,12 +4,18 @@
  * @file ticket.php 
  * ST and TGT handling classes
  */
+ 
 
 /** 
  * Ticket class
  */
 
 final class TicketStorage {
+	/**
+	 * MemCache Object for ticket storage.
+	 */
+	 protected $_cache = false;
+	 
 	/**
 	 * The ticket key related to the key
 	 */	
@@ -19,7 +25,17 @@ final class TicketStorage {
 	 * The value associated to the key, here, a username
 	 */	
 	protected $_value = false;
-
+	
+	/**
+	 * The prefix associated to the ticket. This can be ST, TGT, LT, ...
+	 */	
+	protected $_prefix = false;
+		
+	/**
+	 * The memcahce object storing the ticket counter
+	 */	
+	protected $_ticket_counter = false;
+		
 	/**
 	 * @defgroup Constants Character classes for key generation
 	 * @{
@@ -37,16 +53,31 @@ final class TicketStorage {
 	/**
 	 * @}
 	 */
+	 
+	 protected function addCounter() {
+		// If counter does not exist, then create one
+		if (!$this->_cache->get("ST_COUNTER")) {
+			$this->_cache->set("ST_COUNTER", 0);
+		}
+		$this->_ticket_counter = $this->_cache;
+	 }
+	 
+	 // reads and increments ticket counter
+	 protected function readCounter() {
+		$counterValue = $this->_cache->get("ST_COUNTER");
+		$this->_cache->increment("ST_COUNTER", 1);
+		return $counterValue;
+	 }
 
 	/**
 	 * Constructor
 	 * @param $username Username the ticket will be created for. 
 	 *   If this ticket is created just for look up, username should not be provided
 	 */
-	function __construct() {
+	function __construct($prefix = false) {
 		global $CONFIG;
-		//$this->_prefix = $prefix;
-		$this->_key =	$this->_value = false;
+		$this->_prefix = $prefix;
+		$this->_key = $this->_value = false;
 
 		/** Create Memcached instance **/
 		$this->_cache = new Memcached();
@@ -58,6 +89,35 @@ final class TicketStorage {
 		//			var_dump($this->_cache);
 	}
 
+	/**
+		Create a new ticket.
+		
+		@file
+		@author PGL pgl@erasme.org
+		@param $alphaLength Desired Lenght of the alphanumerical part.
+		@param $value value for the ticket.
+		@param $timout validity timeout for the ticket.
+		@returns void
+	*/
+	public function create($alphaLength, $value, $timout) {
+		/** Create a Ticket Counter if necessary. */
+		$this->addCounter();
+		
+		// defining a counter for ServiceTicket type
+		if ($this->_prefix == 'ST') $number = $this->readCounter();
+		else $number = self::getRandomString(self::NUMERICAL, 5);
+		
+		$this->key($this->_prefix . self::SEPARATOR . 
+					$number . 
+					self::SEPARATOR . 
+					self::getRandomString(self::ALPHABETICAL.self::NUMERICAL, $alphaLength));
+		// value
+		$this->value($value);
+		// Storing this ticket.
+		$this->store($timout);
+	}
+	
+	
 	/** accessors */
 	public function key($key = false) {
 		if ($key)
@@ -72,17 +132,14 @@ final class TicketStorage {
 
 		return $this->_value;
 	}
-
+	
 	/**
 	 * Delete ticket from storage
 	 */
 	public function delete() {
-		global $CONFIG;
 		if ($this->_value !== false) {
-			$retval = $this->_cache->delete("SSO-".$this->_key);
+			$retval = $this->_cache->delete("SSO". self::SEPARATOR. $this->_key);
 			$this->_key = $this->_value = false;
-			if ($CONFIG['MODE'] == 'debug')
-				echo ".>d<.";
 			return $retval;
 		}
 		return false;
@@ -101,30 +158,27 @@ final class TicketStorage {
 	
 
 	public function store($duration = 300) {
-		global $CONFIG;
 		// TODO : assert $_value & $_username are ok
-		if ($CONFIG['MODE'] == 'debug') 
-			echo ".>s<.";
-
-		if (! $this->_cache->set("SSO-".$this->_key, $this->_value)) {
+		if (! $this->_cache->set("SSO" . self::SEPARATOR. $this->_key, $this->_value)) {
 			echo _("Unable to store TGT to database, error ") . $this->_cache->getResultCode() . "(" . $this->_cache->getResultMessage() . ")";
 			exit;			
 		}
 	}
 	
 	public function lookup($key) {
-		global $CONFIG;
-		if ($CONFIG['MODE'] == 'debug')
-			echo ".>l<.";
 		// @todo : assert $_value is ok
-		$object = $this->_cache->get("SSO-".$key);
+		$object = $this->_cache->get("SSO". self::SEPARATOR. $key);
 		if ($object !== false) {
 			$this->_key = $key;
 			$this->_value = $object;
 			return true;
-		} else {
-			return false;
-		}
+		} 
+		return false;
+	}
+	
+	public function resetCounter() {
+		assert($this->_cache);
+		$this->_cache->set("ST_COUNTER", 0);
 	}
 }
 
@@ -133,8 +187,6 @@ final class TicketStorage {
  */
 
 class TicketGrantingTicket {
-	const PREFIX = 'TGT';
-
 	private $_ticket = false;
 
 	// Constructeur
@@ -143,18 +195,13 @@ class TicketGrantingTicket {
 
 	// creates a ticket for username
 	public function create($username = false) {
+		global $CONFIG;
 		assert($username != false);
 		assert(!$this->_ticket); // can only be initialized once
 		assert(strlen($username)> 0);
 
 		$this->_ticket = new TicketStorage('TGT');
-		
-		$this->_ticket->key('TGT' . TicketStorage::SEPARATOR . TicketStorage::getRandomString(TicketStorage::NUMERICAL, 6) . 
-												TicketStorage::SEPARATOR . TicketStorage::getRandomString(TicketStorage::ALPHABETICAL.TicketStorage::NUMERICAL, 50));
-
-		$this->_ticket->value($username);
-		$this->_ticket->store(8*60*60);
-
+		$this->_ticket->create(50, $username, $CONFIG['TGT_TIMOUT'] );
 		return true;
 	}
 
@@ -191,26 +238,21 @@ class TicketGrantingTicket {
 
 class ServiceTicket {
 	private $_ticket = false;
-
+	
 	// Constructeur
 	function __construct() {
 	}
 
 	// creates a st ticket for tgt
 	public function create($tgt = false, $service = false, $username = false) {
+		global $CONFIG;
 		assert($tgt && $service && $username);
 		assert(!$this->_ticket); // can only be initialized once
 		assert(strlen($tgt) * strlen($service) * strlen($username));
 
-		$this->_ticket = new TicketStorage();
-		
-		$this->_ticket->key('ST' . TicketStorage::SEPARATOR . TicketStorage::getRandomString(TicketStorage::NUMERICAL, 5) . 
-												TicketStorage::SEPARATOR . 
-												TicketStorage::getRandomString(TicketStorage::ALPHABETICAL.TicketStorage::NUMERICAL, 20));
 
-		$this->_ticket->value(array($username,$service));
-		$this->_ticket->store(8*60*60);
-
+		$this->_ticket = new TicketStorage('ST');		
+		$this->_ticket->create(20, array($username,$service), $CONFIG['ST_TIMOUT'] );
 		return true;
 	}
 
@@ -247,6 +289,11 @@ class ServiceTicket {
 		assert($this->_ticket);
 		return $this->_ticket->delete();
 	}
+	
+	public function resetCounter() {
+		assert($this->_ticket);
+		$this->_ticket->resetCounter();
+	}
 }
 
 /** 
@@ -269,17 +316,9 @@ class LoginTicket {
 
 	// creates a st ticket for tgt
 	public function create() {
-		
-		$this->_ticket = new TicketStorage();
-		
-		$this->_ticket->key('LT' . TicketStorage::SEPARATOR . TicketStorage::getRandomString(TicketStorage::NUMERICAL, 5) . 
-												TicketStorage::SEPARATOR . 
-												TicketStorage::getRandomString(TicketStorage::ALPHABETICAL.TicketStorage::NUMERICAL, 20));
-
-		$this->_ticket->value($this->_ticket->key());
-		// ticket is just valid for 5 minutes
-		$this->_ticket->store(5*60);
-
+		global $CONFIG;
+		$this->_ticket = new TicketStorage('LT');
+		$this->_ticket->create(20, "LOGIN-TICKET", $CONFIG['LT_TIMOUT']);
 		return true;
 	}
 

@@ -29,6 +29,18 @@ $CONFIG['CAS_VERSION'] = '2.0';
  */
 $CONFIG['MEMCACHED_SERVERS'] = array(array('localhost', 11211));
 
+/**
+	Timeout in second for each kind of ticket
+	LT for LoginTicket : The timeout shouldbe very short. It should not be over 5 minutes.
+	ST for ServiceTicket : Could be short too because it  is a one shot ticket tha have to 
+						   be validated : 5 minutes for example
+	ST for TicketGrantingTicket : Could be long : 8 hours for example
+*/
+
+$CONFIG['LT_TIMOUT']  = 5*60;
+$CONFIG['ST_TIMOUT']  = 5*60;
+$CONFIG['TGT_TIMOUT'] = 8*60*60;
+
 
 //------------------------------------------------------------------------------
 // Services autorisés à s'authentifier avec le service CAS.
