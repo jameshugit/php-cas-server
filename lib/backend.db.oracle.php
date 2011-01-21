@@ -191,4 +191,19 @@ function getServiceValidate($login, $service) {
 	return viewAuthSuccess($attributes);
 }
 
+/**
+	getSamlValidate
+	
+	Implementation of SAML validation
+	
+	@file backend.db.oracle.php
+	@author PGL pgl@erasme.org
+	@param 
+	@returns String : the SAML response
+*/
+function getSamlValidate($login, $service) {
+	print_r ($_REQUEST);
+	return null;
+}
+
 ?>
