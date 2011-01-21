@@ -26,10 +26,10 @@ function matchString($str, $model){
  */
 
 function __($text) {
-	echo "before : $text" . "<br/>";
+	/*echo "before : $text" . "<br/>";
 	echo "trans : " . _($text) . "<br/>";
 	echo "escaped : " . htmlentities(_($text)) . "<br/>";
-
+	*/
 	return htmlentities(_($text));
 }
 
