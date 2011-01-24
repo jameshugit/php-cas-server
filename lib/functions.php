@@ -21,6 +21,20 @@ function matchString($str, $model){
 */
 
 /**
+ * __
+ * Specific i18n function that pass the text to html entities
+ */
+
+function __($text) {
+	/*echo "before : $text" . "<br/>";
+	echo "trans : " . _($text) . "<br/>";
+	echo "escaped : " . htmlentities(_($text)) . "<br/>";
+	*/
+	return htmlentities(_($text));
+}
+
+
+/**
  * Verifying if the requested service is autorized to request SSO. 
  
  If ok then returns true.
@@ -116,7 +130,6 @@ function getPrefLanguageArray() {
   return $resultat;
 }
 
-
 /**
 	url : rewrite the url correctly with adding '&' at the end if the url has got some parameters
 	or adding '?' if the url has no parameter.
@@ -132,4 +145,26 @@ function url($url){
 	if (isset($t['query'])) if ($t['query'] != "") return $url."&";
 	return $url.'?';
 }
+
+/**
+ * setLanguage
+ * Sets the best language according to user browser preferences
+ */
+
+function setLanguage() {
+	$lang = getPrefLanguageArray();
+	
+	$lang='fr_FR';
+	
+	putenv("LANG=$lang"); // On modifie la variable d'environnement
+	putenv("LC_ALL=$lang"); // On modifie la variable d'environnement
+	setlocale(LC_ALL, $lang); // On modifie les informations de localisation en fonction de la langue
+	setlocale(LC_MESSAGES, $lang.".utf8"); 
+	
+	$langfiles = 'translations'; // Le nom de nos fichiers .mo
+	
+	bindtextdomain($langfiles, "./locale"); // On indique le chemin vers les fichiers .mo
+	textdomain($langfiles); // Le nom du domaine par défaut
+}
+
 ?>

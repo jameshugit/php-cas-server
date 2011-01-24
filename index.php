@@ -308,27 +308,12 @@ if ($CONFIG['MODE'] == 'prod') {
 		die();
 }
 
-/* Pompé sur : 
- * http://www.siteduzero.com/tutoriel-3-74650-un-site-multilingue-avec-gettext.html#ss_part_1
- */
-$lang = getPrefLanguageArray();
-
-$lang='fr';
-
-putenv("LANG=$lang"); // On modifie la variable d'environnement
-putenv("LC_ALL=$lang"); // On modifie la variable d'environnement
-setlocale(LC_ALL, $lang); // On modifie les informations de localisation en fonction de la langue
-
-$langfiles = 'translations'; // Le nom de nos fichiers .mo
-	
-bindtextdomain($langfiles, "./locale"); // On indique le chemin vers les fichiers .mo
-textdomain($langfiles); // Le nom du domaine par défaut
-
+setLanguage();
 
 $action = array_key_exists('action', $_REQUEST) ? $_REQUEST['action'] : "";
 
 if ($action == "") {
-	showError(_("Action not set"));
+	showError(__("Action not set"));
 	die();
 }
 
