@@ -53,18 +53,7 @@ function getFormLogin($t) {
               </div>
             </div>
           </form>
-';
-/*
-          <script>
-          function submitMyCredential() {
-            //document.getElementById(\'username\').value=document.getElementById(\'username\').value.toUpperCase();
-            var u = document.getElementById(\'username\');
-            var p = document.getElementById(\'password\');
-            u.value = u.value.toUpperCase();
-            p.value = p.value.toLowerCase();
-          }
-          </script>*/
-          
+';          
 }
 
 //------------------------------------------------------------------------------

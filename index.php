@@ -271,6 +271,10 @@ function serviceValidate() {
 */
 function samlValidate() {
 	// @todo here we have to speak SAML 1.0
+	$file = 'tests/log.txt';
+	// Écrit le résultat dans le fichier
+	file_put_contents($file, "samlValidate was called !");
+
 }
 
 /**
