@@ -16,7 +16,7 @@ function viewLogoutSuccess($t) {
 	getHeader();
 	echo '
 		<div id="msg" class="success">
-			<h2>'._("D&eacute;connexion réussie").'</h2>
+			<h2>'._("D&eacute;connexion r&eacute;ussie").'</h2>
 			<p>'._('Vous vous &ecirc;tes d&eacute;connect&eacute;(e) du Service Central d\'Authentification de Laclasse.com.').'</p>
 			<p>'._('Pour des raisons de s&eacute;curit&eacute;, veuillez vous d&eacute;connecter et fermer votre navigateur lorsque vous avez fini d\'acc&eacute;der aux services authentifi&eacute;s.').'</p>
 			<p>'.$redirectMsg.'</p>
@@ -30,7 +30,7 @@ function viewLogoutSuccess($t) {
 //------------------------------------------------------------------------------
 function viewLogoutFailure() {
 	getHeader();
-	echo '<div id="status" class="errors">'._("Probl&egrave;me de déconnexion...").'.</div>';
+	echo '<div id="status" class="errors">'._("Probl&egrave;me de d&eacute;connexion...").'.</div>';
 	getFooter();
 }
 
