@@ -1,5 +1,7 @@
 <?php 
-include_once('functions.php');
+include_once(CAS_PATH.'/lib/functions.php');
+require_once(CAS_PATH.'/views/auth_success.php'); 
+require_once(CAS_PATH.'/views/auth_failure.php'); 
 
 /**
  * Functions to implement oracle connectivity backend 
@@ -155,6 +157,12 @@ function getServiceValidate($login, $service) {
 	global $CONFIG;
 	// index of the global array containing the list of autorized sites.
 	$idxOfAutorizedSiteArray = getServiceIndex($service);
+
+	// If service index is null, service is not allow to connect to our sso.
+	//if ($idxOfAutorizedSiteArray == "")
+	//	return viewAuthFailure(array('code'=> '', 
+	//								 'message'=> _('This application is not allowed to authenticate on this server')));
+	
 	// An array with the needed attributes for this service.
 	$neededAttr = explode(	",", 
 							str_replace(" ", "", 
@@ -162,16 +170,14 @@ function getServiceValidate($login, $service) {
 						);
 	$attributes = array(); // What to pass to the function that generate token
 	
-	/// @note : no need for the moment... global $CONFIG;
 	/// @note : no need for the moment... $CASversion = $CONFIG['CAS_VERSION'];
 	
-	// loading models...
-	require_once("views/auth_success.php");
 	// Adding data to the array for displaying.
 	// user attribute is requiered in any way.
 	$attributes['user'] = $login;
 	
 	// executing second SQL Statment for other attributes.
+
 	$db = _dbConnect();
 	$r = _dbExecuteSQL($db, SQL_FOR_ATTRIBUTES, array('LOGIN'=>$login));
 	_dbDisconnect($db);

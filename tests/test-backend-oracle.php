@@ -3,10 +3,10 @@
  * Test of the oracle backend.
  */
 require_once('../config.inc.php'); 
-require_once('../views/auth_success.php'); 
-require_once('../views/auth_failure.php'); 
-//include('../lib/backend.db.oracle.php'); 
+require_once(CAS_PATH.'/views/auth_success.php'); 
+require_once(CAS_PATH.'/views/auth_failure.php'); 
 
+		
 echo "<h1>Oracle Backend unit tests</h1>";
 echo "
 <a href='?test=oci'>Test oci</a>&nbsp;|&nbsp;
@@ -54,10 +54,11 @@ if (isset($_POST['plogin']) && isset($_POST['ppwd'])) {
 // Test OCI.
 //
 if ($_GET['test'] == "oci") {
-	if (isset($_POST['psql'])) $select_stmt = $_POST['psql'];
+	if (isset($_POST['psql'])) $select_stmt = str_replace("\'", "'", $_POST['psql']);
 	else $select_stmt = "select '12345' col1, 'AZERTY' col2 from dual";
 	
-	echo "
+	echo "Database name in config.inc.php is <span style='color:red;'>".BACKEND_DBNAME."</span><br/>
+	Username in config.inc.php is <span style='color:red;'>".BACKEND_DBUSER."</span><br/>
 	<form method='post'>
 	Testing an SQL statment :
 	<table>
@@ -98,10 +99,9 @@ if ($_GET['test'] == "oci") {
 if ($_GET['test'] == "token") {
 	global $CONFIG;
 	
-	echo "Here are the possible sites to test :<br/>";
 	echo "
 	<form action='?test=token' method='post'>
-	Testing an SQL statment :
+	Testing the cas2 like return token :
 	<table>
 	<tr><td>Login : </td><td><input type='text' id='plogin' name='plogin' value='".(isset($_POST['plogin'])? $_POST['plogin'] : "")."'/></td></tr>
 	<tr><td>Service : </td><td><input type='text' id='psite' name='psite' size='40' value='".(isset($_POST['psite'])? $_POST['psite'] : "http://")."'/></td></tr>

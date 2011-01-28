@@ -103,14 +103,21 @@ final class TicketStorage {
 		/** Create a Ticket Counter if necessary. */
 		$this->addCounter();
 		
+		// Default values
+		$number = self::getRandomString(self::NUMERICAL, 5);
+		$suffixString = self::getRandomString(self::ALPHABETICAL.self::NUMERICAL, $alphaLength);
 		// defining a counter for ServiceTicket type
 		if ($this->_prefix == 'ST') $number = $this->readCounter();
-		else $number = self::getRandomString(self::NUMERICAL, 5);
+		
+		if ($this->_prefix == 'LT') {
+			$number = "0";
+			$suffixString = date('ymj-his'); ////$date->getTimestamp();
+		}
 		
 		$this->key($this->_prefix . self::SEPARATOR . 
 					$number . 
 					self::SEPARATOR . 
-					self::getRandomString(self::ALPHABETICAL.self::NUMERICAL, $alphaLength));
+					$suffixString);
 		// value
 		$this->value($value);
 		// Storing this ticket.
@@ -168,12 +175,15 @@ final class TicketStorage {
 	public function lookup($key) {
 		// @todo : assert $_value is ok
 		$object = $this->_cache->get("SSO". self::SEPARATOR. $key);
-		if ($object !== false) {
+		if ($this->_cache->getResultCode() == Memcached::RES_NOTFOUND) {
+			return false;
+		}
+		else {
 			$this->_key = $key;
 			$this->_value = $object;
-			return true;
-		} 
-		return false;
+		}
+		return true;
+		 
 	}
 	
 	public function resetCounter() {
@@ -324,13 +334,14 @@ class LoginTicket {
 
 	// returns username associated to key
 	public function find($lt = false) {
-		assert($lt !== false);
-		assert(!$this->_ticket); 
+		//assert($lt !== false);
+		//assert(!$this->_ticket); 
 		// can only be initialized once
-		$this->_ticket = new TicketStorage();
+		$this->_ticket = new TicketStorage('LT');
 		$this->_initialized = true;
-
-		return $this->_ticket->lookup($lt);
+		$louqueEup = $this->_ticket->lookup($lt);
+		$this->delete();
+		return $louqueEup;
 	}
 	
 	public function key() {

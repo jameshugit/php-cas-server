@@ -7,6 +7,10 @@
  * Configuration directives for CAS server
  * @{
  */
+/** 
+	Absolute path to your CAS install directory.
+*/
+define ('CAS_PATH', '/var/www/cas');
 
 /** Server mode
  * @param MODE
@@ -68,7 +72,7 @@ $CONFIG['AUTHORIZED_SITES'] = array(
 					'allowedAttributes' =>  'nom,prenom,user,login,categories,dateNaissance,codePostal,eleveClasses'),
 			
 			array(	'sitename'  		=>  'Blogs_Wordpress_Laclasse.com',
-					'url'  				=>  '*://*blogs.dev.laclasse.com/*',
+					'url'  				=>  '*://*blogs.laclasse.com/*',
 					'allowedAttributes' =>  'LOGIN,ENT_id,uid,ENTPersonStructRattach,ENTEleveClasses,ENTPersonStructRattachRNE,ENTPersonProfils,ENTEleveNivFormation,LaclasseNom,LaclassePrenom,LaclasseDateNais,LaclasseCivilite,LaclasseSexe,LaclasseProfil,LaclasseNomClasse,LaclasseEmail,LaclasseEmailAca'),
 			
 			array(	'sitename'  		=>  'Passerelle vers Pronote',
@@ -84,6 +88,8 @@ $CONFIG['AUTHORIZED_SITES'] = array(
 /*
  * Authentication backend
  */
+ 
+include_once('lib/authentication.php');
 include_once('lib/backend.db.oracle.php');
 //include_once('lib/backend.ldap.php');
 
@@ -91,7 +97,7 @@ include_once('lib/backend.db.oracle.php');
 // Constantes de connexion au Backend.
 //------------------------------------------------------------------------------
 /** Database name */
-define('BACKEND_DBNAME', '//db.dev.laclasse.com:1521/MAQ1020');
+define('BACKEND_DBNAME', '//oracle.laclasse.com:1521/PROD1020');
 /** Database username */
 define('BACKEND_DBUSER', 'laclasse_frmwrk');
 /** Database password */

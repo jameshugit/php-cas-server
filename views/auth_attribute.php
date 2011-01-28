@@ -11,6 +11,6 @@
 	@returns a string with the name o f the attribute and its value
 */
 function viewAuthAtttribute($name, $value) {
-	return "		<cas:".$name.">".$value."</cas:".$name.">\n";
+	return "			<cas:".$name.">".$value."</cas:".$name.">\n";
 }
 ?>

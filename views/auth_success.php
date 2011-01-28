@@ -4,9 +4,9 @@
 	
 	Template for CAS2 token when authetication as successed.
 *******************************************************************************/
-require_once('auth_footer.php');
-require_once('auth_header.php');
-require_once('auth_attribute.php');
+require_once(CAS_PATH.'/views/auth_footer.php');
+require_once(CAS_PATH.'/views/auth_header.php');
+require_once(CAS_PATH.'/views/auth_attribute.php');
 
 
 /**

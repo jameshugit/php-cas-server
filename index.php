@@ -69,13 +69,13 @@
 
 require_once('config.inc.php');
 
-require_once('lib/functions.php');
-require_once('lib/ticket.php');
+require_once(CAS_PATH.'/lib/functions.php');
+require_once(CAS_PATH.'/lib/ticket.php');
 
-require_once("views/error.php");
-require_once("views/login.php");
-require_once("views/logout.php");
-require_once("views/auth_failure.php");
+require_once(CAS_PATH.'/views/error.php');
+require_once(CAS_PATH.'/views/login.php');
+require_once(CAS_PATH.'/views/logout.php');
+require_once(CAS_PATH.'/views/auth_failure.php');
 
 /**
  * login
@@ -112,14 +112,16 @@ function login() {
       */
       $lt = new LoginTicket();
       // If the login Ticket is not valid, no need to go futher : redirect to login form
+      
       if (!$lt->find($loginTicketPosted)) {
       		$lt->create();
         	viewLoginFailure(array('service' => $service,
 							   	   'action'  => $selfurl,
-							   	   'errorMsg' => _("Your sso login session has expired ! Please retry now."),
+							   	   'errorMsg' => _("La session de cette page a expir&eacute;. r&eacute;-essayez en rafra&icirc;chissant votre page."),
 							   	   'loginTicket' => $lt->key()));
       		return;
       }
+      
       // 
       if (strtoupper(verifyLoginPasswordCredential($_POST['username'], $_POST['password'])) == strtoupper($_POST['username'])) {
         /* credentials ok */
@@ -132,8 +134,17 @@ function login() {
 		header("Location: ".url($selfurl)."service=".urlencode($service)."");
       } else { 
         /* credentials failed */
+        // verify if we need a new login ticket
+        $newloginTicket = $loginTicketPosted;
+        $lt = new LoginTicket();
+		if (!$lt->find($loginTicketPosted)) {
+			$lt->create();
+			$newloginTicket = $lt->key();
+		}
+
         viewLoginFailure(array('service' => $service,
-							   'action'  => $selfurl));
+							   'action'  => $selfurl,
+							   'loginTicket' => $newloginTicket));
       }
     } 
   } else { /*** user has TGC ***/ 
@@ -169,7 +180,7 @@ function login() {
     }
     if ($service) {
 			if (!isServiceAutorized($service)) {
-				showError(_("This application is not allowed to authenticate on this server"));
+				showError(_("Cette application n'est pas autoris&eacute;e &agrave; s'authentifier sur le serveur CAS."));
 				die();
 			}
 
@@ -177,7 +188,7 @@ function login() {
       $st = new ServiceTicket();
       $st->create($tgt->key(), $service, $tgt->username());
       
- 	  // Redirecting for futher client requet for serviceValidate
+ 	  // Redirecting for futher client request for serviceValidate
 	  header("Location: ".url($service)."ticket=".$st->key()."");
     } 
     else {
@@ -253,7 +264,7 @@ function serviceValidate() {
 	// 4. destroy ST ticket because this is a one shot ticket.
 	$st->delete();
 	
-	// 5. echoing CAS2 like token
+	// 6. echoing CAS2 like token
 	header("Content-length: ".strlen($token));
 	header("Content-type: text/xml");
 	
@@ -298,13 +309,13 @@ function showError($msg) {
 */
 if ($CONFIG['MODE'] == 'prod') {
 	if (! $_SERVER['HTTPS']) {
-		viewError(_("Error : this script can only be used with HTTPS"));
+		viewError(_("Erreur : ce script ne peut &ecirc;tre appel&eacute; qu'en HTTPS."));
 		die();
 	}
 } else if ($CONFIG['MODE'] == 'debug') {
 		echo("<h3>DEBUG MODE ACTIVATED</h3>");
 } else if ($CONFIG['MODE'] != 'dev') {
-		viewError(_("Error : unknown running mode. Must be ") . "'prod' " . _("or") . " 'dev' ". _("or") . " 'debug'.");
+		viewError(_("Erreur : mode d'exécution inconnu. Les modes possibles sont ") . "'prod' " . _("ou") . " 'dev' ". _("ou") . " 'debug'.");
 		die();
 }
 
@@ -313,7 +324,7 @@ setLanguage();
 $action = array_key_exists('action', $_REQUEST) ? $_REQUEST['action'] : "";
 
 if ($action == "") {
-	showError(__("Action not set"));
+	showError(_("Aucune action trouv&eacute;e."));
 	die();
 }
 
@@ -338,12 +349,11 @@ case "samlValidate" :
 case "samlvalidate" :
 	samlValidate();
 	break;
-case "infos" : 
-	echo gettext("Unknown action").'<br>';
-	echo _("Unknown action");
+case "stats" : 
+	printMemCachedStats();
 	break;
 default :
-	showError(_("Unknown action"));
+	showError(_("Action inconnue."));
 }
 
 

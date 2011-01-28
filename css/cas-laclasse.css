@@ -133,4 +133,7 @@ a.lienss:active {
 /* static messages */
 #content #msg p {padding:0;}
 
+/* footer */
+#footer #copyleft {width:250px;}
+
 
