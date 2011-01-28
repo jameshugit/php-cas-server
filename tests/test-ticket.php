@@ -153,17 +153,6 @@ else {
 
 echo "</ol>";
 
-echo "<h2>Testing ticket removal</h2><ol>";
-
-echo "<li>Removing ticket ID $ltkey...";
-if ($lt->delete())
-	echo "...OK</li>";
-else {
-	echo "...FAILED!</li>";
-	exit();
-}
-echo "</ol>";
-
 //------------------------------------------------------------------------------------
 // Performance testing.
 //------------------------------------------------------------------------------------

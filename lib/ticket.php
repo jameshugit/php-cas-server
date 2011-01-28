@@ -109,11 +109,11 @@ final class TicketStorage {
 		// defining a counter for ServiceTicket type
 		if ($this->_prefix == 'ST') $number = $this->readCounter();
 		
-		if ($this->_prefix == 'LT') {
+/*		if ($this->_prefix == 'LT') {
 			$number = "0";
-			$suffixString = date('ymj-his'); ////$date->getTimestamp();
+			$suffixString = date('ymj-his'); 
 		}
-		
+*/		
 		$this->key($this->_prefix . self::SEPARATOR . 
 					$number . 
 					self::SEPARATOR . 

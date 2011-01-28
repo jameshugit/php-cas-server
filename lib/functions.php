@@ -72,7 +72,6 @@ function isServiceAutorized($pService){
  */
 function getServiceIndex($pService) {
 	global $CONFIG;
-	print_r($CONFIG);
 	/* Verifying the service is listed in $CONFIG['AUTHORIZED_SITES'] array. */
 		foreach($CONFIG['AUTHORIZED_SITES'] as $k => $site) {
 			$pattern  = preg_quote($CONFIG['AUTHORIZED_SITES'][$k]['url']);
