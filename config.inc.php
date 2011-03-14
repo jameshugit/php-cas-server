@@ -97,7 +97,7 @@ include_once('lib/backend.db.oracle.php');
 // Constantes de connexion au Backend.
 //------------------------------------------------------------------------------
 /** Database name */
-define('BACKEND_DBNAME', '//oracle.laclasse.com:1521/PROD1020');
+define('BACKEND_DBNAME', '//db.dev.laclasse.com:1521/MAQ1020');
 /** Database username */
 define('BACKEND_DBUSER', 'laclasse_frmwrk');
 /** Database password */
