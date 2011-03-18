@@ -207,6 +207,4 @@ function printMemCachedStats(){
         echo "<tr><td>Number of valid items removed from cache to free memory for new items.</td><td>".$status ["evictions"]."</td></tr>";
 	echo "</table>";
 }
-
-
 ?>

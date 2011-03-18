@@ -57,15 +57,15 @@ $CONFIG['TGT_TIMOUT'] = 8*60*60;
 $CONFIG['AUTHORIZED_SITES'] = array(
 			array(	'sitename'  		=>  'Partenaire_SESAMATH',
 					'url'  				=>  '*://sesamath2.sesamath.net/*',
-					'allowedAttributes' =>  'LOGIN,uid,ENTPersonStructRattach,ENTEleveClasses,ENTPersonStructRattachRNE,ENTPersonProfils,ENTEleveNivFormation'),
+					'allowedAttributes' =>  'uid,ENTPersonStructRattach,ENTEleveClasses,ENTPersonStructRattachRNE,ENTPersonProfils,ENTEleveNivFormation'),
 			
 			array(	'sitename'  		=>  'Partenaire_CNS',
 					'url'  				=>  'https://www.e-interforum.com/auth/casservice/*/aas/48/*',
-					'allowedAttributes' =>  'LOGIN,uid,ENTPersonStructRattach,ENTEleveClasses,ENTPersonStructRattachRNE,ENTPersonProfils,ENTEleveNivFormation'),
+					'allowedAttributes' =>  'uid,ENTPersonStructRattach,ENTEleveClasses,ENTPersonStructRattachRNE,ENTPersonProfils,ENTEleveNivFormation'),
 			
 			array(	'sitename'  		=>  'Partenaire_KNE',
 					'url'  				=>  '*://www.kiosque-edu.com/*',
-					'allowedAttributes' =>  'LOGIN,uid,ENTPersonStructRattach,ENTEleveClasses,ENTPersonStructRattachRNE,ENTPersonProfils,ENTEleveNivFormation'),
+					'allowedAttributes' =>  'uid,ENTPersonStructRattach,ENTEleveClasses,ENTPersonStructRattachRNE,ENTPersonProfils,ENTEleveNivFormation'),
 			
 			array(	'sitename'  		=>  'Pronote_Cas_2010',
 					'url'  				=>  '*://sso.dev.laclasse.com/PronoteCAS2010/*',
@@ -81,7 +81,7 @@ $CONFIG['AUTHORIZED_SITES'] = array(
 			
 			array(	'sitename'  		=>  'Plateforme_Laclasse.com',
 					'url'  				=>  '*://*.laclasse.com/pls/education/!page.*',
-					'allowedAttributes' =>  'LOGIN,ENT_id,uid, ENTPersonStructRattach,ENTEleveClasses,ENTPersonStructRattachRNE,ENTPersonProfils,ENTEleveNivFormation'),
+					'allowedAttributes' =>  'LOGIN,user,ENT_id,uid, ENTPersonStructRattach,ENTEleveClasses,ENTPersonStructRattachRNE,ENTPersonProfils,ENTEleveNivFormation'),
 				);
 			
 	
