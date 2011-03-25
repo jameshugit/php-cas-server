@@ -174,9 +174,8 @@ function getServiceValidate($login, $service) {
 	
 	// Adding data to the array for displaying.
 	// user attribute is requiered in any way.
-	/* Not true ! this is requiered in CAS 1.0 mode but not in other versions.
-	$attributes['user'] = $login;
-	*/
+	// this is requiered in CAS 1.0 for phpCAS Client.
+	if (in_array('user', $neededAttr)) $attributes['user'] = $login;
 	
 	// executing second SQL Statment for other attributes.
 
