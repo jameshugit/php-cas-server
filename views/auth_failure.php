@@ -14,7 +14,7 @@
 	@returns
 */
 function viewAuthFailure($t){
-	echo "<cas:serviceResponse xmlns:cas='http://www.yale.edu/tp/cas'>
+	echo 	"<cas:serviceResponse xmlns:cas='http://www.yale.edu/tp/cas'>
     <cas:authenticationFailure code=\"".$t['code']."\">
         ".$t['message']."
     </cas:authenticationFailure>

@@ -272,6 +272,22 @@ function serviceValidate() {
 }
 
 /**
+	proxyValidate
+	Validation of the ST ticket, with proxy features
+	
+	@file
+	@author PGL pgl@erasme.org
+	@param 
+	@returns
+*/
+function proxyValidate() {
+	// @todo to be implemented if needed. I don't really thing it is neccesary ???
+	echo "proxyValidate is not implemented yet !";
+	die();
+
+}
+
+/**
 	samlValidate
 	Validation of the ST ticket, with SAML
 	
