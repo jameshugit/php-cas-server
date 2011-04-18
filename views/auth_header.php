@@ -10,8 +10,8 @@
 function viewAuthHeader() {
 return "<?xml version='1.0' encoding='ISO-8859-1'?>\n". 
 	   "<cas:serviceResponse xmlns:cas='http://www.yale.edu/tp/cas'>\n".
-	   "	<cas:authenticationSuccess>\n".
-	   "		<cas:attributes>\n";
+	   "	<cas:authenticationSuccess>\n";
+//	   "		<cas:attributes>\n";
 }
 
 ?>
