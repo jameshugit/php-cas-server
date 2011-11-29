@@ -7,6 +7,33 @@ require_once(CAS_PATH.'/views/footer.php');
 require_once(CAS_PATH.'/views/header.php');
 
 //------------------------------------------------------------------------------
+// Callback getNewsList : displays news on login form
+//------------------------------------------------------------------------------
+function getNewsList($t) {
+	global $CONFIG;
+	$cache=false;
+	/** Create Memcached instance **/
+	$cache = new Rediska();
+
+  foreach ($CONFIG['REDIS_SERVERS'] as $srvary) {
+    $cache->addServer($srvary[0], $srvary[1]);
+  }
+
+	$news = $cache->get("SSO-LAST_NEWS");
+	if ($news != "0" && $news) {
+		echo '
+		<div id="newsbox">
+			<div id="tweet">'.htmlentities($news).'</div>
+			<div id="followus">'._('Suivez-nous sur').' <b><a href="https://twitter.com/'.str_replace('@', '', $CONFIG['TWITTER_ACCOUNT']).'">'.$CONFIG['TWITTER_ACCOUNT'].'</b></a></div>
+		</div>
+		<script>
+		//(elId, sr, sg, sb, er, eg, eb, step, current, speed)
+		if(getRef("tweet")) fade("tweet", 252,237,49, 255,255,255, 100,1,10);
+		</script>';
+	}
+}
+
+//------------------------------------------------------------------------------
 // Callback getFormLogin
 //------------------------------------------------------------------------------
 function getFormLogin($t) {
@@ -14,7 +41,8 @@ function getFormLogin($t) {
 	$service = urldecode($t["service"]);
 	$lt = $t["loginTicket"];
 	//onsubmit="submitMyCredential();"
-	echo '<form id="fm1" class="fm-v clearfix" method="post" action="'.$actionForm.'"> 
+	echo '<div id="mire">
+			<form id="fm1" class="fm-v clearfix" method="post" action="'.$actionForm.'"> 
 	
             <input type="hidden" name="action" value="login"/>
             <input type="hidden" name="service" value="'.$service.'"/>
@@ -53,6 +81,7 @@ function getFormLogin($t) {
               </div>
             </div>
           </form>
+        </div>
 ';          
 }
 
@@ -62,6 +91,7 @@ function getFormLogin($t) {
 function viewLoginForm($t) {
 	
 	getHeader();
+	getNewsList($t);
 	getFormLogin($t);
 	getFooter();
 }
@@ -72,11 +102,13 @@ function viewLoginForm($t) {
 function viewLoginSuccess() {
 	getHeader();
 	echo '
+	<div id="mire">
 		<div id="msg" class="success">
 			<h2>'._('Connexion r&eacute;ussie').'</h2>
 			<p>'._('Vous vous &ecirc;tes authentifi&eacute;(e) aupr&egrave;s du Service Central d\'Authentification.').'</p>
 			<p>'._('Pour des raisons de s&eacute;curit&eacute;, veuillez vous d&eacute;connecter et fermer votre navigateur lorsque vous avez fini d\'acc&eacute;der aux services authentifi&eacute;s.').'</p>
 		</div>
+	</div>
 ';
 	getFooter();
 }
@@ -87,7 +119,10 @@ function viewLoginSuccess() {
 function viewLoginFailure($t) {
 	$msg = array_key_exists('errorMsg', $t)? $t['errorMsg'] : _("Les informations transmises n'ont pas permis de vous authentifier.");
 	getHeader();
-	echo "<div id='status' class='errors'>".$msg."</div>\n";
+	echo '
+	<div id="mire">
+		<div id="status" class="errors">".$msg."</div>
+	</div>';
 	getFormLogin($t);
 	getFooter();
 }

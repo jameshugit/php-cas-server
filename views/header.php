@@ -18,7 +18,6 @@ function getHeader(){
     <body id="cas" onload="init();">
       <div id="page">
         <h1 id="app-name">'._('Service d\'Authentification Central de laclasse.com').'</h1>
-                <div id="mire">
 ';
 }
 ?>
