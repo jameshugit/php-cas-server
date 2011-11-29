@@ -13,8 +13,12 @@ function getNewsList($t) {
 	global $CONFIG;
 	$cache=false;
 	/** Create Memcached instance **/
-	$cache = new Memcached();
-	$cache->addServers($CONFIG['MEMCACHED_SERVERS']);
+	$cache = new Rediska();
+
+  foreach ($CONFIG['REDIS_SERVERS'] as $srvary) {
+    $cache->addServer($srvary[0], $srvary[1]);
+  }
+
 	$news = $cache->get("SSO-LAST_NEWS");
 	if ($news != "0" && $news) {
 		echo '
