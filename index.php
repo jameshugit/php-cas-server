@@ -363,7 +363,9 @@ case "servicevalidate" :
 // Consider that we can handle case insensitive (great ! this is not in CAS specs.)
 case "samlValidate" :
 case "samlvalidate" :
-	samlValidate();
+	file_put_contents('/var/www/cas/log/logSaml.log', "Ici");
+	//samlValidate();
+	
 	break;
 case "stats" : 
 	printMemCachedStats();

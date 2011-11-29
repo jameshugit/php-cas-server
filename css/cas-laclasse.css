@@ -69,6 +69,35 @@ a.lienss:active {
 	line-height:20px;
 	padding:5px;
 }
+
+#cas #page #newsbox {
+		position:absolute;
+		top:250px;
+		left:40px;
+		width: 334px;
+		height:125px;
+		margin-top:10px;
+		background-image:url(../images/philactere.png);
+		background-repeat:no-repeat;
+		background-color:#059EE1;
+	}
+	
+#cas #page #newsbox #tweet {
+		position:absolute;
+		top:50px;
+		left:10px;
+		width: 310px;
+		height:45px;
+	}
+	
+#cas #page #newsbox #followus {
+		position:absolute;
+		top:95px;
+		left:10px;
+		width: 310px;
+		height:15px;
+		text-align: right;
+}
  #cas #mire {
 	position:relative;
 	color:#000;
@@ -83,6 +112,7 @@ a.lienss:active {
 	width:260px;
 	padding:5px;
 }
+
 
  #cas #login h2 {padding:10px 0; font:bold 12px arial; color:#333;}
             #cas #login label {font-size:11px; width:100px; display:block; float:left;text-align:right;}
