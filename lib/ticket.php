@@ -167,7 +167,7 @@ final class TicketStorage {
 	public function store($duration = 300) {
 		// TODO : assert $_value & $_username are ok
 		try {
-      $this->_cache->set("SSO" . self::SEPARATOR. $this->_key, $this->_value))
+      $this->_cache->set("SSO" . self::SEPARATOR. $this->_key, $this->_value);
     } catch(Rediska8Exception $e) {
 			echo _("Unable to store TGT to database, error ") . $e->getCode() . "(" . $e->getMessage() . ")";
 			exit;			
