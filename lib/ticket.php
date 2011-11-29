@@ -5,6 +5,7 @@
  * ST and TGT handling classes
  */
  
+require_once 'Rediska.php';
 
 /** 
  * Ticket class
@@ -57,8 +58,9 @@ final class TicketStorage {
 	 protected function addCounter() {
 		// If counter does not exist, then create one
 		if (!$this->_cache->get("ST_COUNTER")) {
-			$this->_cache->set("ST_COUNTER", 0);
+			$this->_cache->setAndExpire("ST_COUNTER", 0);
 		}
+
 		$this->_ticket_counter = $this->_cache;
 	 }
 	 
@@ -79,14 +81,12 @@ final class TicketStorage {
 		$this->_prefix = $prefix;
 		$this->_key = $this->_value = false;
 
-		/** Create Memcached instance **/
-		$this->_cache = new Memcached();
-		$this->_cache->addServers($CONFIG['MEMCACHED_SERVERS']);
+		/** Create Rediska instance **/
+		$this->_cache = new Rediska();
 
-		/** @warning Persistant Memcached instance cause apache process to core dump
-		 * so cache object is actually created from scratch everytime
-		 */
-		//			var_dump($this->_cache);
+    foreach ($CONFIG['REDIS_SERVERS'] as $srvary) {
+  		$this->_cache->addServer($srvary[0], $srvary[1]);
+    }
 	}
 
 	/**
@@ -166,8 +166,10 @@ final class TicketStorage {
 
 	public function store($duration = 300) {
 		// TODO : assert $_value & $_username are ok
-		if (! $this->_cache->set("SSO" . self::SEPARATOR. $this->_key, $this->_value)) {
-			echo _("Unable to store TGT to database, error ") . $this->_cache->getResultCode() . "(" . $this->_cache->getResultMessage() . ")";
+		try {
+      $this->_cache->set("SSO" . self::SEPARATOR. $this->_key, $this->_value);
+    } catch(Rediska8Exception $e) {
+			echo _("Unable to store TGT to database, error ") . $e->getCode() . "(" . $e->getMessage() . ")";
 			exit;			
 		}
 	}
