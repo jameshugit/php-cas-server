@@ -5,6 +5,7 @@
  * ST and TGT handling classes
  */
  
+require_once 'Rediska.php';
 
 /** 
  * Ticket class
