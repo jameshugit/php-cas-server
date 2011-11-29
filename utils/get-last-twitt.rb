@@ -92,5 +92,4 @@ dc = Redis.new
 dc.set 'SSO-LAST_NEWS', text.to_json
 dc.expire('SSO-LAST_NEWS', 15*86400)
 
-puts dc.get 'SSO-LAST_NEWS'
 
