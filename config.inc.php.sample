@@ -45,6 +45,13 @@ $CONFIG['LT_TIMOUT']  = 4*60;
 $CONFIG['ST_TIMOUT']  = 4*60;
 $CONFIG['TGT_TIMOUT'] = 8*60*60;
 
+/**
+	See if we have to display news on the authentication form	
+	The news are feeded by a twitter account
+*/
+$CONFIG['DISPLAY_NEWS'] = true;
+$CONFIG['TWITTER_ACCOUNT'] = '@Some twitter account tha you want to display';
+$CONFIG['TWITTER_HASHTAG'] = '#Hash tag that filters data to display';
 
 //------------------------------------------------------------------------------
 // Services autorisés à s'authentifier avec le service CAS.
