@@ -57,8 +57,9 @@ final class TicketStorage {
 	 protected function addCounter() {
 		// If counter does not exist, then create one
 		if (!$this->_cache->get("ST_COUNTER")) {
-			$this->_cache->set("ST_COUNTER", 0);
+			$this->_cache->setAndExpire("ST_COUNTER", 0);
 		}
+
 		$this->_ticket_counter = $this->_cache;
 	 }
 	 
@@ -79,14 +80,12 @@ final class TicketStorage {
 		$this->_prefix = $prefix;
 		$this->_key = $this->_value = false;
 
-		/** Create Memcached instance **/
-		$this->_cache = new Memcached();
-		$this->_cache->addServers($CONFIG['MEMCACHED_SERVERS']);
+		/** Create Rediska instance **/
+		$this->_cache = new Rediska();
 
-		/** @warning Persistant Memcached instance cause apache process to core dump
-		 * so cache object is actually created from scratch everytime
-		 */
-		//			var_dump($this->_cache);
+    foreach ($CONFIG['REDIS_SERVERS'] as $srvary) {
+  		$this->_cache->addServer($srvary[0], $srvary[1]);
+    }
 	}
 
 	/**
