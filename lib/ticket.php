@@ -168,7 +168,7 @@ final class TicketStorage {
 		// TODO : assert $_value & $_username are ok
 		try {
       $this->_cache->set("SSO" . self::SEPARATOR. $this->_key, $this->_value);
-    } catch(Rediska8Exception $e) {
+    } catch(Rediska_Exception $e) {
 			echo _("Unable to store TGT to database, error ") . $e->getCode() . "(" . $e->getMessage() . ")";
 			exit;			
 		}
@@ -176,14 +176,13 @@ final class TicketStorage {
 	
 	public function lookup($key) {
 		// @todo : assert $_value is ok
+    try {
 		$object = $this->_cache->get("SSO". self::SEPARATOR. $key);
-		if ($this->_cache->getResultCode() == Memcached::RES_NOTFOUND) {
+    } catch (Rediska_Exception $e) {
 			return false;
 		}
-		else {
-			$this->_key = $key;
-			$this->_value = $object;
-		}
+    $this->_key = $key;
+    $this->_value = $object;
 		return true;
 		 
 	}
