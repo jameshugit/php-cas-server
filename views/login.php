@@ -19,7 +19,7 @@ function getNewsList($t) {
 	    $cache->addServer($srvary[0], $srvary[1]);
 	}
 
-	$news = utf8_decode($cache->get("SSO-LAST_NEWS"));
+	$news = str_replace($CONFIG['TWITTER_HASHTAG'], '', utf8_decode($cache->get("SSO-LAST_NEWS")));
 	
 	if ($news != "0" && $news) {
 		echo '
