@@ -13,10 +13,10 @@
 # Deploying :
 #
 # adduser twitter
+# apt-get install libreadline-dev
 # su - twitter
 # bash < <(curl -s https://raw.github.com/wayneeseguin/rvm/master/binscripts/rvm-installer)
 # source ~/.bashrc
-# apt-get install libreadline-dev
 # rvm pkg install readline
 # rvm install ruby-1.9.3
 # rvm use 1.9.3@twitter --create --default
