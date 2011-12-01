@@ -15,11 +15,12 @@ function getNewsList($t) {
 	/** Create Memcached instance **/
 	$cache = new Rediska();
 
-  foreach ($CONFIG['REDIS_SERVERS'] as $srvary) {
-    $cache->addServer($srvary[0], $srvary[1]);
-  }
+	foreach ($CONFIG['REDIS_SERVERS'] as $srvary) {
+	    $cache->addServer($srvary[0], $srvary[1]);
+	}
 
-	$news = $cache->get("SSO-LAST_NEWS");
+	$news = utf8_decode($cache->get("SSO-LAST_NEWS"));
+	
 	if ($news != "0" && $news) {
 		echo '
 		<div id="newsbox">
