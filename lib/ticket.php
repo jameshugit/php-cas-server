@@ -58,7 +58,7 @@ final class TicketStorage {
 	 protected function addCounter() {
 		// If counter does not exist, then create one
 		if (!$this->_cache->get("ST_COUNTER")) {
-			$this->_cache->setAndExpire("ST_COUNTER", 0);
+			$this->_cache->set("ST_COUNTER", 0);
 		}
 
 		$this->_ticket_counter = $this->_cache;
