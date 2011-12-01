@@ -33,6 +33,16 @@ $CONFIG['CAS_VERSION'] = '2.0';
  */
 $CONFIG['MEMCACHED_SERVERS'] = array(array('localhost', 11211));
 
+/** Redis server array
+ * Redis is the datastorage for versions above 1.1
+ * @param REDIS_SERVERS Array of servers. Each server is an array of (host, port).
+ * Thus, REDIS_SERVERS contains an array of arrays. It is looped over
+ * and each entry is as parameter to
+ * Rediska::addServer
+ */
+$CONFIG['REDIS_SERVERS'] = array(array('localhost', 6379));
+
+
 /**
 	Timeout in second for each kind of ticket
 	LT for LoginTicket : The timeout shouldbe very short. It should not be over 4 minutes.
