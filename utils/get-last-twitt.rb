@@ -38,6 +38,7 @@ $logger.level = Logger::ERROR
 
 user = nil
 hashtag = nil
+keyroot = nil
 
 def log_and_exit(message)
   # logs a message with ERROR level and exists app
@@ -71,7 +72,14 @@ open(ARGV[0]).each do |line|
       hashtag = line.match(".*'TWITTER_HASHTAG'.*'(.*)'")[1];
       $logger.info("found a match for TWITTER_HASHTAG : #{hashtag}")
     end
-  rescue
+
+    if line.match('REDIS_NEWS_ROOT') then
+      # we have found an interesting parameter
+      # let's grab the config value and store it in 'hashtag'
+      keyroot = line.match(".*'REDIS_NEWS_ROOT'.*'(.*)'")[1];
+      $logger.info("found a match for REDIS_NEWS_ROOT : #{keyroot}")
+    end
+   rescue
     # this is quite needed if we match a string
     # but \1 is nil
     # we handle this case below
@@ -79,7 +87,7 @@ open(ARGV[0]).each do |line|
 end
 
 # croak and exit if no user or hash...
-log_and_exit "Error : unable to find hashtag and user in config file" if (user.nil? or hashtag.nil?)
+log_and_exit "Error : unable to find hashtag, user and key root in config file" if (user.nil? or hashtag.nil? or keyroot?)
 # ... or if there is no @ prefix in front of user
 log_and_exit "Error : user must be prefixed with '@'" unless (user.gsub('^@'))
 # ... or of there is no # prefix in front of the hashtag
@@ -126,9 +134,9 @@ date = "#{twitt.created_at.day}/#{twitt.created_at.month}/#{twitt.created_at.yea
 
 # and now, Redis, see how that rules
 dc = Redis.new
-dc.set 'com.laclasse.sso.last_message.text', text.to_json
-dc.set 'com.laclasse.sso.last_message.date', date
-dc.expire('com.laclasse.sso.last_message.text', 15*86400)
-dc.expire('com.laclasse.sso.last_message.date', 15*86400)
+dc.set "#{keyroot}.last_message.text", text.to_json
+dc.set "#{keyroot}.date", date
+dc.expire("#{keyroot}.text", 15*86400)
+dc.expire("#{keyroot}.date", 15*86400)
 
 
