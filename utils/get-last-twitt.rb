@@ -38,6 +38,7 @@ $logger.level = Logger::ERROR
 
 user = nil
 hashtag = nil
+keyroot = nil
 
 def log_and_exit(message)
   # logs a message with ERROR level and exists app
@@ -71,7 +72,14 @@ open(ARGV[0]).each do |line|
       hashtag = line.match(".*'TWITTER_HASHTAG'.*'(.*)'")[1];
       $logger.info("found a match for TWITTER_HASHTAG : #{hashtag}")
     end
-  rescue
+
+    if line.match('REDIS_NEWS_ROOT') then
+      # we have found an interesting parameter
+      # let's grab the config value and store it in 'hashtag'
+      keyroot = line.match(".*'REDIS_NEWS_ROOT'.*'(.*)'")[1];
+      $logger.info("found a match for REDIS_NEWS_ROOT : #{keyroot}")
+    end
+   rescue
     # this is quite needed if we match a string
     # but \1 is nil
     # we handle this case below
@@ -79,7 +87,7 @@ open(ARGV[0]).each do |line|
 end
 
 # croak and exit if no user or hash...
-log_and_exit "Error : unable to find hashtag and user in config file" if (user.nil? or hashtag.nil?)
+log_and_exit "Error : unable to find hashtag, user and key root in config file" if (user.nil? or hashtag.nil? or keyroot.nil?)
 # ... or if there is no @ prefix in front of user
 log_and_exit "Error : user must be prefixed with '@'" unless (user.gsub('^@'))
 # ... or of there is no # prefix in front of the hashtag
@@ -118,13 +126,17 @@ $logger.info "Found twitt : #{twitt.text}"
 twitt.text.encode!('ISO-8859-1')
 text = twitt.text
 
+date = "#{twitt.created_at.day}/#{twitt.created_at.month}/#{twitt.created_at.year}"
+
 # ha yeah, this vvvvv was the memcached stuff, see how that sucked
 # dc = Dalli::Client.new('127.0.0.1:11211', :expires_in => 15*86400)
 # well, it's not obvious but IT REALLY SUCKED and ruined my day
 
 # and now, Redis, see how that rules
 dc = Redis.new
-dc.set 'SSO-LAST_NEWS', text.to_json
-dc.expire('SSO-LAST_NEWS', 15*86400)
+dc.set "#{keyroot}.last_message.text", text.to_json
+dc.set "#{keyroot}.date", date
+dc.expire("#{keyroot}.text", 15*86400)
+dc.expire("#{keyroot}.date", 15*86400)
 
 

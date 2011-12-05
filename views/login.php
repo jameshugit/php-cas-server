@@ -19,12 +19,12 @@ function getNewsList($t) {
 	    $cache->addServer($srvary[0], $srvary[1]);
 	}
 
-	$news = utf8_decode($cache->get("SSO-LAST_NEWS"));
+	$news = utf8_decode($cache->get($CONFIG['REDIS_NEWS_ROOT'].".text"));
 	
 	if ($news != "0" && $news) {
 		echo '
 		<div id="newsbox">
-			<div id="tweet">'.htmlentities($news).'</div>
+    <div id="tweet">'.htmlentities($news).' (' . $cache->get($CONFIG['REDIS_NEWS_ROOT'].".date") . ')</div>;
 			<div id="followus">'._('Suivez-nous sur').' <b><a href="https://twitter.com/'.str_replace('@', '', $CONFIG['TWITTER_ACCOUNT']).'">'.$CONFIG['TWITTER_ACCOUNT'].'</b></a></div>
 		</div>
 		<script>
