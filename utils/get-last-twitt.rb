@@ -118,13 +118,17 @@ $logger.info "Found twitt : #{twitt.text}"
 twitt.text.encode!('ISO-8859-1')
 text = twitt.text
 
+date = "#{twitt.created_at.day}/#{twitt.created_at.month}/#{twitt.created_at.year}"
+
 # ha yeah, this vvvvv was the memcached stuff, see how that sucked
 # dc = Dalli::Client.new('127.0.0.1:11211', :expires_in => 15*86400)
 # well, it's not obvious but IT REALLY SUCKED and ruined my day
 
 # and now, Redis, see how that rules
 dc = Redis.new
-dc.set 'SSO-LAST_NEWS', text.to_json
-dc.expire('SSO-LAST_NEWS', 15*86400)
+dc.set 'com.laclasse.sso.last_message.text', text.to_json
+dc.set 'com.laclasse.sso.last_message.date', date
+dc.expire('com.laclasse.sso.last_message.text', 15*86400)
+dc.expire('com.laclasse.sso.last_message.date', 15*86400)
 
 

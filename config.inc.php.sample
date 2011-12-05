@@ -62,6 +62,7 @@ $CONFIG['TGT_TIMOUT'] = 8*60*60;
 $CONFIG['DISPLAY_NEWS'] = true;
 $CONFIG['TWITTER_ACCOUNT'] = '@Some twitter account tha you want to display';
 $CONFIG['TWITTER_HASHTAG'] = '#Hash tag that filters data to display';
+$CONFIG['REDIS_NEWS_ROOT'] = 'com.laclasse.sso.last_message';
 
 //------------------------------------------------------------------------------
 // Services autorisés à s'authentifier avec le service CAS.
