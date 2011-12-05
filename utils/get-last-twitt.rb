@@ -87,7 +87,7 @@ open(ARGV[0]).each do |line|
 end
 
 # croak and exit if no user or hash...
-log_and_exit "Error : unable to find hashtag, user and key root in config file" if (user.nil? or hashtag.nil? or keyroot?)
+log_and_exit "Error : unable to find hashtag, user and key root in config file" if (user.nil? or hashtag.nil? or keyroot.nil?)
 # ... or if there is no @ prefix in front of user
 log_and_exit "Error : user must be prefixed with '@'" unless (user.gsub('^@'))
 # ... or of there is no # prefix in front of the hashtag
