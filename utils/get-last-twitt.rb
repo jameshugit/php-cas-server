@@ -134,7 +134,7 @@ date = "#{twitt.created_at.day}/#{twitt.created_at.month}/#{twitt.created_at.yea
 
 # and now, Redis, see how that rules
 dc = Redis.new
-dc.set "#{keyroot}.last_message.text", text.to_json
+dc.set "#{keyroot}.text", text.to_json
 dc.set "#{keyroot}.date", date
 dc.expire("#{keyroot}.text", 15*86400)
 dc.expire("#{keyroot}.date", 15*86400)
