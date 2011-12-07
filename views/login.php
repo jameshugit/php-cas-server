@@ -19,12 +19,12 @@ function getNewsList($t) {
 	    $cache->addServer($srvary[0], $srvary[1]);
 	}
 
-	$news = utf8_decode($cache->get($CONFIG['REDIS_NEWS_ROOT'].".text"));
+	$news = str_replace($CONFIG['TWITTER_HASHTAG'], '', utf8_decode($cache->get($CONFIG['REDIS_NEWS_ROOT'].".text")));
 	
 	if ($news != "0" && $news) {
 		echo '
 		<div id="newsbox">
-    <div id="tweet">'.htmlentities($news).' (' . $cache->get($CONFIG['REDIS_NEWS_ROOT'].".date") . ')</div>;
+    <div id="tweet">'.htmlentities($news).' (' . $cache->get($CONFIG['REDIS_NEWS_ROOT'].".date") . ')</div>
 			<div id="followus">'._('Suivez-nous sur').' <b><a href="https://twitter.com/'.str_replace('@', '', $CONFIG['TWITTER_ACCOUNT']).'">'.$CONFIG['TWITTER_ACCOUNT'].'</b></a></div>
 		</div>
 		<script>
@@ -41,8 +41,7 @@ function getFormLogin($t) {
 	$actionForm = $t["action"];
 	$service = urldecode($t["service"]);
 	$lt = $t["loginTicket"];
-	//onsubmit="submitMyCredential();"
-	echo '<div id="mire">
+	echo '
 			<form id="fm1" class="fm-v clearfix" method="post" action="'.$actionForm.'"> 
 	
             <input type="hidden" name="action" value="login"/>
@@ -82,7 +81,6 @@ function getFormLogin($t) {
               </div>
             </div>
           </form>
-        </div>
 ';          
 }
 
@@ -90,10 +88,12 @@ function getFormLogin($t) {
 // Callback viewLoginForm
 //------------------------------------------------------------------------------
 function viewLoginForm($t) {
-	
+	global $CONFIG;
 	getHeader();
-	getNewsList($t);
+	if ($CONFIG['DISPLAY_NEWS']) getNewsList($t);
+	echo '<div id="mire">';
 	getFormLogin($t);
+	echo '</div>';
 	getFooter();
 }
 
@@ -120,11 +120,10 @@ function viewLoginSuccess() {
 function viewLoginFailure($t) {
 	$msg = array_key_exists('errorMsg', $t)? $t['errorMsg'] : _("Les informations transmises n'ont pas permis de vous authentifier.");
 	getHeader();
-	echo '
-	<div id="mire">
-		<div id="status" class="errors">".$msg."</div>
-	</div>';
+	echo '<div id="mire">';
+	echo '		<div id="status" class="errors">'.$msg.'</div>';
 	getFormLogin($t);
+	echo '</div>';
 	getFooter();
 }
 

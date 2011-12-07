@@ -103,7 +103,7 @@ a.lienss:active {
 	color:#000;
 	width:260px;
 	left :450px;
-	top:80px;
+	top:50px;
 }
  #cas #login {
 	position:relative;
@@ -133,14 +133,14 @@ a.lienss:active {
 
     #cas #sidebar {}
         #cas #sidebar h3 {font:normal 400 14px arial; color:#555; margin:18px 0 0; padding:6px 0 3px;}
-        #cas #sidebar p {margin:0px; padding:0; color:#000; font-size:10px;}
+        #cas #sidebar p {margin:10px; padding:0; color:#000; font-size:10px;}
 
         #cas #list-languages ul {margin:0; padding:0; list-style:none;}
             #cas #list-languages ul li {display:inline; padding:0 5px; border-right:1px solid #ccc;}
             #cas #list-languages ul li.first {padding-left:0;}
             #cas #list-languages ul li.last {padding-right:0; border:0;}
 
-#cas #footer {position:relative;top:90px;margin:10px;}
+#cas #footer {position:absolute;top:372px;margin:10px;}
 #cas #footer p {margin:0; padding:0;}
 
 .row{float:left; padding-bottom:2px;}
@@ -164,6 +164,6 @@ a.lienss:active {
 #content #msg p {padding:0;}
 
 /* footer */
-#footer #copyleft {width:250px;}
+#footer #copyleft {width:260px;}
 
 

@@ -10,10 +10,12 @@ require_once(CAS_PATH.'/views/header.php');
 // Callback viewLogoutSuccess
 //------------------------------------------------------------------------------
 function viewLogoutSuccess($t) {
+	global $CONFIG;
 	$url_service = $t['url'];
 	if ($url_service == "") $redirectMsg = "";
 	else $redirectMsg = _('Le service duquel vous arrivez a fourni <a href="'.$url_service.'">un lien que vous pouvez suivre en cliquant ici').'</a>';
 	getHeader();
+    if ($CONFIG['DISPLAY_NEWS']) getNewsList($t);
 	echo '
 	<div id="mire">
 		<div id="msg" class="success">
