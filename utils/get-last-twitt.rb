@@ -104,13 +104,18 @@ query = "from:#{user} #{hashtag}"
 $logger.info "query : #{query}"
 
 # and then search
-twitt = Twitter.search(query, :rpp => 1).first
+begin
+  twitt = Twitter.search(query, :rpp => 1).first
+rescue Exception => e
+  $logger.error e.message
+#  $logger.error e.backtrace.join("\n")
+  exit
+end
 
 if twitt.nil?
   # no match, no problem
   # we just wanr about it and exit
   $logger.warn "No twitt found"
-  $logger.close
   exit
 end
 
