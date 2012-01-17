@@ -56,13 +56,14 @@ final class TicketStorage {
 	 */
 	 
 	 protected function addCounter() {
-		// If counter does not exist, then create one
-		if (!$this->_cache->get($CONFIG['REDIS_ROOT'] . "ST_COUNTER")) {
-			$this->_cache->set($CONFIG['REDIS_ROOT'] . "ST_COUNTER", 0);
-		}
+     global $CONFIG;
+     // If counter does not exist, then create one
+     if (!$this->_cache->get($CONFIG['REDIS_ROOT'] . "ST_COUNTER")) {
+       $this->_cache->set($CONFIG['REDIS_ROOT'] . "ST_COUNTER", 0);
+     }
 
-		$this->_ticket_counter = $this->_cache;
-	 }
+     $this->_ticket_counter = $this->_cache;
+   }
 	 
 	 // reads and increments ticket counter
 	 protected function readCounter() {
@@ -165,6 +166,7 @@ final class TicketStorage {
 	
 
 	public function store($duration = 300) {
+    global $CONFIG;
 		// TODO : assert $_value & $_username are ok
 		try {
       $this->_cache->set($CONFIG['REDIS_ROOT'] . "SSO" . self::SEPARATOR. $this->_key, $this->_value);
