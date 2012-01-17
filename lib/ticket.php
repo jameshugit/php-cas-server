@@ -67,9 +67,10 @@ final class TicketStorage {
 	 
 	 // reads and increments ticket counter
 	 protected function readCounter() {
-		$counterValue = $this->_cache->get($CONFIG['REDIS_ROOT'] . "ST_COUNTER");
-		$this->_cache->increment($CONFIG['REDIS_ROOT'] . "ST_COUNTER", 1);
-		return $counterValue;
+     global $CONFIG;
+     $counterValue = $this->_cache->get($CONFIG['REDIS_ROOT'] . "ST_COUNTER");
+     $this->_cache->increment($CONFIG['REDIS_ROOT'] . "ST_COUNTER", 1);
+     return $counterValue;
 	 }
 
 	/**
@@ -82,12 +83,20 @@ final class TicketStorage {
 		$this->_prefix = $prefix;
 		$this->_key = $this->_value = false;
 
-		/** Create Rediska instance **/
-		$this->_cache = new Rediska();
+
+    $options = array('servers' => array());
 
     foreach ($CONFIG['REDIS_SERVERS'] as $srvary) {
-  		$this->_cache->addServer($srvary[0], $srvary[1]);
+      error_log("Added server " . $srvary[0]);
+
+      array_push($options['servers'], array('host' => $srvary[0], 'port' => $srvary[1]));
+
+//  		$this->_cache->addServer($srvary[0], $srvary[1]);
     }
+
+    /** Create Rediska instance **/
+		$this->_cache = new Rediska($options);
+ //   $this->_cache->removeServer("127.0.0.1:6379");
 	}
 
 	/**
@@ -103,8 +112,8 @@ final class TicketStorage {
 	public function create($alphaLength, $value, $timout) {
 		/** Create a Ticket Counter if necessary. */
 		$this->addCounter();
-		
-		// Default values
+    
+    // Default values
 		$number = self::getRandomString(self::NUMERICAL, 5);
 		$suffixString = self::getRandomString(self::ALPHABETICAL.self::NUMERICAL, $alphaLength);
 		// defining a counter for ServiceTicket type
