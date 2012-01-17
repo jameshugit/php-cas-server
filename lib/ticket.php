@@ -145,6 +145,7 @@ final class TicketStorage {
 	 * Delete ticket from storage
 	 */
 	public function delete() {
+    global $CONFIG;
 		if ($this->_value !== false) {
 			$retval = $this->_cache->delete($CONFIG['REDIS_ROOT'] . "SSO". self::SEPARATOR. $this->_key);
 			$this->_key = $this->_value = false;
@@ -177,6 +178,7 @@ final class TicketStorage {
 	}
 	
 	public function lookup($key) {
+    global $CONFIG;
 		// @todo : assert $_value is ok
     try {
 		$object = $this->_cache->get($CONFIG['REDIS_ROOT'] . "SSO". self::SEPARATOR. $key);
@@ -190,6 +192,7 @@ final class TicketStorage {
 	}
 	
 	public function resetCounter() {
+    global $CONFIG;
 		assert($this->_cache);
 		$this->_cache->set($CONFIG['REDIS_ROOT'] . "ST_COUNTER", 0);
 	}
