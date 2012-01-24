@@ -122,9 +122,16 @@ function login() {
       		return;
       }
       
-      // 
+      // added tracking features
+      if ($CONFIG['ACTIVATE_TRACKING']) trackUser($_POST['username']);
+      
+      // verifying credentials
       if (strtoupper(verifyLoginPasswordCredential($_POST['username'], $_POST['password'])) == strtoupper($_POST['username'])) {
         /* credentials ok */
+
+        // let's log this memorable event 
+        writeLog("LOGIN_SUCCESS", $_POST['username']);
+
         $ticket = new TicketGrantingTicket();
 		$ticket->create($_POST['username']);
 
@@ -134,6 +141,8 @@ function login() {
 		header("Location: ".url($selfurl)."service=".urlencode($service)."");
       } else { 
         /* credentials failed */
+        writeLog("LOGIN_FAILURE", $_POST['username']);
+
         // verify if we need a new login ticket
         $newloginTicket = $loginTicketPosted;
         $lt = new LoginTicket();
@@ -157,11 +166,11 @@ function login() {
 		$tgt->find($_COOKIE["CASTGC"]);
 		$tgt->delete();
 		
-		// Sendign cookie to the client
-   		setcookie ("CASTGC", FALSE, 0); 
-   		     
-   		// Choosing redirection
-		if ($service) header("Location: ".url($selfurl)."service=".urlencode($service)."");
+        // Sending cookie to the client
+        setcookie ("CASTGC", FALSE, 0); 
+
+        // Choosing redirection
+        if ($service) header("Location: ".url($selfurl)."service=".urlencode($service)."");
 		else header("Location: $selfurl");
 		
       	return;
@@ -209,11 +218,15 @@ function logout() {
 		/* Remove TGT */
 		$tgt = new TicketGrantingTicket();
 		$tgt->find($_COOKIE["CASTGC"]);
+        writeLog("LOGOUT_SUCCESS", $tgt->username());
 		$tgt->delete();
 
 		/* Remove cookie from client */
 		setcookie ("CASTGC", FALSE, 0);
-	}
+  } else {
+    writeLog("LOGOUT_FAILURE", "TGC_NOT_FOUND");
+  }
+  
 
 	/* If url param is in the GET request, we send it to the view
 		 so a link can be displayed */
