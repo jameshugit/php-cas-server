@@ -83,6 +83,27 @@ $CONFIG['TWITTER_ACCOUNT'] = '@Some twitter account tha you want to display';
 $CONFIG['TWITTER_HASHTAG'] = '#Hash tag that filters data to display';
 $CONFIG['REDIS_NEWS_ROOT'] = 'com.laclasse.sso.last_message';
 
+/**
+    Logging and tracker config
+The logging format is as follows (All field are Tab separated):
+    CODE USERNAME IP DATE
+Available codes are :
+=> LOGIN_SUCCESS
+=> LOGIN_FAILURE
+=> LOGOUT_SUCCESS
+=> TRACKING_ALERT
+
+*/
+
+$CONFIG['LOG_FILE']  = '/var/log/php-cas-server.log';
+$CONFIG['ACTIVATE_TRACKING']  = true;
+// Array of tracked users : usernames have to be uppercased
+$CONFIG['TRACKED_USERS']  = array('PLEVALLOIS', 'MBLANC');
+// Sending mail alert ?
+$CONFIG['SEND_ME_A_MAIL']  = true;
+// Mail of admin who need to receive the tracking alert 
+$CONFIG['MAIL_ADMIN']  = "you@yourdomain.com";
+
 /*
  * Authentication backend
  */

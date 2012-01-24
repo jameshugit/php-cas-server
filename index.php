@@ -122,7 +122,10 @@ function login() {
       		return;
       }
       
-      // 
+      // added tracking features
+      if ($CONFIG['ACTIVATE_TRACKING']) trackUser($_POST['username']);
+      
+      // verifying credentials
       if (strtoupper(verifyLoginPasswordCredential($_POST['username'], $_POST['password'])) == strtoupper($_POST['username'])) {
         /* credentials ok */
 
