@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
+# encoding: utf-8
 
+#
 ##
 # 
 # get-last-twitt.rb
@@ -32,6 +34,7 @@ require 'twitter'
 require 'logger'
 require 'json_builder'
 require 'redis'
+require 'optparse'
 
 $logger = Logger.new(STDERR)
 $logger.level = Logger::ERROR
@@ -39,6 +42,9 @@ $logger.level = Logger::ERROR
 user = nil
 hashtag = nil
 keyroot = nil
+
+config_file = nil
+redis_server = redis_port = nil
 
 def log_and_exit(message)
   # logs a message with ERROR level and exists app
@@ -48,13 +54,39 @@ def log_and_exit(message)
   exit
 end
 
+
+optparse = OptionParser.new do |opts|
+  opts.banner = "Usage: get-last-twitt.rb -c <cas-config-file> -r <redis server> -p <redis port>"
+
+  opts.on('-c', '--config [FILE]', 'Sets CAS server config [FILE]') do |f|
+    config_file = f
+  end
+
+  opts.on('-s', '--server [SERVER]', 'Sets Redis [SERVER] hostname') do |s|
+    redis_server = s
+  end
+
+  opts.on('-p', '--port [PORT]', 'Sets Redis server [PORT]') do |p|
+    redis_port = p
+  end
+
+  opts.on_tail('-h', '--help', 'Show help') do
+    puts opts
+    exit
+  end
+end
+
+optparse.parse!
+
 # checks that a file name is present at invocation
 # and that this file exists
-log_and_exit "Error : you must pass a config file as argument" if (ARGV[0].nil?)
-log_and_exit "Error : unable to open config file #{ARGV[0]}" unless (File.file? ARGV[0])
+log_and_exit "Error : you must pass a config file as argument" unless config_file
+log_and_exit "Error : unable to open config file #{config_file}" unless (File.file?(config_file))
+log_and_exit "Error : you must set the redis server with -r" unless redis_server
+log_and_exit "Error : you must set the redis port with -p" unless redis_port
 
 # open config file given as argument on command line
-open(ARGV[0]).each do |line|
+open(config_file).each do |line|
   # loop thru config file
   line.chomp!
   $logger.debug("config : #{line}")
@@ -79,18 +111,22 @@ open(ARGV[0]).each do |line|
       keyroot = line.match(".*'REDIS_NEWS_ROOT'.*'(.*)'")[1];
       $logger.info("found a match for REDIS_NEWS_ROOT : #{keyroot}")
     end
-   rescue
+
+  rescue
     # this is quite needed if we match a string
     # but \1 is nil
     # we handle this case below
   end
 end
 
+
+$logger.info("Using redis server : #{redis_server}:#{redis_port}")
+
 # croak and exit if no user or hash...
 log_and_exit "Error : unable to find hashtag, user and key root in config file" if (user.nil? or hashtag.nil? or keyroot.nil?)
 # ... or if there is no @ prefix in front of user
 log_and_exit "Error : user must be prefixed with '@'" unless (user.gsub('^@'))
-# ... or of there is no # prefix in front of the hashtag
+# ... or if there is no # prefix in front of the hashtag
 log_and_exit "Error : hashtag must be prefixed with '#'" unless (hashtag.gsub('^#'))
 
 # twitter search doesn't want @ in front of users
@@ -138,10 +174,11 @@ date = "#{twitt.created_at.day}/#{twitt.created_at.month}/#{twitt.created_at.yea
 # well, it's not obvious but IT REALLY SUCKED and ruined my day
 
 # and now, Redis, see how that rules
-dc = Redis.new
-dc.set "#{keyroot}.text", text.to_json
-dc.set "#{keyroot}.date", date
-dc.expire("#{keyroot}.text", 15*86400)
-dc.expire("#{keyroot}.date", 15*86400)
+dc = Redis.new(:host => redis_server, :port => redis_port)
+
+dc.set "#{keyroot}text", text.to_json
+dc.set "#{keyroot}date", date
+dc.expire("#{keyroot}text", 15*86400)
+dc.expire("#{keyroot}date", 15*86400)
 
 

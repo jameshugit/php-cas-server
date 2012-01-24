@@ -27,6 +27,7 @@ $CONFIG['MODE'] = 'dev';
 $CONFIG['CAS_VERSION'] = '2.0';
 
 /** Memcached server array
+ * @deprecated Memcached is not usd anymore
  * @param MEMCACHED_SERVERS Array of servers. Each server is an array of (host, port).
  * Thus, MEMCACHED_SERVERS contains an array of arrays. It is passed as parameters to
  * Memcached::addservers as is.
@@ -39,9 +40,27 @@ $CONFIG['MEMCACHED_SERVERS'] = array(array('localhost', 11211));
  * Thus, REDIS_SERVERS contains an array of arrays. It is looped over
  * and each entry is as parameter to
  * Rediska::addServer
+ * @param REDIS_ROOT String containing the base root for ALL Redis get/set operations
+ * related to ticket handling.
  */
 $CONFIG['REDIS_SERVERS'] = array(array('localhost', 6379));
+$CONFIG['REDIS_ROOT'] = 'org.example.sso.tickets.';
 
+/** Twitter client config
+ * @param DISPLAY_NEWS
+ * @param TWITTER_ACCOUNT String prefixed with @ containing the account to use on twitter
+ * (e.g.@laclasse)
+ * @param TWITTER_HASHTAG String with the hashtag we're looking for, prefixed with # 
+ * (e.g. '#sys')
+ * @param REDIS_NEWS_ROOT The enws root we use for the twitter service
+ * This param overrides $CONFIG['REDIS_ROOT']
+ * See if we have to display news on the authentication form
+ * The news are feeded by a twitter account
+ */
+$CONFIG['DISPLAY_NEWS'] = true;
+$CONFIG['TWITTER_ACCOUNT'] = '@laclasse';
+$CONFIG['TWITTER_HASHTAG'] = '#sys';
+$CONFIG['REDIS_NEWS_ROOT'] = 'org.example.sso.last_message.';
 
 /**
 	Timeout in second for each kind of ticket
