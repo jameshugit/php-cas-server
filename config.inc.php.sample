@@ -95,7 +95,6 @@ Available codes are :
 
 */
 
-$CONFIG['LOG_FILE']  = '/var/log/php-cas-server.log';
 $CONFIG['ACTIVATE_TRACKING']  = true;
 // Array of tracked users : usernames have to be uppercased
 $CONFIG['TRACKED_USERS']  = array('PLEVALLOIS', 'MBLANC');

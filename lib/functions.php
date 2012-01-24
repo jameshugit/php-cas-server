@@ -169,18 +169,22 @@ function setLanguage() {
 	@param $code the code of the log line @see config.inc.sample
 	@param $username the username
 */
-function writeLog($code, $username) {
-    $t = "  ";
-    if ($_SERVER["HTTP_X_FORWARDED_FOR"]) {
-       if ($_SERVER["HTTP_CLIENT_IP"]) {
-        $proxy = $_SERVER["HTTP_CLIENT_IP"];
+function writeLog($code, $username, $msg="") {
+    $t = "  "; // this a tab
+    $xfwdedfor = array_key_exists("HTTP_X_FORWARDED_FOR", $_SERVER) ? $_SERVER["HTTP_X_FORWARDED_FOR"] : "";
+    $clientip  = array_key_exists("HTTP_CLIENT_IP", $_SERVER) ? $_SERVER["HTTP_CLIENT_IP"] : "";
+    $proxy     = "";
+    
+    if ($xfwdedfor != "") {
+       if ($clientip != "") {
+        $proxy = $clientip;
       } else {
         $proxy = $_SERVER["REMOTE_ADDR"];
       }
-      $ip = $_SERVER["HTTP_X_FORWARDED_FOR"];
+      $ip = $xfwdedfor;
     } else {
-      if ($_SERVER["HTTP_CLIENT_IP"]) {
-        $ip = $_SERVER["HTTP_CLIENT_IP"];
+      if ($clientip != "") {
+        $ip = $clientip;
       } else {
         $ip = $_SERVER["REMOTE_ADDR"];
       }
@@ -193,7 +197,8 @@ function writeLog($code, $username) {
           $username.$t.
           $ip.$t.
           $proxy.$t.
-          date('YmdHis'));
+          date('YmdHis').$t.
+          $msg);
     closelog();
 }
 
@@ -204,16 +209,21 @@ function writeLog($code, $username) {
 	@returns
 */
 function trackUser($login) {
+    global $CONFIG;
+    $message = "This user is in the tracking list. See config.inc.php";
+   
     // 1. check if we want to track this user
     if ( ! in_array(strtoupper($login), $CONFIG['TRACKED_USERS'])) return;
     
     // 2. logging ALERT into logfile
-    writeLog('TRACKING_ALERT', strtoupper($login));
+    writeLog('TRACKING_ALERT', strtoupper($login), $message);
     
     // 3.Send à mail alert to admin
     if ($CONFIG['SEND_ME_A_MAIL'])
         mail($CONFIG['MAIL_ADMIN'], "Tracking alert from ".$_SERVER['SERVER_NAME'], 
         "The user '".strtoupper($login)."' has just logged on ".$_SERVER['SERVER_NAME'].".\n".
-        "This mail is automatically send because you activated tracking feature on ".$_SERVER['SERVER_NAME'].".");
+        $message." to remove him from ['TRACKED_USERS'] array if you do not want to track him anymore.\n\n".
+        "This mail is automatically send because you activated tracking feature on ".$_SERVER['SERVER_NAME']."\n".
+        "Please do not answer to this mail.");
 }
 ?>
