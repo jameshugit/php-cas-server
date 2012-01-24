@@ -127,7 +127,7 @@ function login() {
         /* credentials ok */
 
         // let's log this memorable event 
-        writelog("LOGIN_SUCCESS", $_POST['username']);
+        writeLog("LOGIN_SUCCESS", $_POST['username']);
 
         $ticket = new TicketGrantingTicket();
 		$ticket->create($_POST['username']);
@@ -138,7 +138,7 @@ function login() {
 		header("Location: ".url($selfurl)."service=".urlencode($service)."");
       } else { 
         /* credentials failed */
-        writelog("LOGIN_FAILURE", $_POST['username']);
+        writeLog("LOGIN_FAILURE", $_POST['username']);
 
         // verify if we need a new login ticket
         $newloginTicket = $loginTicketPosted;
@@ -215,13 +215,13 @@ function logout() {
 		/* Remove TGT */
 		$tgt = new TicketGrantingTicket();
 		$tgt->find($_COOKIE["CASTGC"]);
-        writelog("LOGOUT_SUCCESS", $tgt->username());
+        writeLog("LOGOUT_SUCCESS", $tgt->username());
 		$tgt->delete();
 
 		/* Remove cookie from client */
 		setcookie ("CASTGC", FALSE, 0);
   } else {
-    writelog("LOGOUT_FAILURE", "TGC_NOT_FOUND");
+    writeLog("LOGOUT_FAILURE", "TGC_NOT_FOUND");
   }
   
 
