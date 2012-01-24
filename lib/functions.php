@@ -185,13 +185,16 @@ function writeLog($code, $username) {
         $ip = $_SERVER["REMOTE_ADDR"];
       }
     }
-    file_put_contents($CONFIG['LOG_FILE'], 
-                      $code.$t.
-                      $username.$t.
-                      $ip.$t.
-                      $proxy.$t.
-                      date('YmdHis'), 
-                      FILE_APPEND);
+    
+    openlog("php-cas-server", LOG_PID | LOG_PERROR, LOG_LOCAL0);
+    
+    syslog(LOG_INFO, 
+          $code.$t.
+          $username.$t.
+          $ip.$t.
+          $proxy.$t.
+          date('YmdHis'));
+    closelog();
 }
 
 /**
