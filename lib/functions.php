@@ -168,12 +168,14 @@ function setLanguage() {
 	@author PGL pgl@erasme.org
 	@param $code the code of the log line @see config.inc.sample
 	@param $username the username
+	@param $msg a custom message (nullable)
 */
 function writeLog($code, $username, $msg="") {
     $t = "  "; // this a tab
     $xfwdedfor = array_key_exists("HTTP_X_FORWARDED_FOR", $_SERVER) ? $_SERVER["HTTP_X_FORWARDED_FOR"] : "";
     $clientip  = array_key_exists("HTTP_CLIENT_IP", $_SERVER) ? $_SERVER["HTTP_CLIENT_IP"] : "";
     $proxy     = "";
+    $service = isset($_REQUEST['service'])? $_REQUEST['service'] : "";
     
     if ($xfwdedfor != "") {
        if ($clientip != "") {
@@ -198,6 +200,7 @@ function writeLog($code, $username, $msg="") {
           $ip.$t.
           $proxy.$t.
           date('YmdHis').$t.
+          $service.$t.
           $msg);
     closelog();
 }
