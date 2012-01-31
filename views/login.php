@@ -12,12 +12,14 @@ require_once(CAS_PATH.'/views/header.php');
 function getNewsList($t) {
 	global $CONFIG;
 	$cache=false;
-	/** Create Memcached instance **/
-	$cache = new Rediska();
-
-	foreach ($CONFIG['REDIS_SERVERS'] as $srvary) {
-	    $cache->addServer($srvary[0], $srvary[1]);
-	}
+	
+    /** Create Rediska instance **/
+    $options = array('servers' => array());
+    foreach ($CONFIG['REDIS_SERVERS'] as $srvary) {
+      error_log("Added server " . $srvary[0]);
+      array_push($options['servers'], array('host' => $srvary[0], 'port' => $srvary[1]));
+    }
+	$cache = new Rediska($options);
 
 	$news = str_replace($CONFIG['TWITTER_HASHTAG'], '', utf8_decode($cache->get($CONFIG['REDIS_NEWS_ROOT']."text")));
 	
@@ -28,7 +30,6 @@ function getNewsList($t) {
 			<div id="followus">'._('Suivez-nous sur').' <b><a href="https://twitter.com/'.str_replace('@', '', $CONFIG['TWITTER_ACCOUNT']).'">'.$CONFIG['TWITTER_ACCOUNT'].'</b></a></div>
 		</div>
 		<script>
-		//(elId, sr, sg, sb, er, eg, eb, step, current, speed)
 		if(getRef("tweet")) fade("tweet", 252,237,49, 255,255,255, 100,1,10);
 		</script>';
 	}
