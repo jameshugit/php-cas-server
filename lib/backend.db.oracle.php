@@ -157,7 +157,11 @@ function getServiceValidate($login, $service) {
 	global $CONFIG;
 	// index of the global array containing the list of autorized sites.
 	$idxOfAutorizedSiteArray = getServiceIndex($service);
+	$myAttributesProvider = isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['attributesProvider']) ? 
+							$CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['attributesProvider'] : SQL_FOR_ATTRIBUTES;
 
+	$myTokenView = isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['tokenModele']) ? 
+				   $CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['tokenModele'] : 'Default';
 	// If service index is null, service is not allow to connect to our sso.
 	//if ($idxOfAutorizedSiteArray == "")
 	//	return viewAuthFailure(array('code'=> '', 
@@ -180,7 +184,7 @@ function getServiceValidate($login, $service) {
 	// executing second SQL Statment for other attributes.
 
 	$db = _dbConnect();
-	$r = _dbExecuteSQL($db, SQL_FOR_ATTRIBUTES, array('LOGIN'=>$login));
+	$r = _dbExecuteSQL($db, $myAttributesProvider, array('LOGIN'=>$login));
 	_dbDisconnect($db);
 	
 	// Should have only one row returned.
@@ -194,8 +198,8 @@ function getServiceValidate($login, $service) {
 		}
 	}
 	
-	// call the token model
-	return viewAuthSuccess($attributes);
+	// call the token model with the default view or custom view
+	return viewAuthSuccess($myTokenView, $attributes);
 }
 
 /**

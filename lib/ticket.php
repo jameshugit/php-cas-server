@@ -56,19 +56,21 @@ final class TicketStorage {
 	 */
 	 
 	 protected function addCounter() {
-		// If counter does not exist, then create one
-		if (!$this->_cache->get("ST_COUNTER")) {
-			$this->_cache->set("ST_COUNTER", 0);
-		}
+     global $CONFIG;
+     // If counter does not exist, then create one
+     if (!$this->_cache->get($CONFIG['REDIS_ROOT'] . "ST_COUNTER")) {
+       $this->_cache->set($CONFIG['REDIS_ROOT'] . "ST_COUNTER", 0);
+     }
 
-		$this->_ticket_counter = $this->_cache;
-	 }
+     $this->_ticket_counter = $this->_cache;
+   }
 	 
 	 // reads and increments ticket counter
 	 protected function readCounter() {
-		$counterValue = $this->_cache->get("ST_COUNTER");
-		$this->_cache->increment("ST_COUNTER", 1);
-		return $counterValue;
+     global $CONFIG;
+     $counterValue = $this->_cache->get($CONFIG['REDIS_ROOT'] . "ST_COUNTER");
+     $this->_cache->increment($CONFIG['REDIS_ROOT'] . "ST_COUNTER", 1);
+     return $counterValue;
 	 }
 
 	/**
@@ -81,12 +83,20 @@ final class TicketStorage {
 		$this->_prefix = $prefix;
 		$this->_key = $this->_value = false;
 
-		/** Create Rediska instance **/
-		$this->_cache = new Rediska();
+
+    $options = array('servers' => array());
 
     foreach ($CONFIG['REDIS_SERVERS'] as $srvary) {
-  		$this->_cache->addServer($srvary[0], $srvary[1]);
+      error_log("Added server " . $srvary[0]);
+
+      array_push($options['servers'], array('host' => $srvary[0], 'port' => $srvary[1]));
+
+//  		$this->_cache->addServer($srvary[0], $srvary[1]);
     }
+
+    /** Create Rediska instance **/
+		$this->_cache = new Rediska($options);
+ //   $this->_cache->removeServer("127.0.0.1:6379");
 	}
 
 	/**
@@ -102,8 +112,8 @@ final class TicketStorage {
 	public function create($alphaLength, $value, $timout) {
 		/** Create a Ticket Counter if necessary. */
 		$this->addCounter();
-		
-		// Default values
+    
+    // Default values
 		$number = self::getRandomString(self::NUMERICAL, 5);
 		$suffixString = self::getRandomString(self::ALPHABETICAL.self::NUMERICAL, $alphaLength);
 		// defining a counter for ServiceTicket type
@@ -144,8 +154,9 @@ final class TicketStorage {
 	 * Delete ticket from storage
 	 */
 	public function delete() {
+    global $CONFIG;
 		if ($this->_value !== false) {
-			$retval = $this->_cache->delete("SSO". self::SEPARATOR. $this->_key);
+			$retval = $this->_cache->delete($CONFIG['REDIS_ROOT'] . "SSO". self::SEPARATOR. $this->_key);
 			$this->_key = $this->_value = false;
 			return $retval;
 		}
@@ -165,9 +176,10 @@ final class TicketStorage {
 	
 
 	public function store($duration = 300) {
+    global $CONFIG;
 		// TODO : assert $_value & $_username are ok
 		try {
-      $this->_cache->set("SSO" . self::SEPARATOR. $this->_key, $this->_value);
+      $this->_cache->set($CONFIG['REDIS_ROOT'] . "SSO" . self::SEPARATOR. $this->_key, $this->_value);
     } catch(Rediska_Exception $e) {
 			echo _("Unable to store TGT to database, error ") . $e->getCode() . "(" . $e->getMessage() . ")";
 			exit;			
@@ -175,9 +187,10 @@ final class TicketStorage {
 	}
 	
 	public function lookup($key) {
+    global $CONFIG;
 		// @todo : assert $_value is ok
     try {
-		$object = $this->_cache->get("SSO". self::SEPARATOR. $key);
+		$object = $this->_cache->get($CONFIG['REDIS_ROOT'] . "SSO". self::SEPARATOR. $key);
     } catch (Rediska_Exception $e) {
 			return false;
 		}
@@ -188,8 +201,9 @@ final class TicketStorage {
 	}
 	
 	public function resetCounter() {
+    global $CONFIG;
 		assert($this->_cache);
-		$this->_cache->set("ST_COUNTER", 0);
+		$this->_cache->set($CONFIG['REDIS_ROOT'] . "ST_COUNTER", 0);
 	}
 }
 

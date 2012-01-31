@@ -27,6 +27,7 @@ $CONFIG['MODE'] = 'dev';
 $CONFIG['CAS_VERSION'] = '2.0';
 
 /** Memcached server array
+ * @deprecated Memcached is not usd anymore
  * @param MEMCACHED_SERVERS Array of servers. Each server is an array of (host, port).
  * Thus, MEMCACHED_SERVERS contains an array of arrays. It is passed as parameters to
  * Memcached::addservers as is.
@@ -39,9 +40,27 @@ $CONFIG['MEMCACHED_SERVERS'] = array(array('localhost', 11211));
  * Thus, REDIS_SERVERS contains an array of arrays. It is looped over
  * and each entry is as parameter to
  * Rediska::addServer
+ * @param REDIS_ROOT String containing the base root for ALL Redis get/set operations
+ * related to ticket handling.
  */
 $CONFIG['REDIS_SERVERS'] = array(array('localhost', 6379));
+$CONFIG['REDIS_ROOT'] = 'org.example.sso.tickets.';
 
+/** Twitter client config
+ * @param DISPLAY_NEWS
+ * @param TWITTER_ACCOUNT String prefixed with @ containing the account to use on twitter
+ * (e.g.@laclasse)
+ * @param TWITTER_HASHTAG String with the hashtag we're looking for, prefixed with # 
+ * (e.g. '#sys')
+ * @param REDIS_NEWS_ROOT The enws root we use for the twitter service
+ * This param overrides $CONFIG['REDIS_ROOT']
+ * See if we have to display news on the authentication form
+ * The news are feeded by a twitter account
+ */
+$CONFIG['DISPLAY_NEWS'] = true;
+$CONFIG['TWITTER_ACCOUNT'] = '@laclasse';
+$CONFIG['TWITTER_HASHTAG'] = '#sys';
+$CONFIG['REDIS_NEWS_ROOT'] = 'org.example.sso.last_message.';
 
 /**
 	Timeout in second for each kind of ticket
@@ -64,25 +83,26 @@ $CONFIG['TWITTER_ACCOUNT'] = '@Some twitter account tha you want to display';
 $CONFIG['TWITTER_HASHTAG'] = '#Hash tag that filters data to display';
 $CONFIG['REDIS_NEWS_ROOT'] = 'com.laclasse.sso.last_message';
 
-//------------------------------------------------------------------------------
-// Services autorisés à s'authentifier avec le service CAS.
-//------------------------------------------------------------------------------
-/** Site allowed to use this CAS server for authentication
- * @param AUTHORIZED_SITES Array of authorized sites. Each authorized site is itself an associative array
- * having the following keys : sitename, url and authorizedAttributes which respectively contain the site name, the site URL
- * and the attributes that the site will get in serviceValidate.
- */
-$CONFIG['AUTHORIZED_SITES'] = array(
-			array(	'sitename'  		=>  'CAS Enabled App',
-					'url'  				=>  '*://some.great.wep.app/*',
-					'allowedAttributes' =>  'uid,gid,someField'),
-			
-			array(	'sitename'  		=>  'Another CAS Enabled App',
-					'url'  				=>  'https://yet.another.great.web.app/app/*',
-					'allowedAttributes' =>  'uid,foo,bar'),
-				);
-			
-	
+/**
+    Logging and tracker config
+The logging format is as follows (All field are Tab separated):
+    CODE USERNAME IP DATE
+Available codes are :
+=> LOGIN_SUCCESS
+=> LOGIN_FAILURE
+=> LOGOUT_SUCCESS
+=> TRACKING_ALERT
+
+*/
+
+$CONFIG['ACTIVATE_TRACKING']  = true;
+// Array of tracked users : usernames have to be uppercased
+$CONFIG['TRACKED_USERS']  = array('PLEVALLOIS', 'MBLANC');
+// Sending mail alert ?
+$CONFIG['SEND_ME_A_MAIL']  = true;
+// Mail of admin who need to receive the tracking alert 
+$CONFIG['MAIL_ADMIN']  = "you@yourdomain.com";
+
 /*
  * Authentication backend
  */
@@ -107,11 +127,83 @@ define('BACKEND_DBPASS', 'incredible_hard_to_guess_password');
 define('SQL_AUTH', 'select login from utilisateurs u where u.login = :LOGIN and u.pwd = :PWD');
 
 //------------------------------------------------------------------------------
-// Requete SQL d'extration des donnÃ©es pour le jeton d'authentification CAS.
+// Requete SQL d'extration des données pour le jeton d'authentification CAS.
+//
+// You can define one Attributes provider per authorized service
+// By default, the sql statment for DB backend is SQL_FOR_ATTRIBUTES
 //------------------------------------------------------------------------------
 define('SQL_FOR_ATTRIBUTES', 
 		'select whatever field you need                 
 		from whatever, table, is, required
 		where u.login = :LOGIN and few joins');
+
+define('MY_LDAP_REQUEST_STRING', 
+		'Some Ldap request to provide your attributes');
+		
+//------------------------------------------------------------------------------
+// Services autorisés à s'authentifier avec le service CAS.
+//------------------------------------------------------------------------------
+/*******************************************************************************
+ Site allowed to use this CAS server for authentication
+  @param AUTHORIZED_SITES Array of authorized sites. Each authorized site is itself an associative array
+  having the following keys : sitename, url and authorizedAttributes which respectively contain the site name, the site URL
+  and the attributes that the site will get in serviceValidate.
+ 
+ Structure of $CONFIG['AUTHORIZED_SITES'] :
+ sitename : this is the short name of the site you need to authenticate via this CAS server.
+
+ url	  : Contains the url of the servie that is authorized to authenticate ith your CAS server. 
+ 			This parameter accepts wilcards. 
+ 			"http*://mysurpersite.com/*" will authorize both http and https urls 
+ 			and all the virtual pathes under the site's root.
+
+ allowedAttributes : these are the attributes that are passed in token after service validate.
+ 				     The names MUST match with the names in the attributes Provider.
+ 				     For example, in the attributes provider is a database, you need to match the names of SQL statement
+ 				     with the attributes list in $CONFIG['AUTHORIZED_SITES'] array.
+ 				     In the case (SQL request attributes proveider), your SQL request should return ONE rows.
+ 				     The multivalued attributes should appear in one line separated by comma and encapsulated 
+ 				     with double quotes.
+
+ tokenModele	   : By default the model of the token is CAS conpliant (Great !)
+ 
+					 <cas:serviceResponse xmlns:cas='http://www.yale.edu/tp/cas'>
+						<cas:authenticationSuccess>
+								<cas:user>[Here is the login the user entered]</cas:user>
+								<Some other attributes you defined />
+						</cas:authenticationSuccess>
+					</cas:serviceResponse>
+					You can define your own token model for attributes by defining the 'tokenModele' key. 
+					In this case the custom model is only available for the site for which it is defined.
+					2 rules you have to respect to define your custo model :
+						1. the name of the model must be unique
+						2. the model 'my_custom_model' must match with the name of the view you will code and
+						   the file is located in '/views/my_custom_model.php'
+						3. This file must contain the function 'view_my_custom_model'.
+						
+					Keep in mind that the header and the footer of the token are unchanged.
+					
+ attributesProvider : This is a constant you define in this config file containing  : 
+ 						- the SQL request for the DB backend of the service
+ 						- the LDAP request for the LDAP backend of the service
+ 						- ...
+*************************************************************************************/
+$CONFIG['AUTHORIZED_SITES'] = array(
+			array(	'sitename'  		=>  'CAS Enabled App',
+					'url'  				=>  '*://some.great.wep.app/*',
+					'allowedAttributes' =>  'uid,gid,someField'
+					'tokenModele'		=>  'Default',
+					'authneticationMethod' => 'SQL',
+					'attributesProvider' =>	SQL_FOR_ATTRIBUTES),
+			
+			array(	'sitename'  		=>  'Another CAS Enabled App',
+					'url'  				=>  'https://yet.another.great.web.app/app/*',
+					'allowedAttributes' =>  'uid,foo,bar'),
+					'tokenModele'		=>  'My Really fantastic token model',
+					'authneticationMethod' => 'LDAP',
+					'attributesProvider' =>	MY_LDAP_REQUEST_STRING)				
+			);
+			
+	
 
 ?>
