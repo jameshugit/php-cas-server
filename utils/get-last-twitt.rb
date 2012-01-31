@@ -56,7 +56,7 @@ end
 
 
 optparse = OptionParser.new do |opts|
-  opts.banner = "Usage: get-last-twitt.rb -c <cas-config-file> -r <redis server> -p <redis port>"
+  opts.banner = "Usage: get-last-twitt.rb -c <cas-config-file> -s <redis server> -p <redis port>"
 
   opts.on('-c', '--config [FILE]', 'Sets CAS server config [FILE]') do |f|
     config_file = f
