@@ -82,7 +82,7 @@ optparse.parse!
 # and that this file exists
 log_and_exit "Error : you must pass a config file as argument" unless config_file
 log_and_exit "Error : unable to open config file #{config_file}" unless (File.file?(config_file))
-log_and_exit "Error : you must set the redis server with -r" unless redis_server
+log_and_exit "Error : you must set the redis server with -s" unless redis_server
 log_and_exit "Error : you must set the redis port with -p" unless redis_port
 
 # open config file given as argument on command line
