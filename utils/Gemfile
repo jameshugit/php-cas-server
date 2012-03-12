@@ -1,0 +1,6 @@
+source :rubygems
+
+gem 'twitter'
+gem 'json_builder'
+gem 'redis'
+gem 'i18n'
