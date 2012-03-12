@@ -18,23 +18,22 @@ require_once(CAS_PATH.'/views/auth_attribute.php');
 	@returns
 */
 function viewAuthSuccess($viewName, $t){
-	$token = viewAuthHeader();
 	if ($viewName == 'Default') {
+        $token = viewAuthHeader();
 		if (is_array($t)){
 			foreach($t as $k => $v) {
 				$token .= viewAuthAtttribute($k, $v);
 			}
 		}
+    	$token .= viewAuthFooter();
 	}
 	else { // custom view 
 		if (file_exists(CAS_PATH.'/views/'.$viewName.'.php')) {
 			require_once(CAS_PATH.'/views/'.$viewName.'.php');
-			if (function_exists("view_$viewName")) $token .=  call_user_func("view_$viewName", $t);
-			else $token .= _('The function "view_'.$viewName.'" does not exist in file "'.$viewName.'.php"  !');
+			if (function_exists("view_$viewName")) $token =  call_user_func("view_$viewName", $t);
+			else $token = viewAuthHeader () . _('The function "view_'.$viewName.'" does not exist in file "'.$viewName.'.php"  !') . viewAuthFooter ();
 		}
 		else $token .= _('The file "'.$viewName.'.php" does not exist !');
 	}
-	$token .= viewAuthFooter();
 	return $token;
 }
-?>
