@@ -56,7 +56,7 @@ end
 
 
 optparse = OptionParser.new do |opts|
-  opts.banner = "Usage: get-last-twitt.rb -c <cas-config-file> -r <redis server> -p <redis port>"
+  opts.banner = "Usage: get-last-twitt.rb -c <cas-config-file> -s <redis server> -p <redis port>"
 
   opts.on('-c', '--config [FILE]', 'Sets CAS server config [FILE]') do |f|
     config_file = f
@@ -82,7 +82,7 @@ optparse.parse!
 # and that this file exists
 log_and_exit "Error : you must pass a config file as argument" unless config_file
 log_and_exit "Error : unable to open config file #{config_file}" unless (File.file?(config_file))
-log_and_exit "Error : you must set the redis server with -r" unless redis_server
+log_and_exit "Error : you must set the redis server with -s" unless redis_server
 log_and_exit "Error : you must set the redis port with -p" unless redis_port
 
 # open config file given as argument on command line

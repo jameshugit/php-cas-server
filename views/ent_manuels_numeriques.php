@@ -109,6 +109,5 @@ function _addCasMultiValAttr($groupName, $n, $t, $tab){
 		$att .=  _addCasAttr($n, str_replace('"','', $v), $tab+1);
 	}
 	$att .= $tabs."</cas:".$groupName.">\n";
-	return $tabs.$att;
+	return viewAuthHeader() . $tabs . $att . viewAuthFooter ();
 }
-?>
