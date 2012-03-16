@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='ISO-8859-1'?> 
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+  <SOAP-ENV:Header/>
+  <SOAP-ENV:Body>
+    <samlp:Request xmlns:samlp="urn:oasis:names:tc:SAML:1.0:protocol"
+                   MajorVersion="1"
+                   MinorVersion="1"
+                   RequestID="{6B8C6CC6-4522-AE86-0F99-402B81F629C7}"
+                   IssueInstant="2012-03-16T09:40:25.329+01:00">
+      <samlp:AssertionArtifact>ST-67-VCWTjozrnC4AyKdinTf0</samlp:AssertionArtifact>
+    </samlp:Request>
+  </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

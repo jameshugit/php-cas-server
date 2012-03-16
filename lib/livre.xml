@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<bibliotheque>
+  <style id="roman">
+    <livre>
+      <titre>La fortune des Rougon</titre>
+      <auteur>Emile Zola</auteur>
+    </livre>
+    <livre>
+      <titre>Hernani</titre>
+      <auteur>Victor Hugo</auteur>
+    </livre>
+  </style>
+  <style id="fiction">
+    <livre>
+      <titre>Le seigneur des anneaux</titre>
+      <auteur>J.R.R. Tolkien</auteur>
+    </livre>
+  </style>
+</bibliotheque>
