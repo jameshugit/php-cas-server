@@ -1,5 +1,7 @@
 <?php
+                
 /*
+ * example success reponse
  <SOAP-ENV:Envelope
    xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
    <SOAP-ENV:Header/>
@@ -41,5 +43,28 @@
      </samlp:Response>
    </SOAP-ENV:Body>
  </SOAP-ENV:Envelope> 
+ * 
+ *  
  */
+
+               // generic function for success and failure reponses
+                function  soapReponse($SamlReponse)
+                {
+                header('Content-Type: text/xml',true);
+		$outputFromIdp = '<?xml version="1.0" encoding="UTF-8"?>';
+		$outputFromIdp .= '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">';
+		$outputFromIdp .= '<SOAP-ENV:Body>';
+                
+                
+                $outputFromIdp.=$SamlReponse;
+		
+                
+                
+                $outputFromIdp .= $tempOutputFromIdp;
+		$outputFromIdp .= '</SOAP-ENV:Body>';
+		$outputFromIdp .= '</SOAP-ENV:Envelope>';
+		print($outputFromIdp);
+		exit(0);
+                }
+
 ?>

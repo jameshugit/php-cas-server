@@ -432,8 +432,48 @@ function proxyValidate() {
                                 //****delete tcket 
                                 $st->delete();
                                 
+                                //time offset
+                                $validity = time()+ 600; 
+                                
                                 
                                 //*****fil in the to a saml view
+                                $SamlReponse='<samlp:Response
+       xmlns:samlp="urn:oasis:names:tc:SAML:1.0:protocol"
+       MajorVersion="1" MinorVersion="1"
+       ResponseID="_P1YaA+Q/wSM/t/8E3R8rNhcpPTM="
+       InResponseTo='.$_SERVER['REMOTE_ADDR'].'
+       IssueInstant=
+       <samlp:Status>
+         <samlp:StatusCode Value="samlp:Success"/>
+       </samlp:Status>
+       <saml:Assertion
+         xmlns:saml="urn:oasis:names:tc:SAML:1.0:assertion"
+         MajorVersion="1" MinorVersion="1"
+         AssertionID="buGxcG4gILg5NlocyLccDz6iXrUa"
+         Issuer="https://idp.example.org/saml"
+         IssueInstant= '. date('Y \-m \- d\T H:i:s \. Z').'
+         <saml:Conditions
+           NotBefore='. date('Y \-m \- d\T H:i:s \. Z').' 
+           NotOnOrAfter='. date('Y \-m \- d\T H:i:s \. Z', $validity).'/>
+         <saml:AuthenticationStatement
+           AuthenticationMethod="urn:oasis:names:tc:SAML:1.0:am:password"
+           AuthenticationInstant= '. date('Y \-m \- d\T H:i:s \. Z').'
+           <saml:Subject>
+             <saml:NameIdentifier
+               Format="urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress">
+               user@idp.example.org
+             </saml:NameIdentifier>
+             <saml:SubjectConfirmation>
+               <saml:ConfirmationMethod>
+                 urn:oasis:names:tc:SAML:1.0:cm:artifact
+               </saml:ConfirmationMethod>
+             </saml:SubjectConfirmation>
+           </saml:Subject>
+         </saml:AuthenticationStatement>
+       </saml:Assertion>
+     </samlp:Response>';
+                                
+                                soapReponse($SamlReponse); 
                                 
                                 
                     }
