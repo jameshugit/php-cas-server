@@ -29,6 +29,49 @@ function __($text) {
 	return htmlentities(_($text));
 }
 
+function get_Saml_message($Soapmessage)
+{
+     $Request= null;  
+  foreach ($Soapmesssage->children("http://schemas.xmlsoap.org/soap/envelope/") as $tag => $item) {
+      if ($tag=='Body')
+      {    
+        //printf("balise : %s\n", $tag);
+        //print_r($item);
+    
+       foreach($item->children("urn:oasis:names:tc:SAML:1.0:protocol") as $key => $value)
+       {
+           if ($key='Request')
+           {
+             printf("balise : %s\n", $key);
+             
+             $Request= $value;
+             return $Request;
+             //print_r($value);
+            }
+        }
+        }
+
+    }
+    return NULL;
+}
+
+function get_saml_ticket($samlmessage)
+{
+    foreach ($samlmessage->children("urn:oasis:names:tc:SAML:1.0:protocol") as $tag => $item)
+  {
+      //printf("balise : %s\n", $tag);
+      
+       //print_r($item);
+       if ($tag=='AssertionArtifact')
+       {
+           $ticket_value= (String)$item[0];
+           //print_r($ticket_value);
+           return $ticket_value;
+       }
+  }
+  return '';
+}
+
 
 /**
  * Verifying if the requested service is autorized to request SSO. 

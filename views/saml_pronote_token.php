@@ -1,4 +1,4 @@
-<?php
+<?
 /**
 	Jetons spécifiques aux manuels scolaires numériques
 	Les balises apparaîssent même si elles ne sont pas valuées.
@@ -68,7 +68,7 @@ function view_saml_pronote_token($t) {
 	$jeton .= T."<cas:UserAttributes>\n";
 	
 	return $jeton;
-}
+        }
 
 /**
 	_addCasAttr : returns a well xml formated CAS attributes.
