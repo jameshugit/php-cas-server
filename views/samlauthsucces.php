@@ -60,7 +60,7 @@
 		
                 
                 
-                $outputFromIdp .= $tempOutputFromIdp;
+                //$outputFromIdp .= $tempOutputFromIdp;
 		$outputFromIdp .= '</SOAP-ENV:Body>';
 		$outputFromIdp .= '</SOAP-ENV:Envelope>';
 		print($outputFromIdp);

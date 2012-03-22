@@ -25,13 +25,14 @@ function matchString($str, $model){
  * Specific i18n function that pass the text to html entities
  */
 
+
 function __($text) {
 	return htmlentities(_($text));
 }
 
 function get_Saml_message($Soapmessage)
 {
-     $Request= null;  
+     $Request= '';  
   foreach ($Soapmesssage->children("http://schemas.xmlsoap.org/soap/envelope/") as $tag => $item) {
       if ($tag=='Body')
       {    
@@ -40,7 +41,7 @@ function get_Saml_message($Soapmessage)
     
        foreach($item->children("urn:oasis:names:tc:SAML:1.0:protocol") as $key => $value)
        {
-           if ($key='Request')
+           if ($key=='Request')
            {
              printf("balise : %s\n", $key);
              
@@ -52,7 +53,7 @@ function get_Saml_message($Soapmessage)
         }
 
     }
-    return NULL;
+    throw new Exception('error parsing the message'); 
 }
 
 function get_saml_ticket($samlmessage)
