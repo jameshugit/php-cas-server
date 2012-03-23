@@ -32,10 +32,17 @@ function Status($status)
     
     return $stat; 
 }
+function FailureStatus($status, $message)
+{
+    $stat='<Status><StatusCode Value="samlp:'.$status.'"/>
+                     <StatusMessage>'.$message().'</StatusMessage></Status>';  
+    
+    return $stat; 
+}
 
 function Attribute($attributeName, $attributeNS, $attributeValue)
 {
-    $Attribute=' <Attribute AttributeName=" '.$attributeName.'" AttributeNamespace="'.$attributeNS.'">
+    $Attribute=' <Attribute AttributeName="'.$attributeName.'" AttributeNamespace="'.$attributeNS.'">
             <AttributeValue>'.$attributeValue.'</AttributeValue>
           </Attribute>'; 
     
@@ -126,7 +133,7 @@ function Response($Assertion, $Status, $time)
 }
 
 
-function PronoteTokenBuilder($Statuscode,$Attributes,$nameIdentifier) {
+function PronoteTokenBuilder($Statuscode,$Attributes,$nameIdentifier,$message) {
 	
     // for now  we have two cases : success or RequestDenied
 
@@ -170,8 +177,8 @@ function PronoteTokenBuilder($Statuscode,$Attributes,$nameIdentifier) {
         // 
          else
          {
-             $Statuscode==StatusCode::RequestDenied; 
-             $Status= Status('RequestDenied');
+             $Statuscode=StatusCode::Responder; 
+             $Status= Status('Responder');
              
              $time = time(); 
              $Response= Response('', $Status, $time); 

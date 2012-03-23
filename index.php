@@ -236,6 +236,23 @@ function logout() {
 	return;
 }
 
+function loggedout() {
+
+  if (array_key_exists('CASTGC',$_COOKIE)) {
+		/* Remove TGT */
+		$tgt = new TicketGrantingTicket();
+		$tgt->find($_COOKIE["CASTGC"]);
+        writeLog("LOGOUT_SUCCESS", $tgt->username());
+		$tgt->delete();
+
+		/* Remove cookie from client */
+		setcookie ("CASTGC", FALSE, 0);
+  } else {
+    writeLog("LOGOUT_FAILURE", "TGC_NOT_FOUND");
+  }
+ 
+}
+
 /**
 	serviceValidate
 	Validation of the ST ticket.
@@ -451,22 +468,23 @@ function proxyValidate() {
                    
                    if(empty($attr)) 
                        throw new Exception ('user not recognized');
-                       
+                   
+                   
                    $nameIdentifier=$attr['user']; 
-                   $samlSuccess= PronoteTokenBuilder(0, $attr, $nameIdentifier); 
-//                                
+                   $samlSuccess= PronoteTokenBuilder(0, $attr, $nameIdentifier,''); 
+                   loggedout();             
                    //$validResponse=validateSamlschema( $samlSuccess, $samloneschema);
-                   $validResponse=0;
+//                   $validResponse=1;
                    
               
-                   if ($validResponse)
+//                   if ($validResponse)
                          soapReponse($samlSuccess);
-                       
-                   else
-                   {
-                       throw new Exception ('non valid Response'); 
-                   }
-                   // 8- Send Soap Reponse             
+//                       
+//                   else
+//                   {
+//                       throw new Exception ('non valid Response'); 
+//                   }
+//                   // 8- Send Soap Reponse             
                     //
                     //  
                     //
@@ -480,16 +498,16 @@ function proxyValidate() {
             //genterate  a failure saml reponse
            // showError($e->getMessage());
                  //echo $e->getMessage();
-                 $failureReponse='<Response IssueInstant="2012-03-22T13:53:23.171Z" 
-                     MajorVersion="1" MinorVersion="1" 
-                     Recipient="http://pronote.dev.laclasse.lan:8/pronote.net/cas/validationcas/" 
-                     ResponseID="_27af29b3a1f8cc1349d6a9aba95e164a"><Status><StatusCode Value="samlp:Responder"/>
-                     <StatusMessage>le ticket '.$ticket.' est inconnu</StatusMessage></Status></Response>';  
-                 $samlFailure=PronoteTokenBuilder(8, null,null);
+//                 $failureReponse='<Response IssueInstant="2012-03-22T13:53:23.171Z" 
+//                     MajorVersion="1" MinorVersion="1" 
+//                     Recipient="http://pronote.dev.laclasse.lan:8/pronote.net/cas/validationcas/" 
+//                     ResponseID="_27af29b3a1f8cc1349d6a9aba95e164a"><Status><StatusCode Value="samlp:Responder"/>
+//                     <StatusMessage>'.$e->getMessage().'</StatusMessage></Status></Response>';  
+                 $samlFailure=PronoteTokenBuilder(8, null,null,$e->getMessage());
                  //$validResponse=validateSamlschema( $samlFailure, $samloneschema);
                  //echo $validResponse; 
                  //echo $e->getMessage(); 
-                 soapReponse($failureReponse); 
+                 soapReponse($samlFailure); 
                     
              }
 //                     
@@ -519,7 +537,7 @@ function proxyValidate() {
     }
 }
     
-    function validateSamlschema($samlRequest,$samlSchema)
+    function validateSchema($samlRequest,$samlSchema)
 {
     assert('is_string($samlRequest)');
     assert('is_string($samlSchema)');

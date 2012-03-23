@@ -155,12 +155,12 @@ scolaires numériques */
 
 //-------------------------------
 define('SQL_FOR_PRONOTE',
-     'select  distinct u.login                   "login",
-                   comptes.formate_us7ascii(u.nom)    "nom",
+     'select  distinct u.login         "login",
+                   comptes.formate_us7ascii(u.nom)   "nom",
                    comptes.formate_us7ascii(u.prenom) "prenom",
-                   u.dt_naissance                     "dateNaissance",
-                   comptes.formate_cp(u.adr)          "codePostal",
-                   p.lib_men                          "categories"
+                   to_char(u.dt_naissance,\'RRRR-MM-DD\') "dateNaissance",
+                   comptes.formate_cp(u.adr)        "codePostal",
+                   p.lib_men                  "categories"
   
              from utilisateurs u,
                     utilisateurs_info ui,
@@ -390,8 +390,7 @@ ENTPersonStructRattach,ENTEleveClasses,ENTPersonStructRattachRNE,ENTPersonProfil
 array(    'sitename'          =>  'Trombinoscope',
                     'url'                  =>
 '*://*.dev.laclasse.lan:*/*',
-                    'allowedAttributes'     =>  'login,nom,
-                    prenom,dateNaissance,codePostal,categories',
+                    'allowedAttributes'     =>  'login,nom,prenom,dateNaissance,codePostal,categories',
                     'tokenModele'            =>  'ent_manuels_numeriques',
                     'authenticationMethod'    => 'SQL',
                     'attributesProvider'    =>   SQL_FOR_PRONOTE),

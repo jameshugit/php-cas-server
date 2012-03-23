@@ -45,7 +45,15 @@ function extractRequest($soapResponse) {
 		return $requestXML;
 	}
         
-           
+      
+        function microtime_float ()
+{
+    list ($msec, $sec) = explode(' ', microtime());
+    $microtime = (float)$msec + (float)$sec;
+    return $microtime;
+}
+
+
 function validateSaml($samlRequest,$samlSchema)
 {
     assert('is_string($samlRequest)');
@@ -53,8 +61,13 @@ function validateSaml($samlRequest,$samlSchema)
     
     try{
     $dom = new DOMDocument(); 
-    $dom->loadXML($samlRequest); 
+    $dom->loadXML($samlRequest);
+    echo $dom->saveXML(); 
+    $start = microtime_float(); 
     $validschema = $dom->schemaValidate($samlSchema);
+    $end = microtime_float();
+     echo 'Validation Execution Time: ' . round($end - $start, 3) . ' seconds';   
+    
     
     return $validschema;
     }
@@ -106,6 +119,8 @@ function extractTicket($samlrequest)
       return $ticket; 
        
 }
+
+
         
         $soapReponse='<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
   <SOAP-ENV:Header/>
@@ -113,7 +128,7 @@ function extractTicket($samlrequest)
     <samlp:Request xmlns:samlp="urn:oasis:names:tc:SAML:1.0:protocol"
                    MajorVersion="1"
                    MinorVersion="1"
-                   RequestID="{6FD897835BAEF695F81977EF77CE13A1}"
+                   RequestID="_6FD897835BAEF695F81977EF77CE13A1"
                    IssueInstant="2012-03-21T11:02:45.068+01:00">
       <samlp:AssertionArtifact>ST-145-OtFElHMGJ7s3ib4h5IQ9</samlp:AssertionArtifact>
     </samlp:Request>
@@ -124,7 +139,23 @@ function extractTicket($samlrequest)
         
         $response=extractRequest($soapReponse);
         //echo($response);
-        echo validateSaml($response, $samloneschema); 
+        
+        //validateSaml($response, $samloneschema); 
+        
+        $dom = new DOMDocument();
+        $start = microtime_float(); 
+        //$dom->validateOnParse = true;
+    $dom->load('test.xml');
+    echo $dom->saveXML(); 
+    
+    $validschema = $dom->schemaValidate($samloneschema);
+    $end = microtime_float();
+     echo 'Validation Execution Time: ' . round($end - $start, 3) . ' seconds';   
+
+      
+
+
+
         
         $ticket=  extractTicket($response); 
         //echo $ticket; 
