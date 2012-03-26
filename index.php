@@ -394,16 +394,16 @@ function proxyValidate() {
                  
                 
                   
-//                  //1-   get the soap message()  
+//                 1-   get the soap message()  
                 $soapbody = extractSoap();
-                //echo ($soapbody); 
+               
                
 ////                
 ////                
 ////                
 ////                // 2-   get the Target and validate it()
                  $service = $_REQUEST['TARGET'];
-//                 echo $service;
+//               
 //                 
 ////                 
 ////           
@@ -413,7 +413,7 @@ function proxyValidate() {
 ////                 //************ verifiying the service 
                if (!isset($service))
                  {
-                     echo 'error'; 
+                     
                      throw new Exception('No authorized service was found ! ');
                  }
 //                 
@@ -451,17 +451,10 @@ function proxyValidate() {
                     
                    // verifying if ST ticket is valid and return the attributes.
                   $attr = validateTicket($ticket, $service); 
-                  
-                  //just  for test 
-//                   if (is_array($attr)){
-//			foreach($attr as $k => $v) {
-//				echo $k.'=>'.$v;
-//                                echo "\n"; 
-//			}
-//		  }
+                 
 ////                                
-//                                //time offset
-//                                //*************generateSamlReponse
+//                             
+//                
                    $time= time()+60*60;
                    $validity = $time+600; 
 ////                   
@@ -470,13 +463,15 @@ function proxyValidate() {
                        throw new Exception ('user not recognized');
                    
                    
-                   $nameIdentifier=$attr['user']; 
+                   $nameIdentifier=$attr['user'];
+                   
+//                 generateSamlReponse
                    $samlSuccess= PronoteTokenBuilder(0, $attr, $nameIdentifier,''); 
-                   loggedout();             
+                   
                    //$validResponse=validateSamlschema( $samlSuccess, $samloneschema);
 //                   $validResponse=1;
                    
-              
+                   // 8- Send Soap Reponse  
 //                   if ($validResponse)
                          soapReponse($samlSuccess);
 //                       
@@ -484,33 +479,21 @@ function proxyValidate() {
 //                   {
 //                       throw new Exception ('non valid Response'); 
 //                   }
-//                   // 8- Send Soap Reponse             
-                    //
-                    //  
-                    //
-//                                
-                                
+//                             
+                             
                    
              }  
              catch(Exception $e){
                      
                     
             //genterate  a failure saml reponse
-           // showError($e->getMessage());
-                 //echo $e->getMessage();
-//                 $failureReponse='<Response IssueInstant="2012-03-22T13:53:23.171Z" 
-//                     MajorVersion="1" MinorVersion="1" 
-//                     Recipient="http://pronote.dev.laclasse.lan:8/pronote.net/cas/validationcas/" 
-//                     ResponseID="_27af29b3a1f8cc1349d6a9aba95e164a"><Status><StatusCode Value="samlp:Responder"/>
-//                     <StatusMessage>'.$e->getMessage().'</StatusMessage></Status></Response>';  
-                 $samlFailure=PronoteTokenBuilder(8, null,null,$e->getMessage());
-                 //$validResponse=validateSamlschema( $samlFailure, $samloneschema);
-                 //echo $validResponse; 
-                 //echo $e->getMessage(); 
+           
+             $samlFailure=PronoteTokenBuilder(8, null,null,$e->getMessage());
+                 
                  soapReponse($samlFailure); 
                     
              }
-//                     
+                   
        
    }
    
