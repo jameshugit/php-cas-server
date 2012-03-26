@@ -1,4 +1,4 @@
-<?php
+<?
 /**
 	Jetons spécifiques aux manuels scolaires numériques
 	Les balises apparaîssent même si elles ne sont pas valuées.
@@ -9,66 +9,187 @@
 	@returns a string with the name o f the attribute and its value
 */
 define('T', "\t");
-
-function view_saml_pronote_token($t) {
-	$jeton = '
-	<?xml version="1.0" encoding="UTF-8"?>
-    <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
-        <SOAP-ENV:Header/>
-        <SOAP-ENV:Body>
-            <Response xmlns="urn:oasis:names:tc:SAML:1.0:protocol"
-            xmlns:saml="urn:oasis:names:tc:SAML:1.0:assertion"
-            xmlns:samlp="urn:oasis:names:tc:SAML:1.0:protocol"
-            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            IssueInstant="2008-09-22T20:38:28.672Z"
-            MajorVersion="1"
-            MinorVersion="1"
-            Recipient="https://trogdor.princeton.edu:8443/test1/"
-            ResponseID="_eada71e012b88219d7ecb15c3432f002">
-            <Status>
-                <StatusCode Value="samlp:Success"></StatusCode>
-            </Status>
-            <Assertion xmlns="urn:oasis:names:tc:SAML:1.0:assertion"
-            AssertionID="_17fb3f1437c7fe89e36594c1141ec31f"
-            IssueInstant="2008-09-22T20:38:28.672Z"
-            Issuer="localhost"
-            MajorVersion="1"
-            MinorVersion="1">
-                <Conditions NotBefore="2008-09-22T20:38:28.672Z" NotOnOrAfter="2008-09-22T20:38:58.672Z">
-                <AudienceRestrictionCondition>
-                <Audience>https://trogdor.princeton.edu/test1/</Audience>
-                </AudienceRestrictionCondition></Conditions>
-                <AttributeStatement>
-                <Subject>
-                <NameIdentifier>mbarton</NameIdentifier>
-                <SubjectConfirmation>
-                <ConfirmationMethod>urn:oasis:names:tc:SAML:1.0:cm:artifact</ConfirmationMethod>
-                </SubjectConfirmation>
-                </Subject>';
-                
-	foreach($t as $k => $v) {
-		$token .= _addCasAttr($k, $v);
-	$jeton .= T."</cas:UserAttributes>\n";
-	
-    $jeton .= T.'</AttributeStatement>
-                <AuthenticationStatement AuthenticationInstant="2008-09-22T20:38:28.375Z"
-                AuthenticationMethod="urn:oasis:names:tc:SAML:1.0:am:unspecified">
-                <Subject>
-                <NameIdentifier>mbarton</NameIdentifier>
-                <SubjectConfirmation>
-                <ConfirmationMethod>urn:oasis:names:tc:SAML:1.0:cm:artifact</ConfirmationMethod>
-                </SubjectConfirmation>
-                </Subject>
-                </AuthenticationStatement>
-            </Assertion>
-            </Response>
-        </SOAP-ENV:Body>
-    </SOAP-ENV:Envelope>';
-	$jeton .= T."<cas:UserAttributes>\n";
-	
-	return $jeton;
+class StatusCode
+{
+    const Success = 0;
+    const VersionMismatc = 1;
+    const Requester= 2; 
+    const Responder = 3; 
+    const RequestVersionTooHigh=4; 
+    const RequestVersionTooLow=5; 
+    const RequestVersionDeprecated=6; 
+    const TooManyResponses= 7; 
+    const RequestDenied= 8; 
+    // etc.
 }
+
+
+function Status($status)
+{
+    $stat='<Status>
+         <StatusCode Value="samlp:'.$status.'"></StatusCode>
+         </Status>'; 
+    
+    return $stat; 
+}
+function FailureStatus($status, $message)
+{
+    $stat='<Status><StatusCode Value="samlp:'.$status.'"/>
+                     <StatusMessage>'.$message().'</StatusMessage></Status>';  
+    
+    return $stat; 
+}
+
+function Attribute($attributeName, $attributeNS, $attributeValue)
+{
+    $Attribute=' <Attribute AttributeName="'.$attributeName.'" AttributeNamespace="'.$attributeNS.'">
+            <AttributeValue>'.$attributeValue.'</AttributeValue>
+          </Attribute>'; 
+    
+    return $Attribute; 
+}
+
+function Subject($nameIdentifier, $confirmationMethod)
+{
+    $Subject='<Subject>
+            <NameIdentifier>'.$nameIdentifier.'</NameIdentifier>
+            <SubjectConfirmation>
+              <ConfirmationMethod>'.$confirmationMethod.'
+              </ConfirmationMethod>
+            </SubjectConfirmation>
+          </Subject>';
+    return $Subject; 
+}
+
+function Conditions($notBefore, $NotorAfter)
+{ 
+    $Conditions='
+<Conditions
+           NotBefore="'. $notBefore.'" 
+           NotOnOrAfter="'. $NotorAfter.'"> 
+       <AudienceRestrictionCondition>
+            <Audience>
+              https://some-service.example.com/app/
+            </Audience>
+          </AudienceRestrictionCondition>
+          </Conditions>'; 
+return $Conditions; 
+
+}
+
+function AuthenticationStatement($authenticationMethod,$Subject, $instant){
+    
+         $Authentication = '<AuthenticationStatement
+           AuthenticationMethod="'.$authenticationMethod.'"
+           AuthenticationInstant= "'.SimpleSAML_Utilities::generateTimestamp($instant).'">'.$Subject.'
+         </AuthenticationStatement>';
+         return $Authentication; 
+}
+function AttributeStatement($Subject,$Attributes)
+{
+    $AttributeStatement='<AttributeStatement>';
+    $AttributeStatement.=$Subject;
+    foreach ($Attributes as $Attribute) {
+        $AttributeStatement.=$Attribute; 
+    }
+    $AttributeStatement.='</AttributeStatement>'; 
+    
+    return $AttributeStatement; 
+}
+
+function Assertion($Conditions, $Subject, $AttributeStatement, $AuthenticationStatement, $time)
+{
+    $Assertion='<Assertion   xmlns="urn:oasis:names:tc:SAML:1.0:assertion"
+         MajorVersion="1" MinorVersion="1"
+         AssertionID="'.SimpleSAML_Utilities::generateID().'"
+         Issuer="http://localhost/sso/cas"
+         IssueInstant= "'. SimpleSAML_Utilities::generateTimestamp($time).'">';
+    $Assertion.=$Conditions; 
+    $Assertion.=$Subject;
+    $Assertion.=$AttributeStatement;
+    $Assertion.=$AuthenticationStatement;
+    $Assertion.='</Assertion>';
+    
+    return $Assertion; 
+}
+
+// in this case only one Assertion is allowd 
+function Response($Assertion, $Status, $time)
+{
+    $Response='<Response
+                               xmlns="urn:oasis:names:tc:SAML:1.0:protocol" 
+                               xmlns:saml="urn:oasis:names:tc:SAML:1.0:assertion" 
+                               xmlns:samlp="urn:oasis:names:tc:SAML:1.0:protocol" 
+                               xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+                               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       MajorVersion="1" MinorVersion="1"
+       ResponseID="'.SimpleSAML_Utilities::generateID().'" 
+       IssueInstant= " '. SimpleSAML_Utilities::generateTimestamp($time). '" Recipient="https://eiger.iad.vt.edu/dat/home.do"> '; 
+    $Response.=$Status; 
+    $Response.=$Assertion;
+    $Response.='</Response>';
+    
+    return $Response; 
+}
+
+
+function PronoteTokenBuilder($Statuscode,$Attributes,$nameIdentifier,$message) {
+	
+    // for now  we have two cases : success or RequestDenied
+
+         //success message
+         if ($Statuscode==  StatusCode::Success)
+         {
+             $Status= Status('Success');
+             
+             $Subject=Subject($nameIdentifier, 'urn:oasis:names:tc:SAML:1.0:cm:artifact');
+             
+             $AttributesArray = array(); 
+             $index=0; 
+             foreach ($Attributes as $key => $value) {
+                 $attr=Attribute($key,'http://laclasse.com', $value);
+                 $AttributesArray[$index]=$attr; 
+                 $index+=1;     
+             }
+             
+             $AttributeStatement=AttributeStatement($Subject, $AttributesArray);
+             
+             
+             $time = time(); 
+             $validity= time()+60*60; 
+             $notBefore=SimpleSAML_Utilities::generateTimestamp($time); 
+             $notorAfter=SimpleSAML_Utilities::generateTimestamp($validity);
+             $Conditions=Conditions($notBefore, $notorAfter); 
+             
+             $AuthenticationStatement = AuthenticationStatement('urn:oasis:names:tc:SAML:1.0:am:password', $Subject, $time);
+             
+             $Assertion=Assertion($Conditions, $Subject, $AttributeStatement, $AuthenticationStatement,$time); 
+             
+             $Response = Response($Assertion, $Status, $time); 
+             
+             return $Response;  
+             
+             
+             
+             
+             
+         }
+        // 
+         else
+         {
+             $Statuscode=StatusCode::Responder; 
+             $Status= Status('Responder');
+             
+             $time = time(); 
+             $Response= Response('', $Status, $time); 
+             
+             return $Response; 
+             
+             
+         }
+}
+    
+       
 
 /**
 	_addCasAttr : returns a well xml formated CAS attributes.

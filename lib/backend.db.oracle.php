@@ -212,9 +212,60 @@ function getServiceValidate($login, $service) {
 	@param 
 	@returns String : the SAML response
 */
-function getSamlValidate($login, $service) {
-	print_r ($_REQUEST);
-	return null;
+function getSamlAttributes($login, $service) {
+	global $CONFIG;
+	// index of the global array containing the list of autorized sites.
+	$idxOfAutorizedSiteArray = getServiceIndex($service);
+	$myAttributesProvider = isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['attributesProvider']) ? 
+							$CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['attributesProvider'] : SQL_FOR_ATTRIBUTES;
+
+	$myTokenView = isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['tokenModele']) ? 
+				   $CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['tokenModele'] : 'Default';
+	// If service index is null, service is not allow to connect to our sso.
+	//if ($idxOfAutorizedSiteArray == "")
+	//	return viewAuthFailure(array('code'=> '', 
+	//								 'message'=> _('This application is not allowed to authenticate on this server')));
+	
+	// An array with the needed attributes for this service.
+	$neededAttr = explode(	",", 
+							str_replace(" ", "", 
+							strtoupper($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['allowedAttributes']))
+						);
+        
+//                                                foreach ($neededAttr as $value) {
+//                                                    echo "$value \n"; 
+//                                                    
+//                                                }
+	$attributes = array(); // What to pass to the function that generate token
+	
+	/// @note : no need for the moment... $CASversion = $CONFIG['CAS_VERSION'];
+	
+	// Adding data to the array for displaying.
+	// user attribute is requiered in any way.
+	// this is requiered in CAS 1.0 for phpCAS Client.
+	$attributes['user'] = $login;
+        //echo $myAttributesProvider; 
+	
+	// executing second SQL Statment for other attributes.
+
+	$db = _dbConnect();
+	$r = _dbExecuteSQL($db, $myAttributesProvider, array('LOGIN'=>$login));
+	_dbDisconnect($db);
+	
+	// Should have only one row returned.
+	$rowSet = $r[0];
+        //echo count($rowSet);  
+	if (isset($rowSet)) {
+		// For all attributes returned
+		foreach($rowSet as $idx => $val) {
+			if (in_array(strtoupper($idx), $neededAttr)) {
+				$attributes[$idx] = $val;
+			}
+		}
+	}
+        
+        //echo count($attributes); 
+        return $attributes; 
 }
 
 ?>
