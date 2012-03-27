@@ -264,8 +264,6 @@ function serviceValidate() {
 	$service 	= urldecode(isset($_GET['service']) ? $_GET['service'] : "");
 	$renew 		= isset($_GET['renew']) ? $_GET['renew'] : "";
 	
-        file_put_contents('logService.log', 'in Service Validate');
-	
 	// 1. verifying parameters ST ticket and service should not be empty.
 	if (!isset($ticket) || !isset($service)) {
 		viewAuthFailure(array('code'=>'INVALID_REQUEST', 'message'=> _("serviceValidate require at least two parameters : ticket and service.")));
@@ -631,7 +629,6 @@ function validateTicket($ticket, $service)
             break;
     // Consider that we can handle case insensitive (great ! this is not in CAS specs.)
         case "samlvalidate" :
-            //file_put_contents('/var/www/cas/log/logSaml.log', "Ici");
             samlValidate();
             //showError(_("Saml Validate"));
             break;
