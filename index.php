@@ -264,8 +264,6 @@ function serviceValidate() {
 	$service 	= urldecode(isset($_GET['service']) ? $_GET['service'] : "");
 	$renew 		= isset($_GET['renew']) ? $_GET['renew'] : "";
 	
-        file_put_contents('logService.log', 'in Service Validate');
-	
 	// 1. verifying parameters ST ticket and service should not be empty.
 	if (!isset($ticket) || !isset($service)) {
 		viewAuthFailure(array('code'=>'INVALID_REQUEST', 'message'=> _("serviceValidate require at least two parameters : ticket and service.")));
@@ -326,63 +324,6 @@ function proxyValidate() {
 	@param 
 	@returns
 */
-
-    /**
-      samlValidate
-      Validation of the ST ticket, with SAML
-
-      @file
-      @author PGL pgl@erasme.org
-      @param
-      @returns
-      @see serviceValidate()
-     */
-
-/*
-    function samlValidate() {
-        global $CONFIG;
-        
-        // $ticket = ST...
-                
-        
-        $service = '';
-        foreach ($_GET as $k => $g) if (in_array (strtolower ($k), array ('service', 'target'))) $service = urldecode ($g);
-        $renew = isset($_GET['renew']) ? $_GET['renew'] : "";
-
-        // 1. verifying parameters ST ticket and service should not be empty.
-        if (!isset($ticket) || !isset($service)) {
-            viewAuthFailure(array('code' => 'INVALID_REQUEST', 'message' => _("serviceValidate require at least two parameters : ticket and service.")));
-            die();
-        }
-
-        // 2. verifying if ST ticket is valid.
-        $st = new ServiceTicket();
-        if (!$st->find($ticket)) {
-            viewAuthFailure(array('code' => 'INVALID_TICKET', 'message' => "Ticket " . $ticket . _(" is not recognized.")));
-            die();
-        }
-
-        // 3. validating ST ticket.
-        if ($st->service() != $service) {
-            viewAuthFailure(array('code' => 'INVALID_SERVICE', 'message' => _("The service ") . $service . _(" is not valid.")));
-            // Destroy this ticket from memCache because it is not valid anyway.
-            $st->delete();
-            die();
-        }
-
-        // If we pass here, ticket and service are validated
-        // So give back the CAS2 like token
-        $token = getServiceValidate ($st->username(), $service);
-
-        // 4. destroy ST ticket because this is a one shot ticket.
-        $st->delete();
-
-        // 6. echoing CAS2 like token
-        header("Content-length: " . strlen($token));
-        header("Content-type: text/xml");
-
-        echo $token;
-    } */
 
    function samlValidate() 
    {
@@ -625,22 +566,24 @@ function validateTicket($ticket, $service)
     // Sittin' on the dock of the PT...
         case "proxyvalidate" :
     // Consider that we can handle case insensitive (great ! this is not in CAS specs.)
+            //proxyvalidate();
+            serviceValidate();
             break;
         case "servicevalidate" :
             serviceValidate();
             break;
     // Consider that we can handle case insensitive (great ! this is not in CAS specs.)
         case "samlvalidate" :
-            //file_put_contents('/var/www/cas/log/logSaml.log', "Ici");
             samlValidate();
             //showError(_("Saml Validate"));
             break;
-        case "stats" :
-            printMemCachedStats();
-            break;
-        
         case 'extractsoap': 
+<<<<<<< HEAD
            echo(extractSoap());
+=======
+           echo( extractSoap());
+           break;
+>>>>>>> origin/develop
         default :
             showError(_("Action inconnue."));
     }
