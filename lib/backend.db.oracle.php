@@ -27,7 +27,8 @@ function _dbConnect() {
 	$conn = oci_connect(BACKEND_DBUSER, BACKEND_DBPASS, BACKEND_DBNAME);
 	if (!$conn)		   {
     	$e = oci_error();
-    	trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
+    	//trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
+        throw new Exception($e['message']); 
 	}
 	return $conn;
 }
@@ -68,14 +69,16 @@ function _dbExecuteSQL($conn, $sql, $param){
 
 	if (!$stid) {
     	$e = oci_error($conn);
-    	trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
+    	//trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
+	 throw new Exception($e['message']); 
 	}
 	
 	// Exécution de la logique de la requête
 	$b = oci_execute($stid);
 	if (!$b) {
     	$e = oci_error($stid);
-    	trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
+    	//trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
+ 	throw new Exception($e['message']); 
 	}
 	
 	// fetch data
@@ -123,6 +126,81 @@ function verifyLoginPasswordCredential($login, $pwd) {
 	// here is an unsuccessful attempt...
 	return "";
 }
+/* 
+	function to search a user in the database
+	@param $nom : user last name.
+	@param $prenom : user first name.
+	@returns array of attributes.
+*/
+
+function search_user_by_name($nom,$prenom)
+{
+    
+        global $CONFIG;
+        $myAttributesProvider = Search_Agent_by_Name; 
+	$db = _dbConnect();
+	$r = _dbExecuteSQL($db, $myAttributesProvider, array('nom'=>$nom, 'prenom' =>$prenom));
+	_dbDisconnect($db);
+        
+        $attributes= array(); 
+        // must treat the case with more than one response
+        if(count($r)>1)
+        {
+            //throw new Exception('more than one user with the same last and first name'); 
+            for ($i=0;$i< count($r);$i++) {
+                $rowSet=$r[$i];
+                foreach($rowSet as $idx => $val) {
+	                   $attributes[$i][$idx] = $val;
+			
+		}
+                
+                
+            }
+        }
+ else {
+         if(count($r)==1)
+        {
+            //throw new Exception('more record exist in the database'); 
+       
+                $rowSet=$r[0];
+                foreach($rowSet as $idx => $val) {
+	                   $attributes[0][$idx] = $val;
+			
+		}
+                
+                
+            }
+        }  
+    return $attributes; 
+}
+
+function create_utilisateur($nom,$prenom,$login,$password,$sex,$mail)
+{
+    
+        global $CONFIG;
+        //$procedure= create_Agent_procedure; 
+        $query = create_Agent3; 
+	$db = _dbConnect();
+	//$s = oci_parse($db, $procedure);
+   	//oci_execute($s, OCI_DEFAULT);
+	_dbExecuteSQL($db, $query, array('nom'=>$nom, 'prenom'=>$prenom,'password'=>$password, 'sex'=>$sex, 'login'=>$login , 'mail'=>$mail));
+	_dbDisconnect($db);
+        
+        
+}
+
+function Get_profiles()
+{
+    global $CONFIG;
+        $query = Get_categories; 
+	$db = _dbConnect();
+	$r = _dbExecuteSQL($db, $query, null);
+	_dbDisconnect($db);
+        
+        return $r; 
+}
+    
+
 
 
 /**
