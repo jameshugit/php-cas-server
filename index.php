@@ -578,12 +578,10 @@ function validateTicket($ticket, $service)
             //showError(_("Saml Validate"));
             break;
         case 'extractsoap': 
-<<<<<<< HEAD
-           echo(extractSoap());
-=======
+
            echo( extractSoap());
            break;
->>>>>>> origin/develop
+
         default :
             showError(_("Action inconnue."));
     }
