@@ -219,7 +219,7 @@ define('create_Agent3', 'declare
                     null,
                     2,
                     1,
-                    15,
+                   :UaiEtab,
                     null,
                     549,
                    null,
@@ -227,17 +227,16 @@ define('create_Agent3', 'declare
                     1,
                     null,
                     :sex,
-                    6,
+                    :profile,
                     null,
                     :mail,
                     null,
                     null,
-                    null,
-                    null);
+                    null, 
+		    :eleveid);
                      end;');
 
 //--------------------------------------------------
-define('create_Agent2','begin proc1(:login, :password,:nom,:prenom,:sex,:mail,:result); end;');
 
 //Match with ID
 define('Search_student_By_Id',
@@ -256,7 +255,10 @@ define('Search_student_By_Id',
                      and ui.id = u.id and 
                      and ui.prof_id = p.id  and ui.Sconet_elev_Id=(:eleveid)');
 //------------------------------------------------
-
+define('search_Etablissement_id', 'select e.id 
+				  from etablissements e 
+				   where e.CODE_RNE =(:UaiEtab)');
+//-----------------------------------------------	 
 define('Search_student_By_Etablissment',
      'select  distinct u.login         "login",
                    comptes.formate_us7ascii(u.nom)   "nom",
@@ -274,7 +276,7 @@ define('Search_student_By_Etablissment',
                      and ui.prof_id = p.id  
                      and u.nom = (:Nom)
                      and u.prenom=(:Prenom)');
-//---------------------------------------------------------
+//-------------------------------------------------
 define('Search_student_By_Name',
      'select  distinct u.login         "login",
                    comptes.formate_us7ascii(u.nom)   "nom",
@@ -317,7 +319,8 @@ define('Search_Parent_By_Name',
 
 //------------------------------------------------------------
 define('Search_Parent_By_EleveId',
-     'select  distinct u.login     "login",
+     'select  distinct u.id, ui.etb_id, 
+		   u.login     "login",
                    comptes.formate_us7ascii(u.nom)   "nom",
                    comptes.formate_us7ascii(u.prenom) "prenom",
                    to_char(u.dt_naissance,\'RRRR-MM-DD\') "dateNaissance",
@@ -327,18 +330,29 @@ define('Search_Parent_By_EleveId',
              from utilisateurs u,
                     utilisateurs_info ui,
                     profil p, 
-                    etablissements e
+                    etablissements e,
                     est_responsable_legal_de r
-               where and ui.id = u.id and u.id= r.USR_ID and r.elv_id=(:eleveid) 
+               where  ui.id = u.id and u.id = r.USR_ID and r.elv_id = (select c.id from utilisateurs c, utilisateurs_info ci  where c.id = ci.id and ci.Sconet_elv_id = (:elevid)) 
                      and ui.prof_id = p.id');
 
+//-------------------------------------------------------
 
-//---------------------------------
+define('Search_Etablissment', ' select id, parent_elv_id, Sconet_elv_id from utilisateurs_info where etb_id = (select e.id  from etablissements e where e.CODE_RNE =(:UaiEtab))');  
 
-define('Get_categories', 'select * from profil ');  
+define('Get_categories', 'select * from profil'); 
 
-//---------------------------------
 
+//-------------------------------------------------------- 
+define('Get_sconet_ids','select u.Sconet_elv_id from utilisateurs_info u  where u.Sconet_elv_id IS NOT NULL');
+
+//--------------------------------------------------------
+
+define('Get_user_id', 'select u.id from utilisateurs u, utilisateurs_info ui where u.id = ui.id and ui.Sconet_elv_id= (:elevid)');
+
+define('set_relation_parent_eleve', 'BEGIN
+ 	set_relation_parents_enfants(:parent_id, :list_enfant) ;
+END;');  
+//--------------------------------------------------------
 define('SQL_FOR_ATTRIBUTES_MEN',
         '/* ELEVES */
         select  distinct u.uid_ldap "user",
