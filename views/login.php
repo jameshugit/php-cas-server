@@ -72,10 +72,16 @@ function getFormLogin($t) {
                 <a href="http://www.laclasse.com/pls/public/!page.laclasse?contexte=QUESTION&rubrique=0">Mot de passe perdu</a>&nbsp;
                 <a href="javascript:void()" onClick="javascript:open(\'http://www.laclasse.com/pls/public/!page.laclasse?contexte=CONTACT&rubrique=1\',\'win\', \'resizable=yes\')">Trouver de l\'aide</a>
               </div>
+	       
               <br class="clear" />
               <br />
             </div>
-               
+             <div style = "border-top: solid #3399FF; background-color:white; width: 260px; padding: 5px;">
+		<p> <font color="red"><b>Nouveau:</b></font> <br/>
+ 		  <font>Vous pouvez vous connecter par votre profil de l\'academie de lyon </font></p>
+		<p><a  href="https://192.168.0.223/simplesamlphp/www/example-simple/verysimple.php?login"><img src="images/parents_eleves1b.png" alt="ADLyon"/></a><span style="margin-left:30px;"></span>
+		<a  href="#"><img src="images/profs_agents1b.png" alt="ADLyon"/></a></p>
+	       </div>  			
             <div id="sidebar">
               <p>'._('Pour des raisons de s&eacute;curit&eacute;, veuillez vous d&eacute;connecter et fermer votre navigateur lorsque vous avez fini d\'acc&eacute;der aux services authentifi&eacute;s.').'</p>
               <div id="list-languages">
@@ -96,6 +102,26 @@ function viewLoginForm($t) {
 	getFormLogin($t);
 	echo '</div>';
 	getFooter();
+}
+function ViewLoginChoices()
+{
+	global $CONFIG;
+	getHeader();
+	$links= array('laclasse.com' => 1, 'Academie de lyon profile parent/eleve'=>2, 'Academie de lyon profile agent'=> 3 ); 
+	if ($CONFIG['DISPLAY_NEWS']) getNewsList($t);
+	echo '<div id="mire">';
+         echo '<p> laclasse.com vous permet de choisir votre fournisseur d\'identité pour se logger à l\'ENT</p>'; 
+	echo '<form method="get" action="dispatcher.php">
+		<select id="dropdownlist" name="idpentityid">'; 		
+		foreach ($links as $key => $value) {
+
+		echo '<option value= "'.$value.'">'. $key .'</option>';
+		
+		}
+		echo '</select>'; 
+		echo '<input type="submit" name="Sélectionner" value="Sélectionner" />'; 	
+	echo '</form>'; 
+	getFooter();	
 }
 
 //------------------------------------------------------------------------------
