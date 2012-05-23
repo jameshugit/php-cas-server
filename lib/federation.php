@@ -107,6 +107,21 @@ function extractVector($attributes)
 
 
 }
+function extractEmail($attributes)
+     {
+        $attr=array();
+         if(!empty($attributes))
+         {
+           if(array_key_exists('ctemail',$attributes))
+           {
+              // echo 'key exists <br/>'; 
+                 $attr['email']=$attributes['ctemail'][0];
+              // i dont know if i had to  extract the name and the first name
+           }
+         }
+         return $attr;
+     }
+
 
 //utility function to find the union of two arrays
 function array_union($a,$b)
@@ -265,9 +280,9 @@ if(empty($attributes)) // no attributes sent by the idp
                                       // send email to administrator and login the user. 
                                       $unique= unique_by_person($casattributes); 
                                       if(!empty($unique)) {  //famlilly account
-                                        echo '<br>familly account<br/>';
+                                       // echo '<br>familly account<br/>';
                                         //print_r($unique);
-                                        session_start(); 
+                                        //session_start(); 
                                         $_SESSION['famillyAccount']=$unique; 
                                       }
                                      else{
@@ -293,7 +308,32 @@ if(empty($attributes)) // no attributes sent by the idp
 
 }
 
+function agentLogin($attributes)
+{
+   $email =  extractEmail($attributes);
+   print_r($email);
+   if(empty($email))
+     echo 'empty identity vector <br/>';
+   else
+   {
+     $search= Search_Agent_by_mail($email['email']); 
+     if(empty($search))
+     {
+       // echo 'the user does not exist in the database';
+       // redirect to inscription page
+       // may be i had to add some information to the request
+       echo '<META HTTP-EQUIV="Refresh" Content="2; http://www.dev.laclasse.com/pls/public/!page.laclasse?contexte=INSCRIPTION&rubrique=0">';
+       exit();
 
+     }
+     else 
+     {
+       echo 'the user will be logedd in as:' . $search[0]['login']; 
+       CASlogin($search[0]['login']); 
+     }
+
+   }
+}
 
 ?>
 
