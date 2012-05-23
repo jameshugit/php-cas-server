@@ -75,6 +75,10 @@ function CASLogin($nom) {
         }
     }
 
+// extractVector function gets the vector send by the academie and returns an array that 
+// contains the different information in the vector.
+//
+
 function extractVector($attributes)
 {
   $attr=array();
@@ -172,8 +176,8 @@ if(empty($attributes)) // no attributes sent by the idp
           else
             {
               $attr= extractVector($attributes);
-            echo 'identity vector <br/>';
-             print_r($attr) ;
+            
+            // print_r($attr) ;
              if(count($attr)>0)      // identity vector is successfully extracted
               {
                    if(count($attr)==1)  // case of one identity vector
@@ -192,30 +196,29 @@ if(empty($attributes)) // no attributes sent by the idp
                              {
                                  if (count($casattributes)==0)  // 'no matching is found'
                                   {
-                                    // session_start();
-                                    // $_SESSION["noresult"]= $attr;
+
+
                                     if($attr[0]["profile"]==3 || $attr[0]["profile"]==4) { // profile eleve·
 
                                        echo '<br> you dont have an account on the laclasse.com, you will be redirected to inscription page <br/>';
-                                      // echo '<META HTTP-EQUIV="Refresh" Content="2; URL= http://www.dev.laclasse.com/pls/public/!page.laclasse?contexte=INSCRIPTION&profil=ELEVE&petape=2&rubrique=0">';
-                                     // exit();
+                                      echo '<META HTTP-EQUIV="Refresh" Content="2; URL= http://www.dev.laclasse.com/pls/public/!page.laclasse?contexte=INSCRIPTION&profil=ELEVE&petape=2&rubrique=0">';
+                                     exit();
                                       }
                                     if ($attr[0]["profile"]==1 || $attr[0]["profile"]==2) { // profile parent
 
                                        echo '<br> you dont have an account on the laclasse.com, you will be redirected to inscription page <br/>';
-                                     // echo '<META HTTP-EQUIV="Refresh" Content="2; http://www.dev.laclasse.com/pls/public/!page.laclasse?contexte=INSCRIPTION&rubrique=0">';
-                                     // exit();
+                                     echo '<META HTTP-EQUIV="Refresh" Content="2; http://www.dev.laclasse.com/pls/public/!page.laclasse?contexte=INSCRIPTION&rubrique=0">';
+                                     exit();
                                      }
 
                                   }
                                    else //'more than one record are found ! '
                                    {
-                                                // session_start() ;
-                                                // $_SESSION["Result"]= $casattributes;
+
                                                 //sand an email to the administrator and then login in with the most recent id
                                                  sendalert($casattributes);
                                                  CASLogin($casattributes[0]['login']);
-                                                // echo  $as->getLogoutURL();
+
                                    }
                                }
 
@@ -223,7 +226,6 @@ if(empty($attributes)) // no attributes sent by the idp
                         else
                         {
                           // actullay this version treat multiple identity vector for the same person
-                         // print_r($attr);
                           $casattributes = array();
                          $temp=array();
                          foreach($attr as $record)
@@ -238,8 +240,8 @@ if(empty($attributes)) // no attributes sent by the idp
                            $casattributes = $temp; 
                           // print_r($temp); 
                          }
-                        echo '<br>account founded <br/>'; 
-                        print_r($casattributes); 
+                       // echo '<br>account founded <br/>'; 
+                       // print_r($casattributes); 
                         
                            if(count($casattributes)==1) // one corresponding record is found in the database
                             {
@@ -264,7 +266,7 @@ if(empty($attributes)) // no attributes sent by the idp
                                       $unique= unique_by_person($casattributes); 
                                       if(!empty($unique)) {  //famlilly account
                                         echo '<br>familly account<br/>';
-                                        print_r($unique);
+                                        //print_r($unique);
                                         session_start(); 
                                         $_SESSION['famillyAccount']=$unique; 
                                       }
@@ -282,7 +284,10 @@ if(empty($attributes)) // no attributes sent by the idp
                         }
               }
              else{
-                                 echo 'no identity vector is found you will be redirected to inscription  page'; 
+               echo 'no identity vector is found you will be redirected to inscription  page'; 
+               echo '<META HTTP-EQUIV="Refresh" Content="2; http://www.dev.laclasse.com/pls/public/!page.laclasse?contexte=INSCRIPTION&rubrique=0">';
+               exit();
+
                  }
             }
 
