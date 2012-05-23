@@ -361,7 +361,16 @@ function Search_Parent_By_SconetID($nom, $prenom, $eleveid)
        return $r;
   }
 
+function Search_Agent_by_mail($mail)
+{
+         global $CONFIG;
+         $query = Search_Agent_by_mail;
+         $db = _dbConnect();
+          $r = _dbExecuteSQL($db, $query, array('mail'=> $mail));
+         _dbDisconnect($db);
+          return $r;
 
+}
 function Get_etablissement_id($UaiEtab)
 {
 	global $CONFIG;
