@@ -20,6 +20,7 @@ require_once(CAS_PATH .'/lib/ticket.php');
 //require_once(CAS_PATH . '/views/auth_failure.php');
 require_once(CAS_PATH . '/lib/backend.db.oracle.php');
 
+//CASLogin function takes the (laclasse login) as input and generates  a ticket to login to Laclasse server.
 function CASLogin($nom) {
         global $CONFIG;
         $Casurl = 'https://www.dev.laclasse.com/sso/login';
@@ -75,9 +76,9 @@ function CASLogin($nom) {
         }
     }
 
-// extractVector function gets the vector send by the academie and returns an array that 
-// contains the different information in the vector.
-//
+// extractVector function gets the vector sent by the academie and returns an array that 
+// contains the different information in the vector like nom, prenom, eleveid.
+//the array may contain multiple records depending on the number of sent vectors.
 
 function extractVector($attributes)
 {
@@ -107,6 +108,8 @@ function extractVector($attributes)
 
 
 }
+//extractEmail gets the email sent by the academie as an array
+//extractEmail($attributes)['email']= user email.
 function extractEmail($attributes)
      {
         $attr=array();
@@ -155,7 +158,7 @@ function unique_by_person($a)
            return $temp;
 }
 
-
+// sendalert sends an email to the administrator when multiple accounts for the same person are found
 function sendalert($attributes)
        {
         
@@ -181,7 +184,7 @@ function sendalert($attributes)
      //
                         mail($to, $subject, $message, $headers);
            }
-
+//login function handles the different cases of profile parent/eleve and make the good action (login to CAS server , redirect to inscription page, ..)
 function login($attributes){
 
 if(empty($attributes)) // no attributes sent by the idp 
@@ -215,13 +218,15 @@ if(empty($attributes)) // no attributes sent by the idp
 
                                     if($attr[0]["profile"]==3 || $attr[0]["profile"]==4) { // profile eleve·
 
-                                       echo '<br> you dont have an account on the laclasse.com, you will be redirected to inscription page <br/>';
+                                      // echo '<br> you dont have an account on the laclasse.com, you will be redirected to inscription page <br/>';
+                                       echo '<h1>Vous n\'avez pas de compte sur le laclasse.com, vous serez redirig&eacute; vers la page d\'inscription </h1>';
                                       echo '<META HTTP-EQUIV="Refresh" Content="2; URL= http://www.dev.laclasse.com/pls/public/!page.laclasse?contexte=INSCRIPTION&profil=ELEVE&petape=2&rubrique=0">';
                                      exit();
                                       }
                                     if ($attr[0]["profile"]==1 || $attr[0]["profile"]==2) { // profile parent
 
-                                       echo '<br> you dont have an account on the laclasse.com, you will be redirected to inscription page <br/>';
+                                      // echo '<br> you dont have an account on the laclasse.com, you will be redirected to inscription page <br/>';
+                                       echo '<h1>Vous n\'avez pas de compte sur le laclasse.com, vous serez redirig&eacute; vers la page d\'inscription </h1>';
                                      echo '<META HTTP-EQUIV="Refresh" Content="2; http://www.dev.laclasse.com/pls/public/!page.laclasse?contexte=INSCRIPTION&rubrique=0">';
                                      exit();
                                      }
@@ -269,6 +274,7 @@ if(empty($attributes)) // no attributes sent by the idp
                                      {
                                        // session_start();
                                        // $_SESSION["noresult"]= $attr;
+                                        echo ' <h1>Vous n\'avez pas de compte sur le laclasse.com, vous serez redirig&eacute; vers la page d\'inscription </h1>';
                                        echo '<META HTTP-EQUIV="Refresh" Content="2; http://www.dev.laclasse.com/pls/public/!page.laclasse?contexte=INSCRIPTION&rubrique=0">';
                                        exit();
 
@@ -299,7 +305,7 @@ if(empty($attributes)) // no attributes sent by the idp
                         }
               }
              else{
-               echo 'no identity vector is found you will be redirected to inscription  page'; 
+               echo '<h1>Aucun vecteur d\'identité est reçu, vous serez redirigé vers la page d\'inscription</h1>';
                echo '<META HTTP-EQUIV="Refresh" Content="2; http://www.dev.laclasse.com/pls/public/!page.laclasse?contexte=INSCRIPTION&rubrique=0">';
                exit();
 
@@ -308,6 +314,7 @@ if(empty($attributes)) // no attributes sent by the idp
 
 }
 
+//agent login handles the different cases of profile agent/prof 
 function agentLogin($attributes)
 {
    $email =  extractEmail($attributes);
@@ -320,16 +327,26 @@ function agentLogin($attributes)
      if(empty($search))
      {
        // echo 'the user does not exist in the database';
+       echo ' <h1>Vous n\'avez pas un compte sur le laclasse\.com, vous serez redirigé vers la page d\'inscription </h1>';
        // redirect to inscription page
        // may be i had to add some information to the request
        echo '<META HTTP-EQUIV="Refresh" Content="2; http://www.dev.laclasse.com/pls/public/!page.laclasse?contexte=INSCRIPTION&rubrique=0">';
-       exit();
+      exit();
 
      }
      else 
      {
+       if(count($search)==1)
+       {
        echo 'the user will be logedd in as:' . $search[0]['login']; 
        CASlogin($search[0]['login']); 
+       }
+       else
+       {
+         //person with multiple accounts
+         sendalert($search); 
+         CASlogin($search[0]['login']);
+       }
      }
 
    }

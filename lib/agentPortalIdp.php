@@ -43,6 +43,13 @@ if (array_key_exists('logout', $_REQUEST)) {
    // if (isset($_SESSION["noresult"]))
 
     $as->logout(SimpleSAML_Utilities::selfURLNoQuery());
+   // $url = SimpleSAML_Utilities::selfURLNoQuery(); 
+   // $c = curl_init('https://viesco.ac-lyon.fr/slo/response/AP');
+   // curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
+   // $page = curl_exec($c);
+   // curl_close($c);
+
+
    // $as->logout('http://www.dev.laclasse.com/saml/example-simple/loginidp.php');
 	/* The previous function will never return. */
 }
@@ -132,10 +139,37 @@ $(function() {
 				}});
 				
                 e.preventDefault();
-            }); 
-            
+            });
+            function WaitForIFrame($frame) {
+                     if ($frame.readyState != "complete") {
+                       setTimeout("WaitForIFrame($frame);", 200);
+                     } else { 
+                         }
+            };
+            function done(){
+              location.reload();
+            }
+
             $('table tr:nth-child(even)').addClass('stripe');
-        });
+            $('#logout').click(function(){
+             //se deconnecter de FIM 
+              $('#myIFrame').attr("src","?logout");WaitForIFrame($('#myIFrame'));
+              //se deconnecter de l'academie de lyon
+              $('#myIFrame2').attr("src","https://viesco.ac-lyon.fr/login/ct_logout.jsp"); WaitForIFrame($('#myIFrame2'));
+              //return false;
+              //location.reload();
+             // window.location.replace("http://www.dev.laclasse.com/sso/lib/agentPortalIdp.php");
+               // $(location).attr("href", "https://www.dev.laclasse.com/sso/lib/agentPortalIdp.php");
+             return false;
+                      });
+
+});
+
+    iframe = document.getElementById("myIFrame");
+    function done() {
+              //some code after iframe has been loaded
+       }; 
+
 </script>
 <link rel="stylesheet" href="../css/style.css" type="text/css" media="screen" title="no title" charset="utf-8">
 <link rel="stylesheet" href="../css/cas-laclasse.css" type="text/css" media="screen" title="no title" charset="utf-8">
@@ -151,12 +185,16 @@ echo '<div id="mire">';
 echo '<div class="box"  id="login">'; 
 if ($isAuth) {
 
-  echo '<p> Your are currently authenticated to IDP.<a href="https://viesco.ac-lyon.fr/login/ct_logout.jsp">log out from lyon academy </a>.</p>'; 
-  echo '<p><a href="?logout">Log out from identity server</a>.</p>';
+ // echo '<p> Vous êtes actuellement authentifié à l\'academie de lyon: <ol><li><a href="https://viesco.ac-lyon.fr/login/ct_logout.jsp"> se déconnecter de l\'academie de Lyon </a></li>'; 
+ // echo '<li><a href="?logout">se déconnecter du serveur de féderatio</a></li></ol></p>';
+  echo '<a id = "logout" href="https://viesco.ac-lyon.fr/slo/response/AP">
+           se déconnecter </a>'; 
+  echo '<iframe id="myIFrame" style="display:none" ></iframe>';
+  echo '<iframe id="myIFrame2" style="display:none" ></iframe>';
 	//echo '<p>Authenticate to server CAS <a href="?redirect">CAS Authentication</a>.</p>';
 	     } 
 else {
-	echo '<p>You are not authenticated to use the service. <a href="?login">Log in</a>.</p>';
+	echo '<p>Vous n\'êtes pas authentifié<a href="?login"> se connecter </a></p>';
      }
 ?>
 
@@ -167,9 +205,9 @@ else {
 if ($isAuth) {
 	
 if (isset($_COOKIE["info"]))
-  echo "Welcome " . $_COOKIE["info"] . "!<br />";
+  echo "BienVenu " . $_COOKIE["info"] . "!<br />";
 else
-  echo "Welcome guest!<br />";
+  echo "BienVenu visiteur!<br />";
 
 }
 
