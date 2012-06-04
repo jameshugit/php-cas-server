@@ -175,32 +175,32 @@ $config = array(
 	),
 	*/
 
-	/*
+	
 	// Example of an authsource that authenticates against Google.
 	// See: http://code.google.com/apis/accounts/docs/OpenID.html
-	'google' => array(
-		'openid:OpenIDConsumer',
-		// Googles OpenID endpoint.
-		'target' => 'https://www.google.com/accounts/o8/id',
-		// Custom realm
-		// 'realm' => 'http://*.example.org',
-		// Attributes that google can supply.
-		'attributes.ax_required' => array(
-			//'http://axschema.org/namePerson/first',
-			//'http://axschema.org/namePerson/last',
-			//'http://axschema.org/contact/email',
-			//'http://axschema.org/contact/country/home',
-			//'http://axschema.org/pref/language',
-		),
-		// custom extension arguments
-		'extension.args' => array(
-			//'http://specs.openid.net/extensions/ui/1.0' => array(
-			//	'mode' => 'popup',
-			//	'icon' => 'true',
-			//),
-		),
-	),
-	*/
+
+                    'google' => array(
+                          'openid:OpenIDConsumer',
+                              // Googles OpenID endpoint.
+                              'target' => 'https://www.google.com/accounts/o8/id',
+                                  // Custom realm
+                                 // 'realm' => 'http://*.example.org',
+                                // Attributes that google can supply.
+                                'attributes.ax_required' => array(
+                                'http://axschema.org/namePerson/first',
+                                'http://axschema.org/namePerson/last',
+                                'http://axschema.org/contact/email',
+                                //'http://axschema.org/contact/country/home',
+                               //'http://axschema.org/pref/language',
+                                ),
+                            // custom extension arguments
+                            'extension.args' => array(
+                           //'http://specs.openid.net/extensions/ui/1.0' => array(
+                           //array'mode' => 'popup',
+                           //popup'icon' => 'true',
+                            //),
+                           ),
+                      ),
 
 	/*
 	'papi' => array(
@@ -209,13 +209,13 @@ $config = array(
 	*/
 
 
-	/*
+	
 	'facebook' => array(
 		'authfacebook:Facebook',
-		'api_key' => 'xxxxxxxxxxxxxxxx',
-		'secret' => 'xxxxxxxxxxxxxxxx',
+		'api_key' => '113015542170801',
+		'secret' => 'd44a86abe122d2650e560efa56b16cf9',
 	),
-	*/
+	
 
 	/*
 	// LinkedIn OAuth Authentication API.
