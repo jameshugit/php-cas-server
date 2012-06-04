@@ -319,9 +319,10 @@ if(empty($attributes)) // no attributes sent by the idp
                                       // $_SESSION["Result"]= $casattributes;
                                       // send email to administrator and login the user. 
                                       $unique= unique_by_person($casattributes); 
+                                     //print_r($casattributes);
                                       if(!empty($unique)) {  //famlilly account
                                        // echo '<br>familly account<br/>';
-                                        //print_r($unique);
+                                       // print_r($unique);
                                         //session_start(); 
                                         $_SESSION['famillyAccount']=$unique; 
                                       }

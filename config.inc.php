@@ -254,7 +254,8 @@ define('Search_user_by_mail',
 define('Search_Parent_By_Name_EleveId',
        'select  distinct u.id, 
        u.login     "login", 
-        comptes.formate_us7ascii(u.prenom) "prenom"
+       comptes.formate_us7ascii(u.prenom) "prenom", 
+       comptes.formate_us7ascii(u.nom) "nom"
           from utilisateurs u,
              utilisateurs_info ui,
              profil p, 
