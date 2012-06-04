@@ -50,7 +50,7 @@ if (array_key_exists('logout', $_REQUEST)) {
 if(array_key_exists("loginidp", $_POST)) { // this case is for treating the familly account after a callback
 	$login = $_POST['loginidp'];
    // echo 'you will be logged in as'. $login.'</br>'; 
-	    CASlogin($login); 
+	    CASlogin($login, 'FIM');
 }
 
 
@@ -136,7 +136,7 @@ $(function() {
                 e.preventDefault();
             }); 
 
-              $('#close').click(function(e) {
+              $('#close_x').click(function(e) {
                            $("#sign_up").trigger('close');
               }); 
               function WaitForIFrame($frame) {
@@ -176,9 +176,9 @@ echo '<div id="mire">';
 echo '<div class="box"id= "login">'; 
 if ($isAuth) {
 
-echo '<p>Vous êtes actuellement authentifié à l\'academie de lyon: <ol><li><a href="https://services.ac-lyon.fr/login/ct_logout.jsp?CT_ORIG_URL=',urlencode("http://www.dev.laclasse.com/saml/example-simple/loginidp.php"),'"> se déconnecter de l\'academie de Lyon </a></li>'; 
-   echo '<li><a href="?logout">se déconnecter du serveur de féderation</a></li></ol></p>';
-  echo '<a id = "logout" href="https://services.ac-lyon.fr/slo/request/AP"> se déconnecter </a>';
+//echo '<p>Vous êtes actuellement authentifié à l\'academie de lyon: <ol><li><a href="https://services.ac-lyon.fr/login/ct_logout.jsp?CT_ORIG_URL=',urlencode("http://www.dev.laclasse.com/saml/example-simple/loginidp.php"),'"> se déconnecter de l\'academie de Lyon </a></li>'; 
+  // echo '<li><a href="?logout">se déconnecter du serveur de féderation</a></li></ol></p>';
+  echo '<a id = "logout" href="https://services.ac-lyon.fr/slo/request/AP"> se déconnecter </a></br>';
      echo '<iframe id="myIFrame" style="display:none" ></iframe>';
      echo '<iframe id="myIFrame2" style="display:none" ></iframe>';
 
@@ -213,7 +213,7 @@ else
 ?>
 
 <div id="sign_up" >
-                <span>choisissez  un compte</span>
+                <span><h3>Choisissez  un compte et puis se connecter</h3></span>
                 <div id="sign_up_form">
 
                 <form name="login" action= <?php echo  $_SERVER['PHP_SELF']?> method="post">
@@ -222,17 +222,17 @@ else
 <?php
         foreach($accounts as $record)
         {
-            echo '<option value="'.$record["login"].'">'.$record["prenom"].'</option>'; 
+            echo '<option value="'.$record["login"].'">'.$record["prenom"].' '.$record["nom"].'</option>'; 
 
         }
 
 ?>
-  </select>
-			        <center><input type="submit" name="submit" value="envoyez" /></center>
+  </select></br></br>
+              <input id ="log_in"  style= "background: -moz-linear-gradient(center top , #00ADEE, #0078A5) repeat scroll 0 0 transparent; border: 1px solid #0076A3; color: #D9EEF7;" type="submit" name="submit" value="se connecter" />
 			</form>
 
                 </div>
-                <a id="close" href="#" class="btn">fermer</a>
+                <a id="close_x" href="#" class="close sprited">fermer</a>
             </div>
 <?php
 
