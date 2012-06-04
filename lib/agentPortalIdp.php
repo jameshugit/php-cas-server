@@ -140,9 +140,9 @@ $(function() {
 				
                 e.preventDefault();
             });
-            function WaitForIFrame($frame) {
-                     if ($frame.readyState != "complete") {
-                       setTimeout("WaitForIFrame($frame);", 200);
+            function WaitForIFrame(frame) {
+                     if (frame.readyState != "complete") {
+                       setTimeout("WaitForIFrame(frame);", 200);
                      } else { 
                          }
             };
@@ -155,12 +155,14 @@ $(function() {
              //se deconnecter de FIM 
               $('#myIFrame').attr("src","?logout");WaitForIFrame($('#myIFrame'));
               //se deconnecter de l'academie de lyon
-              $('#myIFrame2').attr("src","https://viesco.ac-lyon.fr/login/ct_logout.jsp"); WaitForIFrame($('#myIFrame2'));
+               $('#myIFrame2').attr("src","https://viesco.ac-lyon.fr/login/ct_logout.jsp"); WaitForIFrame($('#myIFrame2'));
               //return false;
-              //location.reload();
+             //location.reload();
+              // $(location).reload();
              // window.location.replace("http://www.dev.laclasse.com/sso/lib/agentPortalIdp.php");
-               // $(location).attr("href", "https://www.dev.laclasse.com/sso/lib/agentPortalIdp.php");
-             return false;
+             // $(location).attr("href", "https://www.dev.laclasse.com/sso/logout?");
+             // $.get('https://viesco.ac-lyon.fr/login/ct_logout.jsp');return false;
+            return false;
                       });
 
 });
@@ -174,7 +176,7 @@ $(function() {
 <link rel="stylesheet" href="../css/style.css" type="text/css" media="screen" title="no title" charset="utf-8">
 <link rel="stylesheet" href="../css/cas-laclasse.css" type="text/css" media="screen" title="no title" charset="utf-8">
 	</head>
-<body id="cas" onload="init();">
+<body id="cas">
       <div id="page">
         <h1 id="app-name"> Service D'Authentification Central de laclasse.com</h1>
 
@@ -187,7 +189,7 @@ if ($isAuth) {
 
  // echo '<p> Vous êtes actuellement authentifié à l\'academie de lyon: <ol><li><a href="https://viesco.ac-lyon.fr/login/ct_logout.jsp"> se déconnecter de l\'academie de Lyon </a></li>'; 
  // echo '<li><a href="?logout">se déconnecter du serveur de féderatio</a></li></ol></p>';
-  echo '<a id = "logout" href="https://viesco.ac-lyon.fr/slo/response/AP">
+  echo '<a id = "logout" href="#">
            se déconnecter </a>'; 
   echo '<iframe id="myIFrame" style="display:none" ></iframe>';
   echo '<iframe id="myIFrame2" style="display:none" ></iframe>';
@@ -203,12 +205,12 @@ else {
 
 
 if ($isAuth) {
-	
+/*	
 if (isset($_COOKIE["info"]))
   echo "BienVenu " . $_COOKIE["info"] . "!<br />";
 else
   echo "BienVenu visiteur!<br />";
-
+ */
 }
 
 

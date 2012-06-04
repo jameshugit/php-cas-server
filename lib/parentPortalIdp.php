@@ -39,7 +39,7 @@ if (array_key_exists('logout', $_REQUEST)) {
 	
 		/* Remove cookie from client */
 		setcookie ("CASTGC", FALSE, 0, "/sso/");
-		setcookie ("info", FALSE, 0);	
+		//setcookie ("info", FALSE, 0);	
    // if (isset($_SESSION["noresult"]))
 
     $as->logout(SimpleSAML_Utilities::selfURLNoQuery());
@@ -71,6 +71,10 @@ if (array_key_exists('login', $_REQUEST)) {  //handling  the login request
 
 	$attributes = $as->getAttributes();
   // call the login function which treat all cases 
+  //if($isAuth = $as->isAuthenticated())
+  //{
+   //Register_Service();
+  //}
   login($attributes); 
 
 	
@@ -136,7 +140,7 @@ $(function() {
                            $("#sign_up").trigger('close');
               }); 
               function WaitForIFrame($frame) {
-                   if ($frame.readyState != "complete") {
+                   if ($frame.readyState != "loaded") {
                        setTimeout("WaitForIFrame($frame);", 200);
                         } else {
                                 }
@@ -149,7 +153,8 @@ $(function() {
                              //se deconnecter de FIM·
                              $('#myIFrame').attr("src","?logout");WaitForIFrame($('#myIFrame'));
                            //se deconnecter de l'academie de lyon
-                          $('#myIFrame2').attr("src","https://services.ac-lyon.fr/login/ct_logout.jsp"); WaitForIFrame($('#myIFrame2'));
+                             $('#myIFrame2').attr("src","https://services.ac-lyon.fr/login/ct_logout.jsp"); WaitForIFrame($('#myIFrame2'));
+                             //location.reload();
                                         return false;
                                         });
 
@@ -160,7 +165,7 @@ $(function() {
 <link rel="stylesheet" href="../css/style.css" type="text/css" media="screen" title="no title" charset="utf-8">
 <link rel="stylesheet" href="../css/cas-laclasse.css" type="text/css" media="screen" title="no title" charset="utf-8">
 	</head>
-<body id="cas" onload="init();">
+<body id="cas">
       <div id="page">
         <h1 id="app-name"> Service D'Authentification Central de laclasse.com</h1>
 
@@ -171,15 +176,15 @@ echo '<div id="mire">';
 echo '<div class="box"id= "login">'; 
 if ($isAuth) {
 
-// echo '<p>Vous êtes actuellement authentifié à l\'academie de lyon: <ol><li><a href="https://services.ac-lyon.fr/login/ct_logout.jsp?CT_ORIG_URL=',urlencode("http://www.dev.laclasse.com/saml/example-simple/loginidp.php"),'"> se déconnecter de l\'academie de Lyon </a></li>'; 
-  // echo '<li><a href="?logout">se déconnecter du serveur de féderation</a></li></ol></p>';
+echo '<p>Vous êtes actuellement authentifié à l\'academie de lyon: <ol><li><a href="https://services.ac-lyon.fr/login/ct_logout.jsp?CT_ORIG_URL=',urlencode("http://www.dev.laclasse.com/saml/example-simple/loginidp.php"),'"> se déconnecter de l\'academie de Lyon </a></li>'; 
+   echo '<li><a href="?logout">se déconnecter du serveur de féderation</a></li></ol></p>';
   echo '<a id = "logout" href="https://services.ac-lyon.fr/slo/request/AP"> se déconnecter </a>';
      echo '<iframe id="myIFrame" style="display:none" ></iframe>';
      echo '<iframe id="myIFrame2" style="display:none" ></iframe>';
 
 	     }
 else {
-	echo '<p> Vous n\'êtes pas authentifié <a href="?login">se connecter</a></p>';
+	echo '<p> Vous n\'êtes pas authentifié:  <a href="?login"> se connecter</a></p>';
      }
 ?>
 
@@ -201,9 +206,10 @@ else
         $accounts= $_SESSION["famillyAccount"];
         unset($_SESSION["famillyAccount"]);
 
-        echo 'C\'est un compte familiale<br/>';
-	      echo 'Selectionner un compte pour se connecter à laclasse.com : ';
-        echo '<a href= "#" id="try-1"> choisir un compte</a>';
+        echo '<br>Votre compte est un compte familiale<br/>';
+
+	      echo 'Pour finir l\'authentification, Cliquez sur le lien et choisissez votre identité: ';
+        echo '<a href= "#" id="try-1"> Identité </a>';
 ?>
 
 <div id="sign_up" >

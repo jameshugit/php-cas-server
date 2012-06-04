@@ -24,8 +24,9 @@ require_once(CAS_PATH . '/lib/backend.db.oracle.php');
 function CASLogin($nom) {
         global $CONFIG;
         $Casurl = 'https://www.dev.laclasse.com/sso/login';
-       // $service = 'https://www.dev.laclasse.com/saml/example-simple/loginidp.php';
-        $service = 'http://www.dev.laclasse.com/pls/education/!page.laclasse'; 
+        // $service = 'https://www.dev.laclasse.com/saml/example-simple/loginidp.php';
+        // I ADDED LoggedFromExternalFim = Y  parameter to assure that the authentification is issued by  the academie.
+        $service = 'http://www.dev.laclasse.com/pls/education/!page.laclasse?LoggedFromExternalFim=Y'; 
         
 
         if (!array_key_exists('CASTGC', $_COOKIE)) { /*** user has no TGC ***/
@@ -39,7 +40,7 @@ function CASLogin($nom) {
 
                     /* send TGC */
                     setcookie("CASTGC", $ticket->key(), 0,"/sso/");
-		     setcookie("info", $nom, 0);
+		              // setcookie("info", $nom, 0);
                     
 		    /* Redirect to /login */
                     header("Location: " . url($Casurl) . "service=" . urlencode($service) . "");
@@ -124,7 +125,30 @@ function extractEmail($attributes)
          }
          return $attr;
      }
-
+//exttractGoogleInfo returns an array of information sent by google
+//OUTPUT : Array
+//(
+//    [prenom] => **
+//    [email] => ***
+//    [nom] => *****
+//)
+function extractGoogleInfo($attributes)
+{
+   $info = array(); 
+       if (!empty($attributes))
+             {
+                   foreach($attributes as $key => $value)
+                       {
+                          if($key=='http://axschema.org/namePerson/first')
+                              $info['prenom']=$value[0]; 
+                          if($key=='http://axschema.org/contact/email')
+                              $info['email']=$value[0];
+                          if($key=='http://axschema.org/namePerson/last')
+                              $info['nom']=$value[0]; 
+                         }
+            }
+           return $info; 
+}
 
 //utility function to find the union of two arrays
 function array_union($a,$b)
@@ -163,8 +187,8 @@ function sendalert($attributes)
        {
         
                      global $CONFIG;
-                    // $to = $CONFIG['MAIL_ADMIN'];
-                     $to = 'bashar.ah.saleh@gmail.com';
+                     $to = $CONFIG['MAIL_ADMIN'];// admin email 
+                    //$to = 'bashar.ah.saleh@gmail.com';
                      $subject = 'Differents ids pour la meme personne';
                      $message = 'Bonjour,';
                      $message = $message."\n"; 
@@ -189,7 +213,10 @@ function login($attributes){
 
 if(empty($attributes)) // no attributes sent by the idp 
             {
-                  echo 'no attributes could be found you will be redirected to the inscription page';
+              echo 'le serveur de la féderation n\'a pas envoyé des attributs, vous allez être redirigé vers la page d\'inscription';
+              echo '<META HTTP-EQUIV="Refresh" Content="2; http://www.dev.laclasse.com/pls/public/!page.laclasse?contexte=INSCRIPTION&rubrique=0">';
+               exit();
+
             }
           else
             {
@@ -318,16 +345,20 @@ if(empty($attributes)) // no attributes sent by the idp
 function agentLogin($attributes)
 {
    $email =  extractEmail($attributes);
-   print_r($email);
+   //print_r($email);
    if(empty($email))
-     echo 'empty identity vector <br/>';
+   {
+      echo 'le vecteur d\'identité est vide;vous serez redirigé vers la page d\'inscription <br/>';
+      echo '<META HTTP-EQUIV="Refresh" Content="2; http://www.dev.laclasse.com/pls/public/!page.laclasse?contexte=INSCRIPTION&rubrique=0">';
+      exit();
+   }
    else
    {
      $search= Search_Agent_by_mail($email['email']); 
      if(empty($search))
      {
        // echo 'the user does not exist in the database';
-       echo ' <h1>Vous n\'avez pas un compte sur le laclasse\.com, vous serez redirigé vers la page d\'inscription </h1>';
+       echo ' <h1>Vous n\'avez pas un compte sur le laclasse.com, vous serez redirigé vers la page d\'inscription </h1>';
        // redirect to inscription page
        // may be i had to add some information to the request
        echo '<META HTTP-EQUIV="Refresh" Content="2; http://www.dev.laclasse.com/pls/public/!page.laclasse?contexte=INSCRIPTION&rubrique=0">';
@@ -338,7 +369,7 @@ function agentLogin($attributes)
      {
        if(count($search)==1)
        {
-       echo 'the user will be logedd in as:' . $search[0]['login']; 
+       //echo '' . $search[0]['login']; 
        CASlogin($search[0]['login']); 
        }
        else
@@ -351,6 +382,55 @@ function agentLogin($attributes)
 
    }
 }
+function googlelogin($attributes)
+{
+  $info = extractGoogleInfo($attributes); 
+  if(empty($info))
+  {
+     echo 'le vecteur d\'identité est vide;vous serez redirigé vers la page d\'inscription <br/>';
+     echo '<META HTTP-EQUIV="Refresh" Content="2; http://www.dev.laclasse.com/pls/public/!page.laclasse?contexte=INSCRIPTION&rubrique=0">';
+     exit();
+
+  }else
+  {
+     if(!array_key_exists('email', $info))
+     {
+          echo ' votre email n\'est pas valide,  vous serez redirigé vers la page d\'inscription <br/>';
+           echo '<META HTTP-EQUIV="Refresh" Content="2; http://www.dev.laclasse.com/pls/public/!page.laclasse?contexte=INSCRIPTION&rubrique=0">';
+          exit();
+
+     }
+     else {
+        $search = Search_user_by_email($info['email']); 
+        if(empty($search))
+        {
+          echo ' <h1>Vous n\'avez pas un compte sur le laclasse.com, vous serez redirigé vers la page d\'inscription </h1>';
+           // redirect to inscription page
+           // may be i had to add some information to the request
+            echo '<META HTTP-EQUIV="Refresh" Content="2; http://www.dev.laclasse.com/pls/public/!page.laclasse?contexte=INSCRIPTION&rubrique=0">';
+           exit();
+
+        }
+        else  
+        {
+          if(count($search)==1)
+             { 
+               //echo '' . $search[0]['login'];·
+                CASlogin($search[0]['login']);
+              } 
+               else
+               { 
+                 //person with multiple accounts
+               sendalert($search);
+                CASlogin($search[0]['login']);
+               } 
+
+
+        }
+     }
+  }
+}
+
 
 ?>
 
