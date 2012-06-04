@@ -1,0 +1,254 @@
+
+a {
+    color: #067dd7;
+}
+a:hover {
+    text-decoration: underline;
+}
+
+.sprited {
+    background: url(download_sprite.png) no-repeat;
+    line-height: 1000px;
+    overflow: hidden;
+    display: block;
+}
+
+#head {
+    display: block;
+    height: 123px;
+    background: url(top_bg.gif) repeat-x;
+    padding-top: 10px;
+    margin-bottom: 30px;
+}
+
+#head h1 {
+    margin: 0 auto;
+    width: 555px;
+    background: url(logo.png) no-repeat;
+    height: 93px;
+    overflow: hidden;
+    line-height: 1000px;
+}
+
+#wrapper {
+    width: 660px;
+    margin: 0 auto;
+}
+ 
+#content { 
+    width: 419px;
+    float: left;
+    margin: -40px 25px 25px 0;
+}
+
+#content p, #demo p{
+    margin: 0 0 15px 0;
+}
+h2, ul {
+    margin-bottom: 15px;
+}
+
+#secondary {
+    width: 216px;
+    float: right;
+}
+
+
+#download_latest {
+    width: 196px;
+    height: 51px;
+    background-position: top left;
+    margin-bottom: 10px;
+}
+
+#download_latest:hover {
+    background-position: 0 -51px;
+}
+
+#download_latest:active {
+    background-position: 0 -102px;
+}
+
+#download p {
+    margin-left: 7px;
+}
+
+
+
+#demo {
+    clear: both;
+    width: 550px;
+}
+
+#demo ul li {
+    list-style: disc;
+    margin-left: 18px;
+}
+.try { 
+    width: 93px;
+    height: 31px;
+    background-position: -30px -156px;
+}
+.try:hover {
+    background-position: -30px -187px;
+}
+.try:active {
+    background-position: -30px -218px;
+}
+.white {
+    background: white;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    padding: 10px;
+}
+table th {
+    background: #dfe6ee; padding: 3px 0;
+}
+table td {
+    padding: 7px 5px;
+    border-bottom: 1px solid #c3ccd8;
+}
+table tr.stripe td {
+    background: #f9fbfc;
+}
+
+.share_icon {
+    width: 16px;
+    height: 16px;
+    display: block;
+    background: url(socialicons.png) no-repeat top left;
+}
+
+#share_list {
+    height: 16px;
+    width: 171px;
+    list-style: none;
+    margin: 5px auto;
+    border-top: 1px solid #eef2f7;
+    padding-top: 10px;
+}
+
+#share_list li {
+    float: left;
+    display: block;
+    margin-right: 15px;
+}
+
+#share_list li:last-child {
+    margin-right: 0px;
+}
+
+#facebook {
+    background-position: -48px 0;
+}
+
+#twitter {
+    background-position: -16px 0;
+}
+
+#digg {
+    background-position: -64px 0;
+}
+
+#reddit {
+    background-position: 0 0;
+}
+
+#stumbleupon {
+    background-position: -80px 0;
+}
+
+#delicious {
+    background-position: -32px 0;
+}
+
+#jivelogo {
+    width: 78px; height: 38px;
+    background-position: -391px -40px;
+    margin: 6px auto 12px;
+}
+
+
+
+
+#text_what { width: 120px; height: 19px; background-position: -202px -175px;}
+#text_features { width: 94px; height: 17px; background-position: -202px -216px;}
+#text_demonstration { width: 167px; height: 20px; background-position: -202px -195px;}
+#text_options { width: 86px; height: 25px; background-position: -431px -133px;}
+
+h2 { margin-top: 50px;}
+
+
+  #sign_up {
+        -moz-border-radius: 6px;
+        background: #eef2f7;
+        -webkit-border-radius: 6px;
+        border: 1px solid #536376;
+        -webkit-box-shadow: rgba(0,0,0,.6) 0px 2px 12px;
+        -moz-box-shadow:  rgba(0,0,0,.6) 0px 2px 12px;;
+        padding: 14px 22px;
+        width: 400px;
+        position: relative;
+        display: none;
+    }
+    #sign_up #sign_up_form {
+        margin-top: 13px;
+    }
+    #sign_up label {
+        display: block;
+        margin-bottom: 10px; 
+        color: #536376;
+        font-size: .9em;
+    }
+  
+    #sign_up label input {
+        display: block;
+        width: 393px;
+        height: 31px;
+        background-position: -201px 0;
+        padding: 2px 8px;
+        font-size: 1.2em;
+        line-height: 31px;
+    }
+    
+    #see_id {
+        width: 228px;
+        height: 23px;
+        background-position: -202px -133px;
+    }
+    #left_out {
+        background-position: -202px -158px;
+        width: 113px; height: 16px;
+    }
+    #sign_up_form {
+        position: relative;
+        background: url(divider.png) repeat-x bottom left;
+        padding-bottom: 54px;
+        margin-bottom: 12px;
+    }
+    #actions {
+        float: left;
+        position: absolute;
+        right: 0;
+        height: 31px;
+        bottom: 20px;
+    }
+    a.form_button {
+        float: left;
+        width: 93px; height: 31px;
+        margin-right: 15px;
+    }
+    #cancel { background-position: -198px -36px; }
+    #log_in { background-position: -291px -36px; }
+    #cancel:hover { background-position: -198px -67px; }
+    #cancel:active { background-position: -198px -98px; }
+    #log_in:hover { background-position: -291px -67px; }
+    #log_in:active { background-position: -291px -98px; }
+    #close_x { 
+        width: 24px; height: 23px;
+        overflow: hidden; line-height: 1000px;
+        display: block;
+        position: absolute; top: 5px; right: 5px;
+        background-position: -387px -102px;
+    }
+    #usage { background-position: -323px -172px; width: 67px; height: 22px;}
