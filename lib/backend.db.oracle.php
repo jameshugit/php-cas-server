@@ -174,20 +174,117 @@ function search_user_by_name($nom,$prenom)
     return $attributes; 
 }
 
-function create_utilisateur($nom,$prenom,$login,$password,$sex,$mail)
+function create_utilisateur($nom,$prenom,$login,$password,$sex,$mail,$profile,$UaiEtab, $eleveid)
 {
     
         global $CONFIG;
         //$procedure= create_Agent_procedure; 
-        $query = create_Agent3; 
+        $query = create_user; 
 	$db = _dbConnect();
 	//$s = oci_parse($db, $procedure);
    	//oci_execute($s, OCI_DEFAULT);
-	_dbExecuteSQL($db, $query, array('nom'=>$nom, 'prenom'=>$prenom,'password'=>$password, 'sex'=>$sex, 'login'=>$login , 'mail'=>$mail));
+	_dbExecuteSQL($db, $query, array('nom'=>$nom, 'prenom'=>$prenom,'password'=>$password, 'sex'=>$sex, 'login'=>$login , 'mail'=>$mail, 'profile'=> $profile, 'eleveid'=>$eleveid, 'UaiEtab'=>$UaiEtab));
 	_dbDisconnect($db);
         
         
 }
+
+function create_parent($nom,$prenom,$login,$password,$sex,$mail,$eleveid,$etab)
+{
+  $profile = 8;
+  $result = false;
+  $r= search_eleve_by_sconetid($eleveid);
+
+    if(!empty($r))
+     {
+               $UaiEtab =null;  // the etablissement will be attached later
+               $elev = null; // eleve id will be attached later
+               //get etablissement id and test that it is not empty ..to create a user
+               create_utilisateur($nom,$prenom,$login,$password,$sex,$mail,$profile,$UaiEtab, $eleveid);
+
+               $result=true;
+     }
+     return $result;
+
+ }
+
+function create_eleve($nom,$prenom,$login,$password,$sex,$mail,$UaiEtab, $eleveid)
+{
+                 $profile= 4;
+                 $result= false;
+                 $r= search_eleve_by_sconetid($eleveid); 
+                 if(empty($r))
+                 { 
+                   //if not empty (get etablissement id)  then create eleve, else does not exist  send an erreur //
+                   //$UaiEtab is the Code_RNE in the database
+                      $attr=Get_etablissement_id($UaiEtab); 
+                      if(!empty($attr))
+                      {
+                        $etabid= $attr[0]["id"]; 
+                        create_utilisateur($nom,$prenom,$login,$password,$sex,$mail,$profile,$etabid, $eleveid);
+                        $result=true; 
+                      }
+                 }
+                 return $result; 
+
+}
+
+function create_prof($nom,$prenom,$login,$password,$sex,$mail,$UaiEtab)
+{
+	$profile = 3; 
+	$eleveid = null; 
+	create_utilisateur($nom,$prenom,$login,$password,$sex,$mail,$profile,$UaiEtab, $eleveid);	
+}
+
+function create_Agent($nom,$prenom,$login,$password,$sex,$mail,$UaiEtab)
+{
+	$profile= 6 ; 
+	$eleveid= null; 
+	create_utilisateur($nom,$prenom,$login,$password,$sex,$mail,$profile,$UaiEtab, $eleveid);
+}
+
+function set_relation_parent_eleve($parentid, $eleveid)
+{
+	$elevearray=array(); 
+	$elevearray[0]=$eleveid.''; 
+	global $CONFIG;
+        //$procedure= create_Agent_procedure; 
+        $query = set_relation_parent_eleve; 
+	$db = _dbConnect();
+	$statement = oci_parse($db, $query);
+	oci_bind_array_by_name($statement, ":list_enfant", $array, 2, -1, SQLT_CHR);
+	oci_bind_by_name($statement, ":parent_id", $parentid);
+   	oci_execute($statement); 
+	_dbDisconnect($db);
+
+}
+function search_eleve_by_sconetid($eleveid)
+{
+              global $CONFIG;
+                  $query = Search_student_By_Id; 
+            $db = _dbConnect();
+            $r = _dbExecuteSQL($db, $query, array('eleveid' => $eleveid));
+              _dbDisconnect($db);
+                    
+                    return $r; 
+}
+
+function attach_parent_eleve($nom, $prenom, $UaiEtab, $eleveid)
+{
+		if(search_eleve_by_id($eleveid))
+			{
+				if(search_user_by_name($nom,$prenom)) // problem if we have parents with the same first and last name
+					set_relation_parent_eleve($parent, $eleveid); 
+			else {
+					create_parent($nom,$prenom,$login,$password,$sex,$mail); 
+					set_relation_parent_eleve($parent, $eleveid); 					
+      }
+     }
+		else{
+			 return 'le compte ne peut pas etre creier car l:eleve nexist pas' ; 	
+		    }		
+}
+
 
 function Get_profiles()
 {
@@ -199,6 +296,92 @@ function Get_profiles()
         
         return $r; 
 }
+
+function Get_sconet_ids()
+{
+    global $CONFIG;
+        $query = Get_sconet_ids; 
+	$db = _dbConnect();
+	$r = _dbExecuteSQL($db, $query, null);
+	_dbDisconnect($db);
+        
+        return $r; 
+}
+
+function Get_user_id($eleveid)
+{
+	global $CONFIG;
+        $query = Get_user_id; 
+	$db = _dbConnect();
+	$r = _dbExecuteSQL($db, $query, array('elevid' => $eleveid));
+	_dbDisconnect($db);
+        
+        return $r; 
+}
+
+function Search_Etablissment($etab)
+{
+	global $CONFIG;
+        $query = Search_Etablissment; 
+	$db = _dbConnect();
+	$r = _dbExecuteSQL($db, $query, array('UaiEtab' => $etab));
+	_dbDisconnect($db);
+        
+        return $r; 
+}
+
+function Search_Parent_By_EleveId($eleveid)
+{
+	 global $CONFIG;
+        $query = Search_Parent_By_EleveId; 
+	$db = _dbConnect();
+	$r = _dbExecuteSQL($db, $query, array('elevid' => $eleveid));
+	_dbDisconnect($db);
+        
+        return $r; 
+}
+
+function Search_Parent_By_Name_Etab_EleveId($nom, $prenom, $eleveid)
+{
+    global $CONFIG;
+    $query = Search_Parent_By_Name_EleveId;
+    $db = _dbConnect();
+    $r = _dbExecuteSQL($db, $query, array('nom'=> $nom,  'prenom'=> $prenom, 'elevid' => $eleveid));
+    _dbDisconnect($db);
+    return $r;
+}
+
+function Search_Parent_By_SconetID($nom, $prenom, $eleveid)
+ {
+     global $CONFIG;
+     $query = Search_Parent_By_SconetID;
+      $db = _dbConnect();
+      $r = _dbExecuteSQL($db, $query, array('nom'=> $nom,  'prenom'=> $prenom, 'elevid' => $eleveid));
+       _dbDisconnect($db);
+       return $r;
+  }
+
+function Search_Agent_by_mail($mail)
+{
+         global $CONFIG;
+         $query = Search_Agent_by_mail;
+         $db = _dbConnect();
+          $r = _dbExecuteSQL($db, $query, array('mail'=> $mail));
+         _dbDisconnect($db);
+          return $r;
+
+}
+function Get_etablissement_id($UaiEtab)
+{
+	global $CONFIG;
+        $query = get_Etablissement_id; 
+	$db = _dbConnect();
+	$r = _dbExecuteSQL($db, $query, array('UaiEtab'=>$UaiEtab));
+	_dbDisconnect($db);
+        
+        return $r[0]["ID"]; 	
+}
+
     
 
 
