@@ -11,7 +11,7 @@
 	Absolute path to your CAS install directory.
 */
 define ('CAS_PATH', '/var/www/sso');
-
+define ('SimpleSamlPATH', '/opt/simplesamlphp/simplesamlphp-1.9.0-rc2/lib'); 
 /** Server mode
  * @param MODE
  *  - 'dev'   : http protocol allowed
@@ -236,9 +236,20 @@ define('Search_Agent_by_mail',
                           from          utilisateurs u,
                           utilisateurs_info ui,
                           profil p  where         ui.id = u.id and ui.prof_id = p.id and upper(ui.mail_institutionnel)= upper(:mail)'); ///attention to upper and small case comparation
+//-------------------------------------------------------------------------------
+//*** search user by email for google login ***//
+define('Search_user_by_mail',
+       'select  distinct u.login         "login",
+        comptes.formate_us7ascii(u.nom)   "nom",
+        comptes.formate_us7ascii(u.prenom) "prenom",
+        to_char(u.dt_naissance,\'RRRR-MM-DD\') "dateNaissance",
+        comptes.formate_cp(u.adr)        "codePostal",
+        from          utilisateurs u
+        where  upper(u.EMAIL)=upper(:mail)');
 
 //-----------------------------------------------------------------------------
 // search parent with name, firstname, etablissement, son's sconet id //
+// subquery changed to in 
 
 define('Search_Parent_By_Name_EleveId',
        'select  distinct u.id, 
@@ -248,7 +259,7 @@ define('Search_Parent_By_Name_EleveId',
              utilisateurs_info ui,
              profil p, 
              est_responsable_legal_de r
-             where  ui.id = u.id and u.id = r.USR_ID and r.elv_id = (select c.id from utilisateurs c, utilisateurs_info ci  where c.id = ci.id and ci.Sconet_elv_id = (:elevid))
+             where  ui.id = u.id and u.id = r.USR_ID and r.elv_id in  (select c.id from utilisateurs c, utilisateurs_info ci  where c.id = ci.id and ci.Sconet_elv_id = (:elevid))
              and upper(convert(u.nom,\'US7ASCII\')) = upper(convert(:nom,\'US7ASCII\')) and upper(convert(u.prenom,\'US7ASCII\')) = upper(convert(:prenom,\'US7ASCII\'))
              ORDER BY u.id desc
              ');
@@ -310,6 +321,12 @@ define('set_relation_parent_eleve', 'declare
                      begin
                           p_test:=comptes.set_relation_parents_enfants(:parent_id, :list_enfant);
 END;');
+
+define('register_service','declare p_test number; 
+begin
+                           sso.connected_to_service(\'FEDERATION_IDENTITE_ACADEMIE\',\'http://www.dev.laclasse.com/sso/lib/agentPortalIdp.php?logout\');
+end;' ); 
+//\'||global_vars.get("SERVEUR_CAS")||\
 
 //------------------------------------------------------------------------------
 // Services autorisés à s'authentifier avec le service CAS.
@@ -434,12 +451,13 @@ $CONFIG['AUTHORIZED_SITES'] = array(
 					'allowedAttributes' =>  'LOGIN,ENT_id,uid,ENTPersonStructRattach,ENTEleveClasses,ENTPersonStructRattachRNE,ENTPersonProfils,ENTEleveNivFormation,LaclasseNom,LaclassePrenom,LaclasseDateNais,LaclasseCivilite,LaclasseSexe,LaclasseProfil,LaclasseNomClasse,LaclasseEmail,LaclasseEmailAca'),
             /* Annuaire ENT */
 			array(	'sitename'  		=>  'Annuaire ENT',
-					'url'  				=>  '*://annuaire.dev.laclasse.lan/annuaire/exploitation/previsualisation/*',
+					'url'  				=>  '*://www.dev.laclasse.*/annuaire/*',
 					'allowedAttributes' =>  'ENT_id,uid,ENTPersonStructRattachRNE,LaclasseProfil'),
 
 			array(	'sitename'  		=>  'Annuaire ENT',
-					'url'  				=>  '*://annuaire.dev.laclasse.lan/cas-ent/*', // <= PGL POur tester SAML ClientCas.  '*://annuaire.dev.laclasse.lan/exploitation/previsualisation/*',
-          'allowedAttributes' =>  'ENT_id,uid,ENTPersonStructRattachRNE,LaclasseProfil'),
+					'url'  				=>  '*://annuaire.dev.laclasse.*/cas-ent/*',
+					'allowedAttributes' =>  'ENT_id,uid,ENTPersonStructRattachRNE,LaclasseProfil'),
+
       array( 'sitename' => 'thematiques',
 					'url'                   =>  '*://*thematiques.laclasse.com/*',
 					'allowedAttributes' 	=>  'LOGIN,uid,ENTPersonStructRattachRNE,ENT_id,ENTPersonProfils,ENTEleveClasses,ENTEleveNivFormation,LaclasseNom,LaclassePrenom,LaclasseDateNais,LaclasseCivilite,LaclasseSexe,LaclasseProfil,LaclasseNomClasse,LaclasseEmail,LaclasseEmailAca'),

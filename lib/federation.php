@@ -21,13 +21,20 @@ require_once(CAS_PATH .'/lib/ticket.php');
 require_once(CAS_PATH . '/lib/backend.db.oracle.php');
 
 //CASLogin function takes the (laclasse login) as input and generates  a ticket to login to Laclasse server.
-function CASLogin($nom) {
+function CASLogin($nom,$idp) {
         global $CONFIG;
         $Casurl = 'https://www.dev.laclasse.com/sso/login';
         // $service = 'https://www.dev.laclasse.com/saml/example-simple/loginidp.php';
+        if($idp=='FIM')
         // I ADDED LoggedFromExternalFim = Y  parameter to assure that the authentification is issued by  the academie.
         $service = 'http://www.dev.laclasse.com/pls/education/!page.laclasse?LoggedFromExternalFim=Y'; 
-        
+        else 
+        {
+          if($idp='GOOGLE') //if the authentication is issued by GOOGLE
+             $service = 'http://www.dev.laclasse.com/pls/education/!page.laclasse?LoggedFromGoogle=Y';
+          else 
+             $service = 'http://www.dev.laclasse.com/pls/education/!page.laclasse'; 
+        }
 
         if (!array_key_exists('CASTGC', $_COOKIE)) { /*** user has no TGC ***/
             
@@ -235,7 +242,7 @@ if(empty($attributes)) // no attributes sent by the idp
                              if(count($casattributes)==1) // one corresponding record is found in the database
                              {
                                 $var=$casattributes[0]['login'];
-                                CASLogin($casattributes[0]['login']);
+                                CASLogin($casattributes[0]['login'],'FIM');
                              }
                              else
                              {
@@ -264,7 +271,7 @@ if(empty($attributes)) // no attributes sent by the idp
 
                                                 //sand an email to the administrator and then login in with the most recent id
                                                  sendalert($casattributes);
-                                                 CASLogin($casattributes[0]['login']);
+                                                 CASLogin($casattributes[0]['login'],'FIM');
 
                                    }
                                }
@@ -293,7 +300,7 @@ if(empty($attributes)) // no attributes sent by the idp
                            if(count($casattributes)==1) // one corresponding record is found in the database
                             {
                               $var=$casattributes[0]['login'];
-                              CASLogin($casattributes[0]['login']);
+                              CASLogin($casattributes[0]['login'],'FIM');
                             }
                            else
                                 {
@@ -320,7 +327,7 @@ if(empty($attributes)) // no attributes sent by the idp
                                       }
                                      else{
                                        sendalert($casattributes);
-                                       CASLogin($casattributes[0]['login']);
+                                       CASLogin($casattributes[0]['login'],'FIM');
                                         // echo 'person with multiple accounts';
                                        }
 
@@ -370,13 +377,13 @@ function agentLogin($attributes)
        if(count($search)==1)
        {
        //echo '' . $search[0]['login']; 
-       CASlogin($search[0]['login']); 
+       CASlogin($search[0]['login'],'FIM'); 
        }
        else
        {
          //person with multiple accounts
          sendalert($search); 
-         CASlogin($search[0]['login']);
+         CASlogin($search[0]['login'],'FIM');
        }
      }
 
@@ -416,13 +423,13 @@ function googlelogin($attributes)
           if(count($search)==1)
              { 
                //echo '' . $search[0]['login'];·
-                CASlogin($search[0]['login']);
+                CASlogin($search[0]['login'],'GOOGLE');
               } 
                else
                { 
                  //person with multiple accounts
                sendalert($search);
-                CASlogin($search[0]['login']);
+                CASlogin($search[0]['login'],'GOOGLE');
                } 
 
 
