@@ -360,7 +360,7 @@ function Search_Parent_By_SconetID($nom, $prenom, $eleveid)
        _dbDisconnect($db);
        return $r;
   }
-
+// search agent by institutional email sent by the academie //
 function Search_Agent_by_mail($mail)
 {
          global $CONFIG;
@@ -371,6 +371,18 @@ function Search_Agent_by_mail($mail)
           return $r;
 
 }
+
+// search user by email in the utilisateurs table, for google login//
+function Search_user_by_email($mail)
+    {
+          global $CONFIG;
+          $query = Search_Agent_by_mail;
+          $db = _dbConnect();
+           $r = _dbExecuteSQL($db, $query, array('mail'=> $mail));
+          _dbDisconnect($db);
+          return $r;
+       }
+
 function Get_etablissement_id($UaiEtab)
 {
 	global $CONFIG;
@@ -382,7 +394,17 @@ function Get_etablissement_id($UaiEtab)
         return $r[0]["ID"]; 	
 }
 
-    
+function Register_Service()
+{
+  global $CONFIG; 
+  $query = register_service; 
+  $db = _dbConnect();
+  $r = _dbExecuteSQL($db, $query, NULL);
+  _dbDisconnect($db);
+   return $r;
+
+}
+
 
 
 
