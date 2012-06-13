@@ -15,7 +15,7 @@
 require_once('/var/www/sso/config.inc.php'); 
 
 //the simpleSAMlphp autoloader class
-require_once('/opt/simplesamlphp/simplesamlphp-1.8.3/lib/_autoload.php');
+require_once(SimpleSamlPATH.'/_autoload.php');
 
 require_once(CAS_PATH . '/lib/federation.php'); 
 $profiles= array('agent'=>6, 'eleve'=>4 , 'parent'=>8); 
@@ -23,7 +23,11 @@ $profiles= array('agent'=>6, 'eleve'=>4 , 'parent'=>8);
 /*
  * We use the simpleexample authentication source defined in /SimpleSamlPATH/config/authsources.php.
  */
-$as = new SimpleSAML_Auth_Simple('google');
+$as = new SimpleSAML_Auth_Simple('simpleexample');
+$CASauthenticated = false; 
+$attributes=array(); 
+$var=''; 
+$noresult=false; 
 
 /* This handles logout requests. */
 if (array_key_exists('logout', $_REQUEST)) {
@@ -38,16 +42,15 @@ if (array_key_exists('logout', $_REQUEST)) {
 		setcookie ("info", FALSE, 0);	
    // if (isset($_SESSION["noresult"]))
 
-    $as->logout(SimpleSAML_Utilities::selfURLNoQuery());
-   // $url = SimpleSAML_Utilities::selfURLNoQuery(); 
-   // $c = curl_init('https://viesco.ac-lyon.fr/slo/response/AP');
-   // curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
-   // $page = curl_exec($c);
-   // curl_close($c);
-
-
-   // $as->logout('http://www.dev.laclasse.com/saml/example-simple/loginidp.php');
+    //$as->logout(SimpleSAML_Utilities::selfURLNoQuery());
+    $as->logout('http://www.dev.laclasse.com/saml/example-simple/loginidp.php');
 	/* The previous function will never return. */
+}
+
+if(array_key_exists("loginidp", $_POST)) { // this case is for treating the familly account after a callback
+	$login = $_POST['loginidp'];
+    echo 'you will be logged in as'. $login.'</br>'; 
+	    CASlogin($login); 
 }
 
 
@@ -68,14 +71,8 @@ if (array_key_exists('login', $_REQUEST)) {  //handling  the login request
 
 	$attributes = $as->getAttributes();
   // call the login function which treat all cases 
-  //login($attributes);
-  // print_r($attributes);
-<<<<<<< HEAD
- // googlelogin($attributes);
-=======
-  googlelogin($attributes);
->>>>>>> bab026cdc6c1d5cca0396fd143f8790a6a5b5abc
-  //echo 'the login must take place here </br>'; 
+  login($attributes); 
+
 	
 }
 
@@ -134,44 +131,15 @@ $(function() {
 				}});
 				
                 e.preventDefault();
-            });
-            function WaitForIFrame(frame) {
-                     if (frame.readyState != "complete") {
-                       setTimeout("WaitForIFrame(frame);", 200);
-                     } else { 
-                         }
-            };
-            function done(){
-              location.reload();
-            }
-
+            }); 
+            
             $('table tr:nth-child(even)').addClass('stripe');
-            $('#logout').click(function(){
-             //se deconnecter de FIM 
-              $('#myIFrame').attr("src","?logout");WaitForIFrame($('#myIFrame'));
-              //se deconnecter de l'academie de lyon
-               $('#myIFrame2').attr("src","https://viesco.ac-lyon.fr/login/ct_logout.jsp"); WaitForIFrame($('#myIFrame2'));
-              //return false;
-             //location.reload();
-              // $(location).reload();
-             // window.location.replace("http://www.dev.laclasse.com/sso/lib/agentPortalIdp.php");
-             // $(location).attr("href", "https://www.dev.laclasse.com/sso/logout?");
-             // $.get('https://viesco.ac-lyon.fr/login/ct_logout.jsp');return false;
-            return false;
-                      });
-
-});
-
-    iframe = document.getElementById("myIFrame");
-    function done() {
-              //some code after iframe has been loaded
-       }; 
-
+        });
 </script>
 <link rel="stylesheet" href="../css/style.css" type="text/css" media="screen" title="no title" charset="utf-8">
 <link rel="stylesheet" href="../css/cas-laclasse.css" type="text/css" media="screen" title="no title" charset="utf-8">
 	</head>
-<body id="cas">
+<body id="cas" onload="init();">
       <div id="page">
         <h1 id="app-name"> Service D'Authentification Central de laclasse.com</h1>
 
@@ -179,19 +147,14 @@ $(function() {
 /* Show a logout message if authenticated or a login message if not. */
 
 echo '<div id="mire">';
-echo '<div class="box"  id="login">'; 
 if ($isAuth) {
 
- echo '<p> Vous êtes actuellement authentifié avec google open id <ol><li><a href="https://www.google.com/accounts/Logout"> se déconnecter de google </a></li>'; 
- echo '<li><a href="?logout">se déconnecter du serveur de féderation</a></li></ol>';
- // echo '<a id = "logout" href="#">
-     //      se déconnecter </a>'; 
- /// echo '<iframe id="myIFrame" style="display:none" ></iframe>';
- // echo '<iframe id="myIFrame2" style="display:none" ></iframe>';
+  echo '<p> Your are currently authenticated to IDP.<a href="https://services.ac-lyon.fr/login/ct_logout.jsp?CT_ORIG_URL=',urlencode("http://www.dev.laclasse.com/saml/example-simple/loginidp.php"),'">log out from lyon academy </a>.</p>'; 
+  echo '<p><a href="?logout">Log out from identity server</a>.</p>';
 	//echo '<p>Authenticate to server CAS <a href="?redirect">CAS Authentication</a>.</p>';
 	     } 
 else {
-	echo '<p>Vous n\'êtes pas authentifié<a href="?login"> se connecter </a></p>';
+	echo '<p>You are not authenticated to use the service. <a href="?login">Log in</a>.</p>';
      }
 ?>
 
@@ -200,18 +163,65 @@ else {
 
 
 if ($isAuth) {
-/*	
+	
 if (isset($_COOKIE["info"]))
-  echo "BienVenu " . $_COOKIE["info"] . "!<br />";
+  echo "Welcome " . $_COOKIE["info"] . "!<br />";
 else
-  echo "BienVenu visiteur!<br />";
- */
+  echo "Welcome guest!<br />";
+
+	
+	if(isset($_SESSION["famillyAccount"]))
+{	
+        $accounts= $_SESSION["famillyAccount"];
+        unset($_SESSION["famillyAccount"]);
+
+        echo count($accounts);
+       	echo 'this is a familly account<br/>';
+	      echo 'please select which account you use to login: ';
+        echo '<a href= "#" id="try-1"> choose account</a>';
+?>
+
+<div id="sign_up" >
+                <span>Please choose an account</span>
+                <div id="sign_up_form">
+
+                <form name="login" action= <?php echo  $_SERVER['PHP_SELF']?> method="post">
+              <input type="hidden" name="method" value"precise">
+               <select name="loginidp" id="logindip">
+<?php
+        foreach($accounts as $record)
+        {
+            echo '<option value="'.$record["login"].'">'.$record["prenom"].'</option>'; 
+
+        }
+
+?>
+  </select>
+			        <center><input type="submit" name="submit" value="send" /></center>
+			</form>
+
+                </div>
+                <a id="close" href="#" class="btn">close</a>
+            </div>
+<?php
+
+    echo '/<div>';
+          }
+}
+function curPageURL() {
+   $pageURL = 'http';
+    if ($_SERVER["HTTPS"] == "on") {$pageURL .= "s";}
+       $pageURL .= "://";
+    if ($_SERVER["SERVER_PORT"] != "80") {
+        $pageURL .= $_SERVER["SERVER_NAME"].":".$_SERVER["SERVER_PORT"].$_SERVER["REQUEST_URI"];
+         } else {
+             $pageURL .= $_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"];
+              }
+ return $pageURL;
 }
 
 
 ?>
-</div>
-</div>
         <div id="footer">
           <div id="copyleft">
             <p>ERASME 2011-2012. Logiciel sous <a href="http://fr.wikipedia.org/wiki/WTF_Public_License">license WTFPL</a>.</p>

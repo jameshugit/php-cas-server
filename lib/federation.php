@@ -217,12 +217,20 @@ function sendalert($attributes)
            }
 //login function handles the different cases of profile parent/eleve and make the good action (login to CAS server , redirect to inscription page, ..)
 function login($attributes){
+<<<<<<< HEAD
 global $CONFIG;
+=======
+
+>>>>>>> bab026cdc6c1d5cca0396fd143f8790a6a5b5abc
 if(empty($attributes)) // no attributes sent by the idp 
             {
               echo 'le serveur de la féderation n\'a pas envoyé des attributs, vous allez être redirigé vers la page d\'inscription';
               echo '<META HTTP-EQUIV="Refresh" Content="2; http://www.dev.laclasse.com/pls/public/!page.laclasse?contexte=INSCRIPTION&rubrique=0">';
+<<<<<<< HEAD
               exit();
+=======
+               exit();
+>>>>>>> bab026cdc6c1d5cca0396fd143f8790a6a5b5abc
 
             }
           else
@@ -238,6 +246,7 @@ if(empty($attributes)) // no attributes sent by the idp
                              $prenom = $attr[0]['prenom'];
                              $eleveid = $attr[0]['eleveid'];
                              $UaiEtab = $attr[0]['UaiEtab'];
+<<<<<<< HEAD
                              $profil= $attr[0]['profile']; 
                              
                              //profil eleve
@@ -252,6 +261,9 @@ if(empty($attributes)) // no attributes sent by the idp
                                $db=$factoryInstance->createDB($CONFIG['DATABASE'],BACKEND_DBUSER,BACKEND_DBPASS,BACKEND_DBNAME);   
                                $casattributes = $db->Search_Parent_By_Name_EleveSconetId($nom,$prenom,$eleveid);
                             }
+=======
+                             $casattributes = Search_Parent_By_Name_Etab_EleveId($nom, $prenom, $eleveid);
+>>>>>>> bab026cdc6c1d5cca0396fd143f8790a6a5b5abc
                              if(count($casattributes)==1) // one corresponding record is found in the database
                              {
                                 $var=$casattributes[0]['login'];
@@ -279,7 +291,10 @@ if(empty($attributes)) // no attributes sent by the idp
                                      }
 
                                   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> bab026cdc6c1d5cca0396fd143f8790a6a5b5abc
                                    else //'more than one record are found ! '
                                    {
 
@@ -294,6 +309,7 @@ if(empty($attributes)) // no attributes sent by the idp
                         else
                         {
                           // actullay this version treat multiple identity vector for the same person
+<<<<<<< HEAD
                          $casattributes = array();
                          $temp=array();
                          if ($attr[0]['profile']== 3 || $attr[0]['profile'] == 4){
@@ -303,6 +319,10 @@ if(empty($attributes)) // no attributes sent by the idp
                          }
                          $factoryInstance = new DBFactory();
                           $db=$factoryInstance->createDB($CONFIG['DATABASE'],BACKEND_DBUSER,BACKEND_DBPASS,BACKEND_DBNAME);
+=======
+                          $casattributes = array();
+                         $temp=array();
+>>>>>>> bab026cdc6c1d5cca0396fd143f8790a6a5b5abc
                          foreach($attr as $record)
                          {
                            $nom = $record['nom']; 
@@ -310,8 +330,12 @@ if(empty($attributes)) // no attributes sent by the idp
                            $prenom = $record['prenom'];
                            $eleveid = $record['eleveid'];
                            $UaiEtab = $record['UaiEtab'];
+<<<<<<< HEAD
                            $profil= $record['profile']; 
                            $temp =  array_union($db->Search_Parent_By_Name_EleveSconetId($nom,$prenom,$eleveid), $temp);
+=======
+                             $temp =  array_union(Search_Parent_By_Name_Etab_EleveId($nom, $prenom, $eleveid), $temp);
+>>>>>>> bab026cdc6c1d5cca0396fd143f8790a6a5b5abc
                              //print_r(Search_Parent_By_Name_Etab_EleveId($nom, $prenom, $eleveid)); 
                            $casattributes = $temp; 
                           // print_r($temp); 
@@ -373,8 +397,12 @@ if(empty($attributes)) // no attributes sent by the idp
 
 //agent login handles the different cases of profile agent/prof 
 function agentLogin($attributes)
+<<<<<<< HEAD
 {  
    global $CONFIG; 
+=======
+{
+>>>>>>> bab026cdc6c1d5cca0396fd143f8790a6a5b5abc
    $email =  extractEmail($attributes);
    //print_r($email);
    if(empty($email))
@@ -385,11 +413,15 @@ function agentLogin($attributes)
    }
    else
    {
+<<<<<<< HEAD
      // create database connection
       $factoryInstance = new DBFactory();
       $db=$factoryInstance->createDB($CONFIG['DATABASE'],BACKEND_DBUSER,BACKEND_DBPASS,BACKEND_DBNAME);
 
      $search= $db->Search_Agent_By_InsEmail($email['email']); 
+=======
+     $search= Search_Agent_by_mail($email['email']); 
+>>>>>>> bab026cdc6c1d5cca0396fd143f8790a6a5b5abc
      if(empty($search))
      {
        // echo 'the user does not exist in the database';
@@ -436,9 +468,13 @@ function googlelogin($attributes)
 
      }
      else {
+<<<<<<< HEAD
         $factoryInstance = new DBFactory();
         $db=$factoryInstance->createDB($CONFIG['DATABASE'],BACKEND_DBUSER,BACKEND_DBPASS,BACKEND_DBNAME);
         $search = $db->Search_user_by_email($info['email']); 
+=======
+        $search = Search_user_by_email($info['email']); 
+>>>>>>> bab026cdc6c1d5cca0396fd143f8790a6a5b5abc
         if(empty($search))
         {
           echo ' <h1>Vous n\'avez pas un compte sur le laclasse.com, vous serez redirigé vers la page d\'inscription </h1>';

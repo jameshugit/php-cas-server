@@ -97,7 +97,7 @@
                   => present login/pass form,
                   => store initial GET parameters somewhere (service)
                  */
-                // displaying login Form wiht a new login ticket.
+                // displaying login Form with a new login ticket.
                 $lt = new LoginTicket();
                 $lt->create();
                 viewLoginForm(array('service' => $service,
@@ -199,7 +199,7 @@
                 // Redirecting for futher client request for serviceValidate
                 header("Location: " . url($service) . "ticket=" . $st->key() . "");
             } else {
-                // No service, user just wanted to login to SSO
+                // xNo service, user just wanted to login to SSO
                 viewLoginSuccess();
             }
         }
@@ -283,12 +283,12 @@ function serviceValidate() {
 	}
 	
 	// 3. validating ST ticket.
-	if ($st->service() != $service) {
-		viewAuthFailure(array('code'=>'INVALID_SERVICE',  'message'=> _("The service ").$service._(" is not valid.")));
-		// Destroy this ticket from memCache because it is not valid anyway.
-		$st->delete();
-		die();
-	} 
+//	if ($st->service() != $service) {
+//		viewAuthFailure(array('code'=>'INVALID_SERVICE',  'message'=> _("The service ").$service._(" is not valid.")));
+//		// Destroy this ticket from memCache because it is not valid anyway.
+//		$st->delete();
+//		die();
+//	} 
 	
 	// If we pass here, ticket and service are validated
   // So give back the CAS2 like token
@@ -581,8 +581,10 @@ function validateTicket($ticket, $service)
             //showError(_("Saml Validate"));
             break;
         case 'extractsoap': 
+
            echo( extractSoap());
            break;
+
         default :
             showError(_("Action inconnue."));
     }
