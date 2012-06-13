@@ -247,6 +247,7 @@ if(empty($attributes)) // no attributes sent by the idp
                              $eleveid = $attr[0]['eleveid'];
                              $UaiEtab = $attr[0]['UaiEtab'];
 <<<<<<< HEAD
+<<<<<<< HEAD
                              $profil= $attr[0]['profile']; 
                              
                              //profil eleve
@@ -264,6 +265,13 @@ if(empty($attributes)) // no attributes sent by the idp
 =======
                              $casattributes = Search_Parent_By_Name_Etab_EleveId($nom, $prenom, $eleveid);
 >>>>>>> bab026cdc6c1d5cca0396fd143f8790a6a5b5abc
+=======
+                             $profil= $attr[0]['profile']; 
+                             //profil eleve
+                             // if ($profil == 3 || $profil == 4)  $casattributes = Search_eleve_by_sconetid($nom, $prenom, $eleveid);
+                             // profil parent 
+                            if ($profil == 1 || $profil == 2) $casattributes = Search_Parent_By_Name_Etab_EleveId($nom, $prenom, $eleveid);
+>>>>>>> 38248a533c41ae31c4080eb93a4cd96360d9cb42
                              if(count($casattributes)==1) // one corresponding record is found in the database
                              {
                                 $var=$casattributes[0]['login'];
@@ -292,9 +300,13 @@ if(empty($attributes)) // no attributes sent by the idp
 
                                   }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> bab026cdc6c1d5cca0396fd143f8790a6a5b5abc
+=======
+
+>>>>>>> 38248a533c41ae31c4080eb93a4cd96360d9cb42
                                    else //'more than one record are found ! '
                                    {
 
@@ -398,11 +410,16 @@ if(empty($attributes)) // no attributes sent by the idp
 //agent login handles the different cases of profile agent/prof 
 function agentLogin($attributes)
 <<<<<<< HEAD
+<<<<<<< HEAD
 {  
    global $CONFIG; 
 =======
 {
 >>>>>>> bab026cdc6c1d5cca0396fd143f8790a6a5b5abc
+=======
+{  
+   global $CONFIG; 
+>>>>>>> 38248a533c41ae31c4080eb93a4cd96360d9cb42
    $email =  extractEmail($attributes);
    //print_r($email);
    if(empty($email))
@@ -414,14 +431,20 @@ function agentLogin($attributes)
    else
    {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 38248a533c41ae31c4080eb93a4cd96360d9cb42
      // create database connection
       $factoryInstance = new DBFactory();
       $db=$factoryInstance->createDB($CONFIG['DATABASE'],BACKEND_DBUSER,BACKEND_DBPASS,BACKEND_DBNAME);
 
      $search= $db->Search_Agent_By_InsEmail($email['email']); 
+<<<<<<< HEAD
 =======
      $search= Search_Agent_by_mail($email['email']); 
 >>>>>>> bab026cdc6c1d5cca0396fd143f8790a6a5b5abc
+=======
+>>>>>>> 38248a533c41ae31c4080eb93a4cd96360d9cb42
      if(empty($search))
      {
        // echo 'the user does not exist in the database';
@@ -469,12 +492,18 @@ function googlelogin($attributes)
      }
      else {
 <<<<<<< HEAD
+<<<<<<< HEAD
         $factoryInstance = new DBFactory();
         $db=$factoryInstance->createDB($CONFIG['DATABASE'],BACKEND_DBUSER,BACKEND_DBPASS,BACKEND_DBNAME);
         $search = $db->Search_user_by_email($info['email']); 
 =======
         $search = Search_user_by_email($info['email']); 
 >>>>>>> bab026cdc6c1d5cca0396fd143f8790a6a5b5abc
+=======
+        $factoryInstance = new DBFactory();
+        $db=$factoryInstance->createDB($CONFIG['DATABASE'],BACKEND_DBUSER,BACKEND_DBPASS,BACKEND_DBNAME);
+        $search = $db->Search_user_by_email($info['email']); 
+>>>>>>> 38248a533c41ae31c4080eb93a4cd96360d9cb42
         if(empty($search))
         {
           echo ' <h1>Vous n\'avez pas un compte sur le laclasse.com, vous serez redirigé vers la page d\'inscription </h1>';

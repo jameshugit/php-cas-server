@@ -86,7 +86,11 @@ define('Mysql_FOR_PRONOTE', ' select u.nom , u.prenom, u.date_naissance as dateN
                              where upper(u.login)= upper(:LOGIN) and pu.user_id = u.id and pu.profil_id = p.id '); 
 
 //-------------------------------------------------------------------------
+<<<<<<< HEAD
 define('Mysql_Search_student_By_Name_Id', 'select  u.login , u.nom , u.prenom ,
+=======
+define('Mysql_Search_student_By_Id', 'select  u.login , u.nom , u.prenom ,
+>>>>>>> 38248a533c41ae31c4080eb93a4cd96360d9cb42
                                        u.date_naissance as dateNaissance, 
                                        u.code_postal  as  codePostal,
                                        p.code_ent  as    categories
@@ -96,8 +100,12 @@ define('Mysql_Search_student_By_Name_Id', 'select  u.login , u.nom , u.prenom ,
                                               profil p 
                                        where 
                                               u.id = pu.user_id 
+<<<<<<< HEAD
                                               and pu.profil_id = p.id  and u.id_sconet=(:eleveid) and upper(u.nom)=upper(:nom) 
                                               and upper(u.prenom=upper(:prenom))'); 
+=======
+                                              and pu.profil_id = p.id  and u.id_sconet=(:eleveid)'); 
+>>>>>>> 38248a533c41ae31c4080eb93a4cd96360d9cb42
 //-------------------------------------------------------------------------
 
 define('Mysql_Search_Parent_By_Name_EleveId',
@@ -121,9 +129,15 @@ define('Mysql_Search_Parent_By_EleveId',
 /* Cette requête ne gère que les PROFS et LES ELEVES pour les manuels
 scolaires numériques */
 
+<<<<<<< HEAD
 define('MySQL_FOR_ATTRIBUTES_MEN', 
     /* ELEVES */
 'select   distinct u.id "user",
+=======
+define('MySQL_FOR_ATTRIBUTES_MEN, 
+    /* ELEVES */
+select   distinct u.id "user",
+>>>>>>> 38248a533c41ae31c4080eb93a4cd96360d9cb42
                  pu.etablissement_id as "UAI",
                  p.code_ent as  "ENTPersonProfils",
                  null as "CodeNivFormation",
@@ -209,7 +223,11 @@ UNION
                                 group by u.id) grp , 
             profil_user pu, 
             profil p
+<<<<<<< HEAD
         where upper(u.login) = upper(:LOGIN)
+=======
+        where u.login = upper(:LOGIN)
+>>>>>>> 38248a533c41ae31c4080eb93a4cd96360d9cb42
             u.id= pu.user_id
             and pu.profil_id  = p.id
             and p.code_men = "ENS"
