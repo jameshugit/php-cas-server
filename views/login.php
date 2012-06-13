@@ -75,7 +75,17 @@ function getFormLogin($t) {
               <br class="clear" />
               <br />
             </div>
-               
+            <div style = "border-top: solid #3399FF; background-color:white; width: 260px; padding: 5px;">
+                <p> <font color="red"><b>Nouveau:</b></font> <br/></p>
+                <div  style=" margin:0px auto ;  text-align:center;">
+                <p><a  href="lib/parentPortalIdp.php?login"class="tt" ><img src="images/parents_eleves1b.png" alt="ADLyon"/><span class="tooltip"><span class="top"> </span>
+                <span class="middle">se connecter avec votre profil parent/élève de l\'academie de lyon</span><span class="bottom"></span></span>
+                </a><span style="margin-left:30px;"></span>
+                <a  href="lib/agentPortalIdp.php?login" class="tt"><img src="images/profs_agents1b.png" alt="ADLyon"/><span class="tooltip"><span class="top"> </span>
+                <span class="middle">se connecter avec votre profil prof/agent  de l\'academie de lyon</span><span class="bottom"></span></span></a></p>
+                </div> 
+             </div> 
+
             <div id="sidebar">
               <p>'._('Pour des raisons de s&eacute;curit&eacute;, veuillez vous d&eacute;connecter et fermer votre navigateur lorsque vous avez fini d\'acc&eacute;der aux services authentifi&eacute;s.').'</p>
               <div id="list-languages">
