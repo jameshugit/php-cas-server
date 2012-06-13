@@ -238,7 +238,11 @@ if(empty($attributes)) // no attributes sent by the idp
                              $prenom = $attr[0]['prenom'];
                              $eleveid = $attr[0]['eleveid'];
                              $UaiEtab = $attr[0]['UaiEtab'];
-                             $casattributes = Search_Parent_By_Name_Etab_EleveId($nom, $prenom, $eleveid);
+                             $profil= $attr[0]['profile']; 
+                             //profil eleve
+                             // if ($profil == 3 || $profil == 4)  $casattributes = Search_eleve_by_sconetid($nom, $prenom, $eleveid);
+                             // profil parent 
+                            if ($profil == 1 || $profil == 2) $casattributes = Search_Parent_By_Name_Etab_EleveId($nom, $prenom, $eleveid);
                              if(count($casattributes)==1) // one corresponding record is found in the database
                              {
                                 $var=$casattributes[0]['login'];
@@ -266,6 +270,7 @@ if(empty($attributes)) // no attributes sent by the idp
                                      }
 
                                   }
+
                                    else //'more than one record are found ! '
                                    {
 
@@ -351,7 +356,8 @@ if(empty($attributes)) // no attributes sent by the idp
 
 //agent login handles the different cases of profile agent/prof 
 function agentLogin($attributes)
-{
+{  
+   global $CONFIG; 
    $email =  extractEmail($attributes);
    //print_r($email);
    if(empty($email))
@@ -362,7 +368,11 @@ function agentLogin($attributes)
    }
    else
    {
-     $search= Search_Agent_by_mail($email['email']); 
+     // create database connection
+      $factoryInstance = new DBFactory();
+      $db=$factoryInstance->createDB($CONFIG['DATABASE'],BACKEND_DBUSER,BACKEND_DBPASS,BACKEND_DBNAME);
+
+     $search= $db->Search_Agent_By_InsEmail($email['email']); 
      if(empty($search))
      {
        // echo 'the user does not exist in the database';
@@ -409,7 +419,9 @@ function googlelogin($attributes)
 
      }
      else {
-        $search = Search_user_by_email($info['email']); 
+        $factoryInstance = new DBFactory();
+        $db=$factoryInstance->createDB($CONFIG['DATABASE'],BACKEND_DBUSER,BACKEND_DBPASS,BACKEND_DBNAME);
+        $search = $db->Search_user_by_email($info['email']); 
         if(empty($search))
         {
           echo ' <h1>Vous n\'avez pas un compte sur le laclasse.com, vous serez redirigé vers la page d\'inscription </h1>';
