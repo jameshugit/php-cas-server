@@ -302,7 +302,7 @@ class ORACLE implements casAuthentication
     {
       global $CONFIG;
       $query = Search_Parent_By_Name_EleveId;
-      $r = $this->ExecuteQuery($query, array('nom'=> $nom,  'prenom'=> $prenom, 'elevid' => $eleveid));
+      $r = $this->ExecuteQuery($query, array(':nom'=> $nom,  ':prenom'=> $prenom, ':elevid' => $eleveid));
       return $r;
 
     }
