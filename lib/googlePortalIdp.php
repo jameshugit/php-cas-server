@@ -70,11 +70,7 @@ if (array_key_exists('login', $_REQUEST)) {  //handling  the login request
   // call the login function which treat all cases 
   //login($attributes);
   // print_r($attributes);
-<<<<<<< HEAD
- // googlelogin($attributes);
-=======
   googlelogin($attributes);
->>>>>>> bab026cdc6c1d5cca0396fd143f8790a6a5b5abc
   //echo 'the login must take place here </br>'; 
 	
 }
