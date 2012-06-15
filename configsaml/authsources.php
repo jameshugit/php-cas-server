@@ -16,6 +16,8 @@ $config = array(
     'idp' => NULL, 
     'discoURL' => NULL,
   ),
+
+  //profile parent Eleve authentication source
   'simpleexample' => array(
 
     'saml:SP',
@@ -44,7 +46,7 @@ $config = array(
             'ProtocolBinding' =>'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
           ),
 
-
+  // profile Agent authentication source
   'Agentportal' => array(
                        'saml:SP',
                 

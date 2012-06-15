@@ -19,11 +19,11 @@ require_once(SimpleSamlPATH.'/_autoload.php');
 
 require_once(CAS_PATH . '/lib/federation.php'); 
 $profiles= array('agent'=>6, 'eleve'=>4 , 'parent'=>8); 
-
+global $CONFIG;
 /*
  * We use the simpleexample authentication source defined in /SimpleSamlPATH/config/authsources.php.
  */
-$as = new SimpleSAML_Auth_Simple('simpleexample');
+$as = new SimpleSAML_Auth_Simple($CONFIG['PARENT_ELEVE_SOURCE']);
 $CASauthenticated = false; 
 $attributes=array(); 
 $var=''; 
