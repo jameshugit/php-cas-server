@@ -130,6 +130,7 @@ $isAuth = $as->isAuthenticated();
 <script type="text/javascript" src="../js/jquery.lightbox_me.js"></script>
 <script language="JavaScript" type="text/javascript">
 $(function() {
+            //this script is for showing the popup ( choice menu )
             function launch() {
                  $('#sign_up').lightbox_me({centered: true, onLoad: function() { $('#sign_up').find('input:first').focus()}});
             }
@@ -192,22 +193,7 @@ $(function() {
 echo '<div id="mire">';
 echo '<div class="box"id= "login">'; 
 
-/*
-if ($isAuth) {
-
-//echo '<p>Vous êtes actuellement authentifié à l\'academie de lyon: <ol><li><a href="https://services.ac-lyon.fr/login/ct_logout.jsp?CT_ORIG_URL=',urlencode("http://www.dev.laclasse.com/saml/example-simple/loginidp.php"),'"> se déconnecter de l\'academie de Lyon </a></li>'; 
-  // echo '<li><a href="?logout">se déconnecter du serveur de féderation</a></li></ol></p>';
-  echo '<a id = "logout" href="https://services.ac-lyon.fr/slo/request/AP"> se déconnecter </a></br>';
-     echo '<iframe id="myIFrame" style="display:none" ></iframe>';
-     echo '<iframe id="myIFrame2" style="display:none" ></iframe>';
-
-	     }
-else {
-	echo '<p> Vous n\'êtes pas authentifié:  <a href="?login"> se connecter</a></p>';
-}
- */
 ?>
-
 
 <?php
 
@@ -229,7 +215,7 @@ else
         echo '<br>Votre compte est un compte familiale<br/>';
 
 	      echo 'Pour finir l\'authentification, Cliquez sur le lien et choisissez votre identité: ';
-        echo '<a href= "#" id="try-1"> Identité </a></br>';
+        echo '<a href= "#" id="try-1" style="font-weight:bold; color:red; " > Identité </a></br>';
 ?>
 
 <div id="sign_up" >

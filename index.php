@@ -335,36 +335,24 @@ function proxyValidate() {
 	@returns
 */
 
-   function samlValidate() 
-   {
-             try{
-//                 1-   get the soap message()  
-                $soapbody = extractSoap();
-               
-               
-////                
-////                
-////                
-////                // 2-   get the Target and validate it()
+function samlValidate() 
+ {
+      
+     try{
+                //  1-   get the soap message()  
+                $soapbody = extractSoap(); 
+                // 2-   get the Target and validate it()
                  $service = $_REQUEST['TARGET'];
-//               
-//                 
-////                 
-////           
-////	
-////	
-////          
-////                 //************ verifiying the service 
+
+               //************ verifiying the service 
                if (!isset($service))
                  {
-                     
                      throw new Exception('No authorized service was found ! ');
                  }
-//                 
-//                 // 3-  get the saml Request out of the SOAP message
+
+               // 3-  get the saml Request out of the SOAP message
                  $samlRequest=extractRequest($soapbody);
 //               
-                 
                  $samloneschema = CAS_PATH.'/schemas/oasis-sstc-saml-schema-protocol-1.1.xsd' ; 
                  
                  
