@@ -473,4 +473,3 @@ function googlelogin($attributes)
 
 
 ?>
-

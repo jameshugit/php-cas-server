@@ -265,6 +265,9 @@ function loggedout() {
 */
 function serviceValidate() {
   global $CONFIG;
+  //for test purpose only·
+  // $database = isset($_REQUEST['database']) ? $_REQUEST['database'] : $CONFIG['DATABASE'];
+
 	$ticket 	= isset($_GET['ticket']) ? $_GET['ticket'] : "";
 	$service 	= urldecode(isset($_GET['service']) ? $_GET['service'] : "");
 	$renew 		= isset($_GET['renew']) ? $_GET['renew'] : "";
