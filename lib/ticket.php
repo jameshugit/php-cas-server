@@ -87,16 +87,11 @@ final class TicketStorage {
     $options = array('servers' => array());
 
     foreach ($CONFIG['REDIS_SERVERS'] as $srvary) {
-      error_log("Added server " . $srvary[0]);
-
       array_push($options['servers'], array('host' => $srvary[0], 'port' => $srvary[1]));
-
-//  		$this->_cache->addServer($srvary[0], $srvary[1]);
     }
 
     /** Create Rediska instance **/
 		$this->_cache = new Rediska($options);
- //   $this->_cache->removeServer("127.0.0.1:6379");
 	}
 
 	/**
@@ -119,11 +114,6 @@ final class TicketStorage {
 		// defining a counter for ServiceTicket type
 		if ($this->_prefix == 'ST') $number = $this->readCounter();
 		
-/*		if ($this->_prefix == 'LT') {
-			$number = "0";
-			$suffixString = date('ymj-his'); 
-		}
-*/		
 		$this->key($this->_prefix . self::SEPARATOR . 
 					$number . 
 					self::SEPARATOR . 
@@ -349,8 +339,6 @@ class LoginTicket {
 
 	// returns username associated to key
 	public function find($lt = false) {
-		//assert($lt !== false);
-		//assert(!$this->_ticket); 
 		// can only be initialized once
 		$this->_ticket = new TicketStorage('LT');
 		$this->_initialized = true;

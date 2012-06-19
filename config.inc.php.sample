@@ -12,6 +12,11 @@
 */
 define ('CAS_PATH', '/path/to/cas');
 define ('SimpleSamlPATH', '/path/to/simplesamlphp/lib'); 
+define ('ENT_SERVER', 'https://www.dev.laclasse.com');
+
+define('CASUrl','https://www.dev.laclasse.com/sso'); 
+define('SERVICE',ENT_SERVER.'/pls/education/!page.laclasse');
+define('INSCRIPTION_URL', ENT_SERVER.'/pls/public/!page.laclasse?contexte=INSCRIPTION&rubrique=0');
 
 /** Server mode
  * @param MODE
@@ -26,14 +31,22 @@ $CONFIG['MODE'] = 'dev';
  * @note Not used ATM
  */
 $CONFIG['CAS_VERSION'] = '2.0';
+//-------------------------------------------------------------------
+// DATABASE BACKEND TYPE 
+$CONFIG['DATABASE'] = 'ORACLE';
+//$CONFIG['DATABASE']= 'MYSQL'; 
+//-------------------------------------------------------------------
 
-/** Memcached server array
- * @deprecated Memcached is not usd anymore
- * @param MEMCACHED_SERVERS Array of servers. Each server is an array of (host, port).
- * Thus, MEMCACHED_SERVERS contains an array of arrays. It is passed as parameters to
- * Memcached::addservers as is.
- */
-$CONFIG['MEMCACHED_SERVERS'] = array(array('localhost', 11211));
+
+//-------------------------------------------------------------------
+//  Profile Parent Eleve Metadata name  in /simplesamlphp/config authSource.php 
+$CONFIG['PARENT_ELEVE_SOURCE'] = 'simpleexample';
+
+// Profile Agent Metadata name in /simplesamlphp/config authSource.php
+$CONFIG['AGENT_SOURCE'] = 'Agentportal';
+
+
+//-------------------------------------------------------------------
 
 /** Redis server array
  * Redis is the datastorage for versions above 1.1
@@ -99,8 +112,6 @@ $CONFIG['MAIL_ADMIN']  = "you@yourdomain.com";
  */
  
 include_once('lib/authentication.php');
-include_once('lib/backend.db.oracle.php');
-//include_once('lib/backend.ldap.php');
 
 //------------------------------------------------------------------------------
 // Constantes de connexion au Backend.
@@ -328,3 +339,4 @@ $CONFIG['AUTHORIZED_SITES'] = array(
 	
 
 ?>
+
