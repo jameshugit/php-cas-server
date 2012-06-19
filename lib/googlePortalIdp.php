@@ -12,10 +12,10 @@
  * 
  */
 //add the path to the CAS configuration file.
-require_once('/var/www/sso/config.inc.php'); 
+require_once('../config.inc.php'); 
 
 //the simpleSAMlphp autoloader class
-require_once('/opt/simplesamlphp/simplesamlphp-1.8.3/lib/_autoload.php');
+require_once(SimpleSamlPATH.'/_autoload.php');
 
 require_once(CAS_PATH . '/lib/federation.php'); 
 $profiles= array('agent'=>6, 'eleve'=>4 , 'parent'=>8); 
