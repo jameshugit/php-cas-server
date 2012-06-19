@@ -8,6 +8,10 @@
 //include_once('/var/www/sso/config.inc.php'); 
 //include_once('../config.inc.php'); 
 
+include_once(CAS_PATH.'/lib/functions.php');
+require_once(CAS_PATH.'/views/auth_success.php');
+require_once(CAS_PATH.'/views/auth_failure.php');
+
 interface casAuthentication {
 	/**
 	 * Validates login and password
