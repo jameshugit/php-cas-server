@@ -12,18 +12,18 @@
  * 
  */
 //add the path to the CAS configuration file.
-require_once('/var/www/sso/config.inc.php'); 
+require_once('../config.inc.php'); 
 
 //the simpleSAMlphp autoloader class
 require_once(SimpleSamlPATH.'/_autoload.php');
 
 require_once(CAS_PATH . '/lib/federation.php'); 
 $profiles= array('agent'=>6, 'eleve'=>4 , 'parent'=>8); 
-
+global $CONFIG;
 /*
  * We use the simpleexample authentication source defined in /SimpleSamlPATH/config/authsources.php.
  */
-$as = new SimpleSAML_Auth_Simple('Agentportal');
+$as = new SimpleSAML_Auth_Simple($CONFIG['AGENT_SOURCE']);
 $CASauthenticated = false; 
 $attributes=array(); 
 $var=''; 
@@ -79,7 +79,7 @@ if (array_key_exists('login', $_REQUEST)) {  //handling  the login request
 	$attributes = $as->getAttributes();
   // call the login function which treat all cases 
   //login($attributes); 
-   print_r($attributes); 
+  // print_r($attributes); 
   agentLogin($attributes); 
 	
 }
@@ -153,15 +153,10 @@ $(function() {
             $('table tr:nth-child(even)').addClass('stripe');
             $('#logout').click(function(){
              //se deconnecter de FIM 
-              $('#myIFrame').attr("src","?logout");WaitForIFrame($('#myIFrame'));
+              //$('#myIFrame').attr("src","?logout");WaitForIFrame($('#myIFrame'));
               //se deconnecter de l'academie de lyon
-               $('#myIFrame2').attr("src","https://viesco.ac-lyon.fr/login/ct_logout.jsp"); WaitForIFrame($('#myIFrame2'));
-              //return false;
-             //location.reload();
-              // $(location).reload();
-             // window.location.replace("http://www.dev.laclasse.com/sso/lib/agentPortalIdp.php");
-             // $(location).attr("href", "https://www.dev.laclasse.com/sso/logout?");
-             // $.get('https://viesco.ac-lyon.fr/login/ct_logout.jsp');return false;
+              //$('#myIFrame2').attr("src","https://viesco.ac-lyon.fr/login/ct_logout.jsp"); WaitForIFrame($('#myIFrame2'));
+              $('#myIFrame').attr("src","https://viesco.ac-lyon.fr/login/ct_logout.jsp");setTimeout(function() { $('#myIFrame2').attr("src","?logout"); }, 1000);
             return false;
                       });
 

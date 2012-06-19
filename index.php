@@ -77,7 +77,6 @@
     require_once(CAS_PATH . '/views/logout.php');
     require_once(CAS_PATH . '/views/auth_failure.php');
     require_once(CAS_PATH . '/views/saml_pronote_token.php');
-    
 
     /**
      * login
@@ -112,6 +111,11 @@
                   => send TGT
                   => redirect to login
                  */
+                // create database provider
+                $factoryInstance = new DBFactory();
+                $db=$factoryInstance->createDB($CONFIG['DATABASE'],BACKEND_DBUSER, BACKEND_DBPASS,BACKEND_DBNAME);
+
+
                 $lt = new LoginTicket();
                 // If the login Ticket is not valid, no need to go futher : redirect to login form
 
@@ -125,7 +129,7 @@
                 }
 
                 // @fl : Hack de dev : on est toujours authentifié !
-                if (($_POST ['username'] == 'flecluse') || (strtoupper(verifyLoginPasswordCredential($_POST['username'], $_POST['password'])) == strtoupper($_POST['username']))) {
+                if (($_POST ['username'] == 'flecluse') || (strtoupper($db->verifyLoginPasswordCredential($_POST['username'], $_POST['password'])) == strtoupper($_POST['username']))) {
                     /* credentials ok */
                     $ticket = new TicketGrantingTicket();
                     $ticket->create($_POST['username']);
@@ -260,6 +264,10 @@ function loggedout() {
 	
 */
 function serviceValidate() {
+  global $CONFIG;
+  //for test purpose only·
+  // $database = isset($_REQUEST['database']) ? $_REQUEST['database'] : $CONFIG['DATABASE'];
+
 	$ticket 	= isset($_GET['ticket']) ? $_GET['ticket'] : "";
 	$service 	= urldecode(isset($_GET['service']) ? $_GET['service'] : "");
 	$renew 		= isset($_GET['renew']) ? $_GET['renew'] : "";
@@ -286,8 +294,10 @@ function serviceValidate() {
 //	} 
 	
 	// If we pass here, ticket and service are validated
-	// So give back the CAS2 like token
-	$token = getServiceValidate($st->username(), $service);
+  // So give back the CAS2 like token
+  $factoryInstance = new DBFactory();
+  $db=$factoryInstance->createDB($CONFIG['DATABASE'],BACKEND_DBUSER, BACKEND_DBPASS,BACKEND_DBNAME);
+	$token =$db->getServiceValidate($st->username(), $service);
 
 	// 4. destroy ST ticket because this is a one shot ticket.
 	$st->delete();
@@ -325,43 +335,24 @@ function proxyValidate() {
 	@returns
 */
 
-   function samlValidate() 
-   {
-       
+function samlValidate() 
+ {
       
-       
-//      
-             try{     
-                 
-                
-                  
-//                 1-   get the soap message()  
-                $soapbody = extractSoap();
-               
-               
-////                
-////                
-////                
-////                // 2-   get the Target and validate it()
+     try{
+                //  1-   get the soap message()  
+                $soapbody = extractSoap(); 
+                // 2-   get the Target and validate it()
                  $service = $_REQUEST['TARGET'];
-//               
-//                 
-////                 
-////           
-////	
-////	
-////          
-////                 //************ verifiying the service 
+
+               //************ verifiying the service 
                if (!isset($service))
                  {
-                     
                      throw new Exception('No authorized service was found ! ');
                  }
-//                 
-//                 // 3-  get the saml Request out of the SOAP message
+
+               // 3-  get the saml Request out of the SOAP message
                  $samlRequest=extractRequest($soapbody);
 //               
-                 
                  $samloneschema = CAS_PATH.'/schemas/oasis-sstc-saml-schema-protocol-1.1.xsd' ; 
                  
                  
@@ -490,7 +481,8 @@ function proxyValidate() {
     
  
 function validateTicket($ticket, $service)
-{   
+{  
+    global $CONFIG;
     $attributes=array(); 
     $st = new ServiceTicket();
     if (!$st->find($ticket)) 
@@ -509,8 +501,10 @@ function validateTicket($ticket, $service)
     } 
    
     $login= $st->username();
-    //echo $service; 
-    $attributes = getSamlAttributes($login, $service);
+    //echo $service;
+     $factoryInstance = new DBFactory();
+     $db=$factoryInstance->createDB($CONFIG['DATABASE'],BACKEND_DBUSER, BACKEND_DBPASS,BACKEND_DBNAME); 
+     $attributes =$db->getSamlAttributes($login, $service);
     
     if (empty($attributes))
         throw new Exception('empty attributes'); 

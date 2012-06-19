@@ -6,7 +6,7 @@
  * 
  */
 //add the path to the CAS configuration file.
-require_once('/var/www/sso/config.inc.php'); 
+require_once('../config.inc.php'); 
 
 //the simpleSAMlphp autoloader class
 //require_once(SimpleSamlPATH.'/_autoload.php');
@@ -23,17 +23,17 @@ require_once(CAS_PATH . '/lib/backend.db.oracle.php');
 //CASLogin function takes the (laclasse login) as input and generates  a ticket to login to Laclasse server.
 function CASLogin($nom,$idp) {
         global $CONFIG;
-        $Casurl = 'https://www.dev.laclasse.com/sso/login';
-        // $service = 'https://www.dev.laclasse.com/saml/example-simple/loginidp.php';
+
+        $Casurl = CASUrl.'/login'; 
         if($idp=='FIM')
         // I ADDED LoggedFromExternalFim = Y  parameter to assure that the authentification is issued by  the academie.
-        $service = 'http://www.dev.laclasse.com/pls/education/!page.laclasse?LoggedFromExternalFim=Y'; 
+        $service = SERVICE.'?LoggedFromExternalFim=Y'; 
         else 
         {
           if($idp='GOOGLE') //if the authentication is issued by GOOGLE
-             $service = 'http://www.dev.laclasse.com/pls/education/!page.laclasse?LoggedFromGoogle=Y';
+             $service = SERVICE.'?LoggedFromGoogle=Y';
           else 
-             $service = 'http://www.dev.laclasse.com/pls/education/!page.laclasse'; 
+             $service = SERVICE;
         }
 
         if (!array_key_exists('CASTGC', $_COOKIE)) { /*** user has no TGC ***/
@@ -217,12 +217,12 @@ function sendalert($attributes)
            }
 //login function handles the different cases of profile parent/eleve and make the good action (login to CAS server , redirect to inscription page, ..)
 function login($attributes){
-
+  global $CONFIG;
 if(empty($attributes)) // no attributes sent by the idp 
             {
               echo 'le serveur de la féderation n\'a pas envoyé des attributs, vous allez être redirigé vers la page d\'inscription';
-              echo '<META HTTP-EQUIV="Refresh" Content="2; http://www.dev.laclasse.com/pls/public/!page.laclasse?contexte=INSCRIPTION&rubrique=0">';
-               exit();
+              echo '<META HTTP-EQUIV="Refresh" Content="2;'.INSCRIPTION_URL.'">';
+              exit();
 
             }
           else
@@ -238,7 +238,20 @@ if(empty($attributes)) // no attributes sent by the idp
                              $prenom = $attr[0]['prenom'];
                              $eleveid = $attr[0]['eleveid'];
                              $UaiEtab = $attr[0]['UaiEtab'];
-                             $casattributes = Search_Parent_By_Name_Etab_EleveId($nom, $prenom, $eleveid);
+                             $profil= $attr[0]['profile']; 
+                             
+                             //profil eleve
+                             if ($profil == 3 || $profil == 4){
+                               $factoryInstance = new DBFactory();
+                               $db=$factoryInstance->createDB($CONFIG['DATABASE'],BACKEND_DBUSER,BACKEND_DBPASS,BACKEND_DBNAME);   
+                               $casattributes = $db->Search_Eleve_By_Name_SconetId($nom,$prenom,$eleveid);
+                             }
+                             // profil parent 
+                            if ($profil == 1 || $profil == 2) {
+                               $factoryInstance = new DBFactory();
+                               $db=$factoryInstance->createDB($CONFIG['DATABASE'],BACKEND_DBUSER,BACKEND_DBPASS,BACKEND_DBNAME);   
+                               $casattributes = $db->Search_Parent_By_Name_EleveSconetId($nom,$prenom,$eleveid);
+                            }
                              if(count($casattributes)==1) // one corresponding record is found in the database
                              {
                                 $var=$casattributes[0]['login'];
@@ -253,15 +266,15 @@ if(empty($attributes)) // no attributes sent by the idp
                                     if($attr[0]["profile"]==3 || $attr[0]["profile"]==4) { // profile eleve·
 
                                       // echo '<br> you dont have an account on the laclasse.com, you will be redirected to inscription page <br/>';
-                                       echo '<h1>Vous n\'avez pas de compte sur le laclasse.com, vous serez redirig&eacute; vers la page d\'inscription </h1>';
-                                      echo '<META HTTP-EQUIV="Refresh" Content="2; URL= http://www.dev.laclasse.com/pls/public/!page.laclasse?contexte=INSCRIPTION&profil=ELEVE&petape=2&rubrique=0">';
+                                      echo '<h1>Vous n\'avez pas de compte sur le laclasse.com, vous serez redirig&eacute; vers la page d\'inscription </h1>';
+                                      echo '<META HTTP-EQUIV="Refresh" Content="2;'.INSCRIPTION_URL.'">';
                                      exit();
                                       }
                                     if ($attr[0]["profile"]==1 || $attr[0]["profile"]==2) { // profile parent
 
                                       // echo '<br> you dont have an account on the laclasse.com, you will be redirected to inscription page <br/>';
-                                       echo '<h1>Vous n\'avez pas de compte sur le laclasse.com, vous serez redirig&eacute; vers la page d\'inscription </h1>';
-                                     echo '<META HTTP-EQUIV="Refresh" Content="2; http://www.dev.laclasse.com/pls/public/!page.laclasse?contexte=INSCRIPTION&rubrique=0">';
+                                      echo '<h1>Vous n\'avez pas de compte sur le laclasse.com, vous serez redirig&eacute; vers la page d\'inscription </h1>';
+                                      echo '<META HTTP-EQUIV="Refresh" Content="2;'.INSCRIPTION_URL.'">';
                                      exit();
                                      }
 
@@ -280,6 +293,15 @@ if(empty($attributes)) // no attributes sent by the idp
                         else
                         {
                           // actullay this version treat multiple identity vector for the same person
+                         $casattributes = array();
+                         $temp=array();
+                         if ($attr[0]['profile']== 3 || $attr[0]['profile'] == 4){
+                           echo ' <h1>Erreur: un vecteur multivalué pour un eleve </h1>';
+                           echo '<META HTTP-EQUIV="Refresh" Content="2;'.INSCRIPTION_URL.'">';
+                             exit();
+                         }
+                         $factoryInstance = new DBFactory();
+                          $db=$factoryInstance->createDB($CONFIG['DATABASE'],BACKEND_DBUSER,BACKEND_DBPASS,BACKEND_DBNAME);
                           $casattributes = array();
                          $temp=array();
                          foreach($attr as $record)
@@ -288,9 +310,10 @@ if(empty($attributes)) // no attributes sent by the idp
                           
                            $prenom = $record['prenom'];
                            $eleveid = $record['eleveid'];
-                           $UaiEtab = $record['UaiEtab'];
-                             $temp =  array_union(Search_Parent_By_Name_Etab_EleveId($nom, $prenom, $eleveid), $temp);
-                             //print_r(Search_Parent_By_Name_Etab_EleveId($nom, $prenom, $eleveid)); 
+                           $profil= $record['profile']; 
+                           $temp =  array_union($db->Search_Parent_By_Name_EleveSconetId($nom,$prenom,$eleveid), $temp);
+
+                            //print_r(Search_Parent_By_Name_Etab_EleveId($nom, $prenom, $eleveid)); 
                            $casattributes = $temp; 
                           // print_r($temp); 
                          }
@@ -308,8 +331,8 @@ if(empty($attributes)) // no attributes sent by the idp
                                      {
                                        // session_start();
                                        // $_SESSION["noresult"]= $attr;
-                                        echo ' <h1>Vous n\'avez pas de compte sur le laclasse.com, vous serez redirig&eacute; vers la page d\'inscription </h1>';
-                                       echo '<META HTTP-EQUIV="Refresh" Content="2; http://www.dev.laclasse.com/pls/public/!page.laclasse?contexte=INSCRIPTION&rubrique=0">';
+                                       echo ' <h1>Vous n\'avez pas de compte sur le laclasse.com, vous serez redirig&eacute; vers la page d\'inscription </h1>';
+                                       echo '<META HTTP-EQUIV="Refresh" Content="2;'.INSCRIPTION_URL.'">';
                                        exit();
 
                                      }
@@ -341,7 +364,7 @@ if(empty($attributes)) // no attributes sent by the idp
               }
              else{
                echo '<h1>Aucun vecteur d\'identité est reçu, vous serez redirigé vers la page d\'inscription</h1>';
-               echo '<META HTTP-EQUIV="Refresh" Content="2; http://www.dev.laclasse.com/pls/public/!page.laclasse?contexte=INSCRIPTION&rubrique=0">';
+               echo '<META HTTP-EQUIV="Refresh" Content="2;'.INSCRIPTION_URL.'">';
                exit();
 
                  }
@@ -351,25 +374,30 @@ if(empty($attributes)) // no attributes sent by the idp
 
 //agent login handles the different cases of profile agent/prof 
 function agentLogin($attributes)
-{
+{  
+   global $CONFIG; 
    $email =  extractEmail($attributes);
    //print_r($email);
    if(empty($email))
    {
-      echo 'le vecteur d\'identité est vide;vous serez redirigé vers la page d\'inscription <br/>';
-      echo '<META HTTP-EQUIV="Refresh" Content="2; http://www.dev.laclasse.com/pls/public/!page.laclasse?contexte=INSCRIPTION&rubrique=0">';
+     echo 'le vecteur d\'identité est vide;vous serez redirigé vers la page d\'inscription <br/>';
+     echo '<META HTTP-EQUIV="Refresh" Content="2;'.INSCRIPTION_URL.'">';
       exit();
    }
    else
    {
-     $search= Search_Agent_by_mail($email['email']); 
+     // create database connection
+      $factoryInstance = new DBFactory();
+      $db=$factoryInstance->createDB($CONFIG['DATABASE'],BACKEND_DBUSER,BACKEND_DBPASS,BACKEND_DBNAME);
+
+     $search= $db->Search_Agent_By_InsEmail($email['email']); 
      if(empty($search))
      {
        // echo 'the user does not exist in the database';
        echo ' <h1>Vous n\'avez pas un compte sur le laclasse.com, vous serez redirigé vers la page d\'inscription </h1>';
        // redirect to inscription page
        // may be i had to add some information to the request
-       echo '<META HTTP-EQUIV="Refresh" Content="2; http://www.dev.laclasse.com/pls/public/!page.laclasse?contexte=INSCRIPTION&rubrique=0">';
+       echo '<META HTTP-EQUIV="Refresh" Content="2;'.INSCRIPTION_URL.'">';
       exit();
 
      }
@@ -392,11 +420,13 @@ function agentLogin($attributes)
 }
 function googlelogin($attributes)
 {
+  global $CONFIG;
   $info = extractGoogleInfo($attributes); 
   if(empty($info))
   {
-     echo 'le vecteur d\'identité est vide;vous serez redirigé vers la page d\'inscription <br/>';
-     echo '<META HTTP-EQUIV="Refresh" Content="2; http://www.dev.laclasse.com/pls/public/!page.laclasse?contexte=INSCRIPTION&rubrique=0">';
+    echo 'le vecteur d\'identité est vide;vous serez redirigé vers la page d\'inscription <br/>';
+    echo '<META HTTP-EQUIV="Refresh" Content="2;'.INSCRIPTION_URL.'">';
+
      exit();
 
   }else
@@ -404,18 +434,20 @@ function googlelogin($attributes)
      if(!array_key_exists('email', $info))
      {
           echo ' votre email n\'est pas valide,  vous serez redirigé vers la page d\'inscription <br/>';
-           echo '<META HTTP-EQUIV="Refresh" Content="2; http://www.dev.laclasse.com/pls/public/!page.laclasse?contexte=INSCRIPTION&rubrique=0">';
+          echo '<META HTTP-EQUIV="Refresh" Content="2;'.INSCRIPTION_URL.'">';
           exit();
 
      }
      else {
-        $search = Search_user_by_email($info['email']); 
+        $factoryInstance = new DBFactory();
+        $db=$factoryInstance->createDB($CONFIG['DATABASE'],BACKEND_DBUSER,BACKEND_DBPASS,BACKEND_DBNAME);
+        $search = $db->Search_user_by_email($info['email']); 
         if(empty($search))
         {
           echo ' <h1>Vous n\'avez pas un compte sur le laclasse.com, vous serez redirigé vers la page d\'inscription </h1>';
            // redirect to inscription page
-           // may be i had to add some information to the request
-            echo '<META HTTP-EQUIV="Refresh" Content="2; http://www.dev.laclasse.com/pls/public/!page.laclasse?contexte=INSCRIPTION&rubrique=0">';
+          // may be i had to add some information to the request
+          echo '<META HTTP-EQUIV="Refresh" Content="2;'.INSCRIPTION_URL.'">';
            exit();
 
         }
@@ -441,4 +473,3 @@ function googlelogin($attributes)
 
 
 ?>
-
