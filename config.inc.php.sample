@@ -13,7 +13,12 @@
 define ('CAS_PATH', '/path/to/cas');
 define ('SimpleSamlPATH', '/path/to/simplesamlphp/lib'); 
 
-/** Server mode
+define ('ENT_SERVER', 'URL of the ENT server'); //https://www.dev.laclasse.com
+define('CASUrl','URL of CAS server'); // http://..../sso
+define('SERVICE',ENT_SERVER.'/pls/education/!page.laclasse');
+define('INSCRIPTION_URL', ENT_SERVER.'/pls/public/!page.laclasse?contexte=INSCRIPTION&rubrique=0');
+
+Server mode
  * @param MODE
  *  - 'dev'   : http protocol allowed
  *  - 'prod'  : https required
@@ -26,6 +31,34 @@ $CONFIG['MODE'] = 'dev';
  * @note Not used ATM
  */
 $CONFIG['CAS_VERSION'] = '2.0';
+
+//-------------------------------------------------------------------
+// DATABASE BACKEND TYPE Only supports oracle and mysql
+ $CONFIG['DATABASE'] = 'ORACLE';
+//$CONFIG['DATABASE']= 'MYSQL';
+//-------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// Constantes de connexion au Backend.
+//------------------------------------------------------------------------------
+/** Database name */
+define('BACKEND_DBNAME', '//db.greap.web.app:1521/NICEDB'); // case of mysql : mysql:host=mysqlserver.com;dbname=databasename'
+/** Database username */
+define('BACKEND_DBUSER', 'some_db_user');
+/** Database password */
+define('BACKEND_DBPASS', 'incredible_hard_to_guess_password');
+
+
+//------------------------------------------------------------------
+//php simple saml authentication sources in authSource.php
+//-------------------------------------------------------------------
+// Profile Parent Eleve Metadata name  in /simplesamlphp/config authSource.php·
+ $CONFIG['PARENT_ELEVE_SOURCE'] = 'simpleexample';
+// Profile Agent Metadata name in /simplesamlphp/config authSource.php
+ $CONFIG['AGENT_SOURCE'] = 'Agentportal'; 
+//-------------------------------------------------------------------
+
+
 
 /** Memcached server array
  * @deprecated Memcached is not usd anymore
@@ -99,23 +132,16 @@ $CONFIG['MAIL_ADMIN']  = "you@yourdomain.com";
  */
  
 include_once('lib/authentication.php');
-include_once('lib/backend.db.oracle.php');
+//include_once('lib/backend.db.oracle.php');
 //include_once('lib/backend.ldap.php');
 
-//------------------------------------------------------------------------------
-// Constantes de connexion au Backend.
-//------------------------------------------------------------------------------
-/** Database name */
-define('BACKEND_DBNAME', '//db.greap.web.app:1521/NICEDB');
-/** Database username */
-define('BACKEND_DBUSER', 'some_db_user');
-/** Database password */
-define('BACKEND_DBPASS', 'incredible_hard_to_guess_password');
 
-//------------------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------------------------------
 // Requete SQL de validation des login/pwd
 //------------------------------------------------------------------------------
-define('SQL_AUTH', 'select login from utilisateurs u where u.login = :LOGIN and u.pwd = :PWD');
+define('SQL_AUTH', 'select user from table having certain login and password');
 
 //------------------------------------------------------------------------------
 // Requete SQL d'extration des données pour le jeton d'authentification CAS.
@@ -136,108 +162,22 @@ define('MY_LDAP_REQUEST_STRING',
 //------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 //*** search agent by institutional email***/
-define('Search_Agent_by_mail',
-       'select  distinct u.login         "login",
-                          comptes.formate_us7ascii(u.nom)   "nom",
-                          comptes.formate_us7ascii(u.prenom) "prenom",
-                          to_char(u.dt_naissance,\'RRRR-MM-DD\') "dateNaissance",
-                          comptes.formate_cp(u.adr)        "codePostal",
-                          p.lib_men                  "categories"
-                          from          utilisateurs u,
-                          utilisateurs_info ui,
-                          profil p  where         ui.id = u.id and ui.prof_id = p.id and upper(ui.mail_institutionnel)= upper(:mail)'); ///attention to upper and small case comparation
+define('Search_Agent_by_mail', 'selcet user having a certain institutional  email from table'); ///attention to upper and small case comparation
 //-------------------------------------------------------------------------------
 //*** search user by email for google login ***//
-define('Search_user_by_mail',
-       'select  distinct u.login         "login",
-        comptes.formate_us7ascii(u.nom)   "nom",
-        comptes.formate_us7ascii(u.prenom) "prenom",
-        to_char(u.dt_naissance,\'RRRR-MM-DD\') "dateNaissance",
-        comptes.formate_cp(u.adr)        "codePostal",
-        from          utilisateurs u
-        where  upper(u.EMAIL)=upper(:mail)');
+define('Search_user_by_mail', select user having a personal email from table');
 
 //-----------------------------------------------------------------------------
 // search parent with name, firstname, etablissement, son's sconet id //
 // subquery changed to in 
 
-define('Search_Parent_By_Name_EleveId',
-       'select  distinct u.id, 
-       u.login     "login", 
-       comptes.formate_us7ascii(u.prenom) "prenom", 
-       comptes.formate_us7ascii(u.nom) "nom"
-          from utilisateurs u,
-             utilisateurs_info ui,
-             profil p, 
-             est_responsable_legal_de r
-             where  ui.id = u.id and u.id = r.USR_ID and r.elv_id in  (select c.id from utilisateurs c, utilisateurs_info ci  where c.id = ci.id and ci.Sconet_elv_id = (:elevid))
-             and upper(convert(u.nom,\'US7ASCII\')) = upper(convert(:nom,\'US7ASCII\')) and upper(convert(u.prenom,\'US7ASCII\')) = upper(convert(:prenom,\'US7ASCII\'))
-             ORDER BY u.id desc
-             ');
+define('Search_Parent_By_Name_EleveId','select parent having a certain name and having a children with certain sconetid ');
 //----------------------------------------------------------------------------
-//Search parent with name, first name,  and The  son's sconet id that created the account 
-// The difference with the provious request sconet id represents  the eleve accounts  attached to the parent
-// where in the second sconet id represents the eleve account that created the parent 
-
-define('Search_Parent_By_SconetID', 'select  distinct u.id,
-                                      u.login     "login"
-                                    from utilisateurs u,
-                                    utilisateurs_info ui
-                               where  ui.id = u.id and ui.Sconet_elv_id = (:elevid)
-                 and upper(convert(u.nom,\'US7ASCII\')) = upper(convert(:nom,\'US7ASCII\')) and upper(convert(u.prenom,\'US7ASCII\')) = upper(convert(:prenom,\'US7ASCII\'))
-                 ORDER BY u.id desc
-      ');
-
-//----------------------------------------------------------------------------
-/*** search agent with a certain first and last name  ***/
-define('Search_Agent_by_Name',
-       'select  distinct u.login         "login",
-                        comptes.formate_us7ascii(u.nom)   "nom",
-                        comptes.formate_us7ascii(u.prenom) "prenom",
-                        to_char(u.dt_naissance,\'RRRR-MM-DD\') "dateNaissance",
-                        comptes.formate_cp(u.adr)        "codePostal",
-                        p.lib_men                  "categories"
-                        from          utilisateurs u,
-                        utilisateurs_info ui,
-                        profil p
-                        where         ui.id = u.id and ui.prof_id = p.id and upper(u.nom) =upper(:nom) and upper(u.prenom) = upper(:prenom)');
 //--------------------------------------------------------------------------
-//*** search eleve by sconet id ***/ 
-define('Search_student_By_Id',
-            'select  distinct ui.id 
-             from     utilisateurs_info ui 
-             where ui.Sconet_elv_id=(:eleveid)');
+//*** search eleve by sconet id and name in the database**/ 
+define('Search_student_By_Name_SconetId',
+            '');
 
-//-------------------------------------------------------------------------
-//*** create  a new user ***/
-define('create_user', 'declare p_test number; 
-                     begin
-                      p_test := comptes.create_user(:login, :password, :nom, :prenom, null,
-                                                     null, null, null, null, null, null,
-                                                     2,1,:UaiEtab, null,549,null,26,1,
-                                                     null,:sex,:profile, null,:mail,
-                                                     null,null,null,:eleveid);
-                     end;');
-
-//--------------------------------------------------------------------------
-//*** get etablissement id ***/
-define('get_Etablissement_id', 'select e.id 
-                                from etablissements e 
-                                where e.CODE_RNE =(:UaiEtab)');
-
-//----------------------------------------------------------------------------
-//*** set ralation parent eleve ***/
-define('set_relation_parent_eleve', 'declare
-                       p_test number;
-                     begin
-                          p_test:=comptes.set_relation_parents_enfants(:parent_id, :list_enfant);
-END;');
-
-define('register_service','declare p_test number; 
-begin
-                           sso.connected_to_service(\'FEDERATION_IDENTITE_ACADEMIE\',\'http://www.dev.laclasse.com/sso/lib/agentPortalIdp.php?logout\');
-end;' ); 
-		
 //------------------------------------------------------------------------------
 // Services autorisés à s'authentifier avec le service CAS.
 //------------------------------------------------------------------------------
@@ -315,7 +255,8 @@ $CONFIG['AUTHORIZED_SITES'] = array(
 					'allowedAttributes' =>  'uid,gid,someField'
 					'tokenModele'		=>  'Default',
 					'authneticationMethod' => 'SQL',
-					'attributesProvider' =>	SQL_FOR_ATTRIBUTES),
+					'attributesProvider' =>	SQL_FOR_ATTRIBUTES
+          'mysqlattributeProvider' => MYSQL_FOR_ATTRIBUTES),
 			
 			array(	'sitename'  		=>  'Another CAS Enabled App',
 					'url'  				=>  'https://yet.another.great.web.app/app/*',
