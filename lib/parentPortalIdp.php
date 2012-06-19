@@ -12,18 +12,18 @@
  * 
  */
 //add the path to the CAS configuration file.
-require_once('/var/www/sso/config.inc.php'); 
+require_once('../config.inc.php'); 
 
 //the simpleSAMlphp autoloader class
 require_once(SimpleSamlPATH.'/_autoload.php');
 
 require_once(CAS_PATH . '/lib/federation.php'); 
 $profiles= array('agent'=>6, 'eleve'=>4 , 'parent'=>8); 
-
+global $CONFIG;
 /*
  * We use the simpleexample authentication source defined in /SimpleSamlPATH/config/authsources.php.
  */
-$as = new SimpleSAML_Auth_Simple('simpleexample');
+$as = new SimpleSAML_Auth_Simple($CONFIG['PARENT_ELEVE_SOURCE']);
 $CASauthenticated = false; 
 $attributes=array(); 
 $var=''; 
@@ -46,6 +46,11 @@ if (array_key_exists('logout', $_REQUEST)) {
    // $as->logout('http://www.dev.laclasse.com/saml/example-simple/loginidp.php');
 	/* The previous function will never return. */
 }
+if (array_key_exists('logoutacademie', $_REQUEST)) {
+header('Location:https://services.ac-lyon.fr/login/ct_logout.jsp');
+
+}
+
 
 if(array_key_exists("loginidp", $_POST)) { // this case is for treating the familly account after a callback
 	$login = $_POST['loginidp'];
@@ -125,6 +130,7 @@ $isAuth = $as->isAuthenticated();
 <script type="text/javascript" src="../js/jquery.lightbox_me.js"></script>
 <script language="JavaScript" type="text/javascript">
 $(function() {
+            //this script is for showing the popup ( choice menu )
             function launch() {
                  $('#sign_up').lightbox_me({centered: true, onLoad: function() { $('#sign_up').find('input:first').focus()}});
             }
@@ -139,26 +145,38 @@ $(function() {
               $('#close_x').click(function(e) {
                            $("#sign_up").trigger('close');
               }); 
-              function WaitForIFrame($frame) {
-                   if ($frame.readyState != "loaded") {
-                       setTimeout("WaitForIFrame($frame);", 200);
-                        } else {
-                                }
-                             };
-                          function done(){
-                                location.reload();
-                              };
-                      $('table tr:nth-child(even)').addClass('stripe');
-                      $('#logout').click(function(){
-                             //se deconnecter de FIM·
-                             $('#myIFrame').attr("src","?logout");WaitForIFrame($('#myIFrame'));
-                           //se deconnecter de l'academie de lyon
-                             $('#myIFrame2').attr("src","https://services.ac-lyon.fr/login/ct_logout.jsp"); WaitForIFrame($('#myIFrame2'));
-                             //location.reload();
-                                        return false;
-                                        });
+            function WaitForIFrame() {
+              var iframe = $('#myIFrame');
+             // console.log('iframe.contentDocument.readyState: '+iframe[0].readyState);
+             // console.log(iframe);
+                   if (iframe.readyState != "complete") {
+                       setTimeout(WaitForIFrame, 200);
+                   }
+                   else
+                   {
+                     $('#myIFrame2').attr("src","?logout");
+                   }
+              };
+            function WaitForIFrame2() {
+               var iframe = $('#myIFrame2');
+                   if (iframe.readyState != "complete") {
+                        setTimeout("WaitForIFrame2();", 200);
+                        }
+                        else
+                         {
+                         }
+              };
 
+              function done(){
+                  location.reload();
+                          };
+             $('table tr:nth-child(even)').addClass('stripe');
+             $('#logout').click(function(){
 
+                $('#myIFrame').attr("src","https://services.ac-lyon.fr/login/ct_logout.jsp");setTimeout(function() { $('#myIFrame2').attr("src","?logout"); }, 1000);
+
+                return false;
+             });
             $('table tr:nth-child(even)').addClass('stripe');
         });
 </script>
@@ -174,20 +192,8 @@ $(function() {
 
 echo '<div id="mire">';
 echo '<div class="box"id= "login">'; 
-if ($isAuth) {
 
-//echo '<p>Vous êtes actuellement authentifié à l\'academie de lyon: <ol><li><a href="https://services.ac-lyon.fr/login/ct_logout.jsp?CT_ORIG_URL=',urlencode("http://www.dev.laclasse.com/saml/example-simple/loginidp.php"),'"> se déconnecter de l\'academie de Lyon </a></li>'; 
-  // echo '<li><a href="?logout">se déconnecter du serveur de féderation</a></li></ol></p>';
-  echo '<a id = "logout" href="https://services.ac-lyon.fr/slo/request/AP"> se déconnecter </a></br>';
-     echo '<iframe id="myIFrame" style="display:none" ></iframe>';
-     echo '<iframe id="myIFrame2" style="display:none" ></iframe>';
-
-	     }
-else {
-	echo '<p> Vous n\'êtes pas authentifié:  <a href="?login"> se connecter</a></p>';
-     }
 ?>
-
 
 <?php
 
@@ -209,7 +215,7 @@ else
         echo '<br>Votre compte est un compte familiale<br/>';
 
 	      echo 'Pour finir l\'authentification, Cliquez sur le lien et choisissez votre identité: ';
-        echo '<a href= "#" id="try-1"> Identité </a>';
+        echo '<a href= "#" id="try-1" style="font-weight:bold; color:red; " > Identité </a></br>';
 ?>
 
 <div id="sign_up" >
@@ -228,19 +234,28 @@ else
 
 ?>
   </select></br></br>
-              <input id ="log_in"  style= "background: -moz-linear-gradient(center top , #00ADEE, #0078A5) repeat scroll 0 0 transparent; border: 1px solid #0076A3; color: #D9EEF7;" type="submit" name="submit" value="se connecter" />
+              <input id ="log_in"  style= "background: -moz-linear-gradient(center top , #00ADEE, #0078A5) repeat scroll 0 0 transparent; border: 1px solid #0076A3;" type="submit" name="submit" value="se connecter" />
 			</form>
 
                 </div>
-                <a id="close_x" href="#" class="close sprited">fermer</a>
+                <a id="close_x" href="#" class="close sprited"></a>
+
             </div>
 <?php
 
        // echo '</div>';
        // echo '</div>'; 
   }
+  echo '</br><a id = "logout" href="https://services.ac-lyon.fr/slo/request/AP"> se déconnecter de l\'academie  <a></br>';
+  echo '<iframe id="myIFrame"   style="display:none"  ></iframe>';
+  echo '<iframe id="myIFrame2" style="display:none" ></iframe>';
 
 }
+else {
+   echo '<p> Vous n\'êtes pas authentifié:  <a href="?login"> se connecter</a></p>';
+ }
+
+
 function curPageURL() {
    $pageURL = 'http';
     if ($_SERVER["HTTPS"] == "on") {$pageURL .= "s";}

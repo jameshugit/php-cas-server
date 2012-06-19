@@ -257,7 +257,7 @@ class SimpleSAML_Utilities {
 		if($instant === NULL) {
 			$instant = time();
 		}
-		return gmdate('Y-m-d\TH:i:s\Z', $instant);
+		return date('Y-m-d\TH:i:s\Z', $instant);
 	}
 
 

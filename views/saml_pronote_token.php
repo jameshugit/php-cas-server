@@ -8,7 +8,9 @@
 	@param 
 	@returns a string with the name o f the attribute and its value
 */
+//include_once('../config.inc.php');
 define('T', "\t");
+define ('VALIDITY',8*60*60); 
 class StatusCode
 {
     const Success = 0;
@@ -102,7 +104,7 @@ function Assertion($Conditions, $Subject, $AttributeStatement, $AuthenticationSt
     $Assertion='<Assertion   xmlns="urn:oasis:names:tc:SAML:1.0:assertion"
          MajorVersion="1" MinorVersion="1"
          AssertionID="'.SimpleSAML_Utilities::generateID().'"
-         Issuer="http://localhost/sso/cas"
+         Issuer="'.SimpleSAML_Utilities::selfURLhost().'"
          IssueInstant= "'. SimpleSAML_Utilities::generateTimestamp($time).'">';
     $Assertion.=$Conditions; 
     $Assertion.=$Subject;
@@ -124,7 +126,7 @@ function Response($Assertion, $Status, $time)
                                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
        MajorVersion="1" MinorVersion="1"
        ResponseID="'.SimpleSAML_Utilities::generateID().'" 
-       IssueInstant= " '. SimpleSAML_Utilities::generateTimestamp($time). '" Recipient="https://eiger.iad.vt.edu/dat/home.do"> '; 
+       IssueInstant= " '. SimpleSAML_Utilities::generateTimestamp($time). '" Recipient="Pronote"> '; 
     $Response.=$Status; 
     $Response.=$Assertion;
     $Response.='</Response>';
@@ -134,7 +136,8 @@ function Response($Assertion, $Status, $time)
 
 
 function PronoteTokenBuilder($Statuscode,$Attributes,$nameIdentifier,$message) {
-	
+
+  global $CONFIG; 
     // for now  we have two cases : success or RequestDenied
 
          //success message
@@ -156,7 +159,7 @@ function PronoteTokenBuilder($Statuscode,$Attributes,$nameIdentifier,$message) {
              
              
              $time = time(); 
-             $validity= time()+60*60; 
+             $validity= time()+VALIDITY;
              $notBefore=SimpleSAML_Utilities::generateTimestamp($time); 
              $notorAfter=SimpleSAML_Utilities::generateTimestamp($validity);
              $Conditions=Conditions($notBefore, $notorAfter); 

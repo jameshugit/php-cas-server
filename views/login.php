@@ -82,8 +82,8 @@ function getFormLogin($t) {
                 <span class="middle">se connecter avec votre profil parent/élève de l\'academie de lyon</span><span class="bottom"></span></span>
                 </a><span style="margin-left:30px;"></span>
                 <a  href="lib/agentPortalIdp.php?login" class="tt"><img src="images/profs_agents1b.png" alt="ADLyon"/><span class="tooltip"><span class="top"> </span>
-                    <span class="middle">se connecter avec votre profil prof/agent  de l\'academie de lyon</span><span class="bottom"></span></span></a></p>
-                      </div> 
+                <span class="middle">se connecter avec votre profil prof/agent  de l\'academie de lyon</span><span class="bottom"></span></span></a></p>
+                </div> 
              </div> 
 
             <div id="sidebar">
