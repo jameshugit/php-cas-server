@@ -7,7 +7,6 @@ require_once(CAS_PATH.'/views/footer.php');
 require_once(CAS_PATH.'/views/header.php');
 
 function viewError($msg) {
-    if (! IS_SOAP) {
         getHeader();
         echo '
         <div id="mire">
@@ -15,7 +14,4 @@ function viewError($msg) {
             <br class="clear" />
         </div>';
         getFooter();
-    } else {
-        /** @todo : **** FL **** gérer erreur soap */
-    }
 }
