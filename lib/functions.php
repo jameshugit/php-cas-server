@@ -25,7 +25,6 @@ function matchString($str, $model){
  * Specific i18n function that pass the text to html entities
  */
 
-
 function __($text) {
 	return htmlentities(_($text));
 }
@@ -89,23 +88,39 @@ function isServiceAutorized($pService){
 
 	/* Verifying the service is listed in $CONFIG['AUTHORIZED_SITES'] array. */
 	if ($pService != "") {
-		foreach($CONFIG['AUTHORIZED_SITES'] as $k => $site) {
-			$pattern  = preg_quote($CONFIG['AUTHORIZED_SITES'][$k]['url']);
-			$pattern = str_replace('\\*', '.*', $pattern);
-			$pattern = str_replace('/', '\/', $pattern);
-			preg_match("/$pattern/", $pService, $matches);
-			
-			if (isset($matches) && count($matches) > 0 && $matches[0] == $pService) {
-				return true;
-			}
-		}
-	} else {
-		return true; // Service is null
-	}
+        foreach ($CONFIG['AUTHORIZED_SITES'] as $k => $site) {
+            if (is_array($site['url'])) 
+                {
+                  foreach($site['url'] as $url)
+                  {
+                      $pattern = preg_quote($url);
+                      $pattern = str_replace('\\*', '.*', $pattern);
+                      $pattern = str_replace('/', '\/', $pattern);
+                       preg_match("/$pattern/", $pService, $matches);
 
-	return false;
+                       if (isset($matches) && count($matches) > 0 && $matches[0] == $pService) {
+                            return true;
+                             }
+                  }
+                }  
+            else{
+                $pattern = preg_quote($CONFIG['AUTHORIZED_SITES'][$k]['url']);
+                $pattern = str_replace('\\*', '.*', $pattern);
+                $pattern = str_replace('/', '\/', $pattern);
+                preg_match("/$pattern/", $pService, $matches);
+
+                if (isset($matches) && count($matches) > 0 && $matches[0] == $pService) {
+                    return true;
+                }
+            }
+        }
+    } else {
+        return true; // Service is null
+    }
+
+    return false;
+
 }
-
 /**
  * Retrieves the index of array $CONFIG['AUTHORIZED_SITES'] for a service.
  * If the service is not in the list of authorized services, this function returns null
@@ -115,19 +130,34 @@ function isServiceAutorized($pService){
  * @returns index of array $CONFIG['AUTHORIZED_SITES'] or null
  */
 function getServiceIndex($pService) {
-	global $CONFIG;
-	/* Verifying the service is listed in $CONFIG['AUTHORIZED_SITES'] array. */
-		foreach($CONFIG['AUTHORIZED_SITES'] as $k => $site) {
-			$pattern  = preg_quote($CONFIG['AUTHORIZED_SITES'][$k]['url']);
-			$pattern = str_replace('\\*', '.*', $pattern);
-			$pattern = str_replace('/', '\/', $pattern);
-			preg_match("/$pattern/", $pService, $matches);
-			if (isset($matches) && count($matches) > 0 && $matches[0] == $pService) {
-				return $k;
-			}
-		}
-	return null;
-}
+    global $CONFIG;
+    /* Verifying the service is listed in $CONFIG['AUTHORIZED_SITES'] array. */
+
+    foreach ($CONFIG['AUTHORIZED_SITES'] as $k => $site) {
+        if (is_array($site['url'])) {
+            foreach ($site['url'] as $url) {
+                $pattern = preg_quote($url);
+                $pattern = str_replace('\\*', '.*', $pattern);
+                $pattern = str_replace('/', '\/', $pattern);
+                preg_match("/$pattern/", $pService, $matches);
+
+                if (isset($matches) && count($matches) > 0 && $matches[0] == $pService) {
+                    return $k;
+                }
+            }
+        } else {
+
+            $pattern = preg_quote($CONFIG['AUTHORIZED_SITES'][$k]['url']);
+            $pattern = str_replace('\\*', '.*', $pattern);
+            $pattern = str_replace('/', '\/', $pattern);
+            preg_match("/$pattern/", $pService, $matches);
+            if (isset($matches) && count($matches) > 0 && $matches[0] == $pService) {
+                return $k;
+            }
+        }
+       }
+        return null;
+    }
 
 /**
  * Sanitizes HTTP_ACCEPT_LANGUAGE server variable and returns array of
@@ -273,4 +303,6 @@ function trackUser($login) {
         "This mail is automatically send because you activated tracking feature on ".$_SERVER['SERVER_NAME']."\n".
         "Please do not answer to this mail.");
 }
+
 ?>
+
