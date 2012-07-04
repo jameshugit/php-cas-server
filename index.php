@@ -271,6 +271,8 @@ function serviceValidate() {
 	$ticket 	= isset($_GET['ticket']) ? $_GET['ticket'] : "";
 	$service 	= urldecode(isset($_GET['service']) ? $_GET['service'] : "");
 	$renew 		= isset($_GET['renew']) ? $_GET['renew'] : "";
+  //for proxy validate
+	//$pgtUrl		= urldecode(isset($_GET['pgtUrl']) ? $_GET['pgtUrl'] : "");
 	
 	// 1. verifying parameters ST ticket and service should not be empty.
 	if (!isset($ticket) || !isset($service)) {
@@ -293,11 +295,37 @@ function serviceValidate() {
 //		die();
 //	} 
 	
-	// If we pass here, ticket and service are validated
-  // So give back the CAS2 like token
-  $factoryInstance = new DBFactory();
-  $db=$factoryInstance->createDB($CONFIG['DATABASE'],BACKEND_DBUSER, BACKEND_DBPASS,BACKEND_DBNAME);
-	$token =$db->getServiceValidate($st->username(), $service);
+        $pgtIou=null;
+//The web application asks for  aproxy ticket by sending pgtUrl(callback to storing proxy tickets)
+        if(isset($_GET['pgtUrl']))
+        {    $pgtUrl= urldecode($_GET['pgtUrl']); 
+            //print_r($pgtid); 
+            $pgtou = new ProxyGrantingTicketIOU(); 
+            $pgtou->create($service,$st->username()); 
+            $pgtIou=$pgtou->key(); 
+		
+	    //creating indexed proxyGrantingTicket            
+	    $pgt = new ProxyGrantingTicket();
+            $pgt->create($pgtIou,$service,$st->username());
+            $pgtid=$pgt->key(); 
+
+      $url = urldecode($pgtUrl);
+      $pos = strpos($url, '?');
+      if ($pos === false) $url = $url.'?pgtIou='.$pgtIou.'&pgtId='.$pgtid;
+      else $url = $url.'&pgtIou='.$pgtIou.'&pgtId='.$pgtid;
+
+      $content = get_web_page( $url );
+
+   // echo $content['content'];
+   // echo  $content['errmsg'];
+
+        }
+
+         // If we pass here, ticket and service are validated
+ 	 // So give back the CAS2 like token
+   	$factoryInstance = new DBFactory();
+  	$db=$factoryInstance->createDB($CONFIG['DATABASE'],BACKEND_DBUSER, BACKEND_DBPASS,BACKEND_DBNAME);
+	$token =$db->getServiceValidate($st->username(), $service, $pgtIou);
 
 	// 4. destroy ST ticket because this is a one shot ticket.
 	$st->delete();
@@ -308,6 +336,53 @@ function serviceValidate() {
 	
 	echo $token;
 }
+
+
+
+/**
+	proxy
+	Provides proxy ticket to proxied service
+	
+	@file
+	@author 
+	@param  targetService and PGT
+	@returns  Proxy Ticket 
+*/
+function proxy() {
+	
+	$PGT	= isset($_GET['pgt']) ? $_GET['pgt'] : "";
+	$targetService 	= urldecode(isset($_GET['targetService']) ? $_GET['targetService'] : "");
+	
+	// 1. verifying parameters PGT ticket and targetService should not be empty.
+	if (!isset($PGT) || !isset($targetService)) {
+		viewProxyAuthFailure(array('code'=>'INVALID_REQUEST', 'message'=> _("proxy require at least two parameters : PGT ticket and targetService.")));
+		die();
+	}
+	// 2. validating the PGT ticket
+	$pgtkt = new ProxyGrantingTicket();
+	if (!$pgtkt->find($PGT)) {
+		viewProxyAuthFailure(array('code'=>'INVALID_PROXY_GRANTING_TICKET',  'message'=> "Ticket ".$PGT._(" is not recognized.")));
+		die();
+	}
+	
+	// 3. generate ProxyTicket  and send success reponse
+         $PT= new ProxyTicket(); 
+         $PT->create($pgtkt->key(),$pgtkt->PGTIOU(),$targetService,$pgtkt->username(),$pgtkt->service()); 
+	//there is some doubt about deleting the ticket	
+	//$pgt->delete();
+        $token= proxySuccesToken($PT->key()); 
+	
+	// 6. echoing CAS2 Proxy like token
+	header("Content-length: ".strlen($token));
+	header("Content-type: text/xml");
+	
+	echo $token;
+         
+
+}
+
+
+
 
 /**
 	proxyValidate
@@ -320,8 +395,41 @@ function serviceValidate() {
 */
 function proxyValidate() {
 	// @todo to be implemented if needed. I don't really thing it is neccesary ???
-	echo "proxyValidate is not implemented yet !";
-	die();
+	//echo "proxyValidate is not implemented yet !";
+	//die();
+	$proxyticket 	= isset($_GET['ticket']) ? $_GET['ticket'] : "";
+	$service 	= urldecode(isset($_GET['service']) ? $_GET['service'] : "");
+	
+	
+	// 1. verifying parameters PT ticket and service should not be empty.
+	if (!isset($proxyticket) || !isset($service)) {
+		viewAuthFailure(array('code'=>'INVALID_REQUEST', 'message'=> _("proxyValidate require at least two parameters : ticket and service.")));
+		die();
+	}
+	
+	// 2. verifying if PT ticket is valid.
+	$ptkt = new ProxyTicket();
+	if (!$ptkt->find($proxyticket)) {
+		viewAuthFailure(array('code'=>'INVALID_PROXY_TICKET',  'message'=> "Ticket ".$ptkt._(" is not recognized.")));
+		die();
+	}
+	
+	//echo $pgtkt->username(); 
+        //echo $pgtkt->PGTIOU();
+  try{	
+	// 3. generate success reponse
+       $token= proxyAuthSuccess($ptkt->username(),$ptkt->PGTIOU(),$ptkt->proxy()); 
+	//delete tiket after validation
+	$ptkt->delete(); 
+	// 6. echoing CAS2 Proxy like token
+	header("Content-length: ".strlen($token));
+	header("Content-type: text/xml");
+	
+  echo $token;
+  } catch(Exception $e)
+  {
+    viewAuthFailure(array('code'=>'INVALID_PROXY_TICKET',  'message'=> $e->getMessage()));
+  }
 
 }
 
@@ -560,8 +668,8 @@ function validateTicket($ticket, $service)
     // Sittin' on the dock of the PT...
         case "proxyvalidate" :
     // Consider that we can handle case insensitive (great ! this is not in CAS specs.)
-            //proxyvalidate();
-            serviceValidate();
+           // proxyvalidate();
+          serviceValidate();
             break;
         case "servicevalidate" :
             serviceValidate();
@@ -571,10 +679,10 @@ function validateTicket($ticket, $service)
             samlValidate();
             //showError(_("Saml Validate"));
             break;
-        case 'extractsoap': 
-
-           echo( extractSoap());
-           break;
+        
+	case 'proxy': 
+	    proxy();
+            break;
 
         default :
             showError(_("Action inconnue."));

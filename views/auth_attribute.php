@@ -13,4 +13,8 @@
 function viewAuthAtttribute($name, $value) {
 	return "			<cas:".$name.">".$value."</cas:".$name.">\n";
 }
+
+function viewProxyGrantingTicket($pgtIou){
+    return "<cas:proxyGrantingTicket>".$pgtIou."</cas:proxyGrantingTicket>\n";
+}
 ?>
