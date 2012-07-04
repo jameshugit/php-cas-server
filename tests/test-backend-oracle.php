@@ -6,10 +6,13 @@ require_once('../config.inc.php');
 require_once(CAS_PATH.'/views/auth_success.php'); 
 require_once(CAS_PATH.'/views/auth_failure.php'); 
 
+$factoryInstance = new DBFactory();
+$db=$factoryInstance->createDB($CONFIG['DATABASE'],BACKEND_DBUSER, BACKEND_DBPASS,BACKEND_DBNAME);
+
 		
 echo "<h1>Oracle Backend unit tests</h1>";
 echo "
-<a href='?test=oci'>Test oci</a>&nbsp;|&nbsp;
+<!--a href='?test=oci'>Test oci</a-->
 <a href='?test=credential'>Test credential</a>&nbsp;|&nbsp;
 <a href='?test=token'>Test CAS2 Token</a>
 <br/>";
@@ -38,7 +41,7 @@ if (isset($_POST['plogin']) && isset($_POST['ppwd'])) {
 	echo "<li>pwd = ".strlen($_POST['ppwd'])." chars.</li>";
 	echo "<li>The SQL Stament in use is '".SQL_AUTH."'</li></ul>";
 	
-	$ret  = verifyLoginPasswordCredential($_POST['plogin'], $_POST['ppwd']);
+	$ret  = $db->verifyLoginPasswordCredential($_POST['plogin'], $_POST['ppwd']);
 	
 	echo "verifyLoginPasswordCredential returned : '".$ret."'";
 	
@@ -50,7 +53,7 @@ if (isset($_POST['plogin']) && isset($_POST['ppwd'])) {
 
 }
 
-//
+/*
 // Test OCI.
 //
 if ($_GET['test'] == "oci") {
@@ -68,10 +71,10 @@ if ($_GET['test'] == "oci") {
 	</form>";
 
 	if (isset($_POST['psql'])) {
-		$db = _dbConnect();
+		$dtbz = $db->_dbConnect();
 		echo "sql statment is '$select_stmt'<br/>";
 	
-		$r = _dbExecuteSQL($db, $select_stmt, array());
+		$r = $db->_dbExecuteSQL($dtbz, $select_stmt, array());
 		print_r($r);
 		echo "<table border='1'>\n";
 		
@@ -87,10 +90,11 @@ if ($_GET['test'] == "oci") {
     		echo "</tr>";
  		}
  		echo "</table>\n";
-		_dbDisconnect($db);
+		$db->_dbDisconnect($dtbz);
 	
 	}
 }
+*/
 
 //
 // Test serviceValidate function.
@@ -127,9 +131,9 @@ if ($_GET['test'] == "token") {
 		echo "<li>service = ".$_POST['psite']."</li></ul>";
 		echo "<li>the index of this service is ".getServiceIndex($_POST['psite'])."</li></ul>";
 		echo "<pre>";
-		echo htmlentities(getServiceValidate($_POST['plogin'], $_POST['psite']));
+		echo htmlentities($db->getServiceValidate($_POST['plogin'], $_POST['psite']));
 		echo "</pre>";
-		echo "<textarea name='ptoken' cols='100' rows='20'>".getServiceValidate($_POST['plogin'], $_POST['psite'])."</textarea>";
+		echo "<textarea name='ptoken' cols='100' rows='20'>".$db->getServiceValidate($_POST['plogin'], $_POST['psite'])."</textarea>";
 	
 	}
 }

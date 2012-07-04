@@ -19,14 +19,12 @@ function viewAuthFailure($t){
         		".$t['message']."
     		</cas:authenticationFailure>
 		</cas:serviceResponse>";
-    
 }
 function viewProxyAuthFailure($t)
 {
-  
         echo 	"<cas:serviceResponse xmlns:cas='http://www.yale.edu/tp/cas'>
     		<cas:proxyFailure  code=\"".$t['code']."\">
         		".$t['message']."
     		</cas:proxyFailure >
-		</cas:serviceResponse>";    
+		</cas:serviceResponse>";
 }

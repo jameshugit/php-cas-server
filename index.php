@@ -631,7 +631,7 @@ function validateTicket($ticket, $service)
 
     $action = array_key_exists('action', $_REQUEST) ? $_REQUEST['action'] : "";
 
-    defined ('IS_SOAP') || define ('IS_SOAP', strlen ($action) && array_key_exists ($action, array ('samlValidate')));
+    // defined ('IS_SOAP') || define ('IS_SOAP', strlen ($action) && array_key_exists ($action, array ('samlValidate')));
     
     /* Verify that this thing is happening over https
       if we are using a production running mode.
