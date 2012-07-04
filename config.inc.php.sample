@@ -69,6 +69,20 @@ define('BACKEND_DBPASS', 'incredible_hard_to_guess_password');
  $CONFIG['AGENT_SOURCE'] = 'Agentportal'; 
 //-------------------------------------------------------------------
 
+/****** Debugging****/
+$CONFIG['DEBUG_LEVEL'] = 1; //Values DEBUG  = 1;DEBUG// Most Verbose
+
+            //INFO      = 2;INFO// ...
+
+            //WARN      = 3;WARN// ...
+
+            //ERROR   = 4;ERROR// ...
+
+            //FATAL   = 5;FATAL// Least Verbose
+            //OFF   = 6;  //no log
+$CONFIG['DEBUG_FILE'] = '/tmp/log.txt'; 
+//----------------------------------------------------------------------
+
 
 /** Redis server array
  * Redis is the datastorage for versions above 1.1
@@ -109,7 +123,9 @@ $CONFIG['REDIS_NEWS_ROOT'] = 'org.example.sso.last_message.';
 $CONFIG['LT_TIMOUT']  = 4*60;
 $CONFIG['ST_TIMOUT']  = 4*60;
 $CONFIG['TGT_TIMOUT'] = 8*60*60;
-
+ONFIG['PT_TIMOUT']= 4*60;
+$CONFIG['PGT_TIMOUT']= 4*60;
+$CONFIG['PGTIOU_TIMOUT']= 4*60;
 /**
     Logging and tracker config
 The logging format is as follows (All field are Tab separated):
