@@ -320,14 +320,14 @@ function serviceValidate() {
 //		die();
 //	} 
 	
-        $pgtIou=null; 
+        $pgtIou=null;
 //The web application asks for  a proxy ticket by sending pgtUrl(callback to storing proxy tickets)
         if(isset($_GET['pgtUrl']))
         {    
 	    $log->LogInfo("The service asks for a proxy ticket to a proxied service"); 
 	    $pgtUrl= urldecode($_GET['pgtUrl']);
 		  $log->LogDebug("Proxied Service:  $pgtUrl "); 
-            //print_r($pgtid); 
+      // creating pgtIou ticket to be used in PGT 
             $pgtou = new ProxyGrantingTicketIOU(); 
             $pgtou->create($service,$st->username()); 
             $pgtIou=$pgtou->key(); 
@@ -345,22 +345,26 @@ function serviceValidate() {
       if ($pos === false) $url = $url.'?pgtIou='.$pgtIou.'&pgtId='.$pgtid;
 		    else $url = $url.'&pgtIou='.$pgtIou.'&pgtId='.$pgtid;
                 //echo $url;
-      $log->LogDebug("Send Request to: $url"); 
+      $log->LogDebug("Send Request to: $url");
+
+      //send Pgtid and pgtIou to the call back address pgtUrl
 	    $content = get_web_page( $url ); 
 
         }
 
          // If we pass here, ticket and service are validated
  	 // So give back the CAS2 like token
-   	$factoryInstance = new DBFactory();
-  	$db=$factoryInstance->createDB($CONFIG['DATABASE'],BACKEND_DBUSER, BACKEND_DBPASS,BACKEND_DBNAME);
+  $factoryInstance = new DBFactory();
+  $db=$factoryInstance->createDB($CONFIG['DATABASE'],BACKEND_DBUSER, BACKEND_DBPASS,BACKEND_DBNAME);
 	$token =$db->getServiceValidate($st->username(), $service, $pgtIou);
 	$log->LogInfo("call getServiceValidate"); 
-	// 4. destroy ST ticket because this is a one shot ticket.
+
+  // 4. destroy ST ticket because this is a one shot ticket.
 	$st->delete();
 	$log->LogDebug("Delete the service ticket:".$st->key()."");
 	$log->LogDebug("Response of serviceValidate:$token");
-	// 6. echoing CAS2 like token
+
+  // 6. echoing CAS2 like token
 	header("Content-length: ".strlen($token));
 	header("Content-type: text/xml");
 	
@@ -380,14 +384,16 @@ function serviceValidate() {
 	@returns  Proxy Ticket 
 */
 function proxy() {
-global $CONFIG;
+  global $CONFIG;
+
+  // prepare loggin parameters
 	$log = new KLogger ( $CONFIG['DEBUG_FILE'] ,$CONFIG['DEBUG_LEVEL']);
 	$log->LogInfo("/Proxy is called ...");	
 	$log->LogInfo("request parameters"); 
 
 	$PGT	= isset($_GET['pgt']) ? $_GET['pgt'] : "";
 	$targetService 	= urldecode(isset($_GET['targetService']) ? $_GET['targetService'] : "");
-        $log->LogDebug("PGT:$PGT");
+  $log->LogDebug("PGT:$PGT");
 	$log->LogDebug("TargetService:$targetService");
 
 	// 1. verifying parameters PGT ticket and targetService should not be empty.
@@ -407,16 +413,17 @@ global $CONFIG;
 	
 	// 3. generate ProxyTicket  and send success reponse
 	$log->LogInfo('generate proxy ticket with the following parameters: '); 
-        $log->LogDebug("Pgt: ".$pgtkt->key()."\tPGTIOU: ".$pgtkt->PGTIOU()."\t username: ".$pgtkt->username()."\t service: ".$pgtkt->service()."");
-        
+  $log->LogDebug("Pgt: ".$pgtkt->key()."\tPGTIOU: ".$pgtkt->PGTIOU()."\t username: ".$pgtkt->username()."\t service: ".$pgtkt->service()."");
 	 $PT= new ProxyTicket(); 
-         $PT->create($pgtkt->key(),$pgtkt->PGTIOU(),$targetService,$pgtkt->username(),$pgtkt->service()); 
-	//there is some doubt about deleting the ticket	
+   $PT->create($pgtkt->key(),$pgtkt->PGTIOU(),$targetService,$pgtkt->username(),$pgtkt->service()); 
+
+  //there is some doubt about deleting the ticket	
 	//$pgt->delete();
 	$log->LogDebug("proxy ticket: ".$PT->key().""); 
         $token= proxySuccesToken($PT->key()); 
 	$log->LogDebug("Response: $token");
-	// 6. echoing CAS2 Proxy like token
+
+   // echoing CAS2 Proxy like token
 	header("Content-length: ".strlen($token));
 	header("Content-type: text/xml");
 	
@@ -434,14 +441,13 @@ global $CONFIG;
 	
 	@file
 	@author PGL pgl@erasme.org
-	@param 
+	@param: service and ticket(PT)
 	@returns
 */
 function proxyValidate() {
-	// @todo to be implemented if needed. I don't really thing it is neccesary ???
-	//echo "proxyValidate is not implemented yet !";
-	//die();
-	global $CONFIG;
+  global $CONFIG;
+
+  //logging 
 	$log = new KLogger ( $CONFIG['DEBUG_FILE'] ,$CONFIG['DEBUG_LEVEL']);
 	$log->LogInfo("/Proxy Validate is called ...");	
 	$log->LogInfo("request parameters"); 
@@ -466,16 +472,14 @@ function proxyValidate() {
 		die();
 	}
 	
-	//echo $pgtkt->username(); 
-        //echo $pgtkt->PGTIOU();
-	//echo 'true'; 
 	// 3. generate success reponse
        $token= proxyAuthSuccess($ptkt->username(),$ptkt->PGTIOU(),$ptkt->proxy()); 
 	//delete tiket after validation
 	$ptkt->delete();
-        $log->LogDebug("proxy ticket deleted");
+  $log->LogDebug("proxy ticket deleted");
 	$log->LogDebug("Response: $token"); 
-	// 6. echoing CAS2 Proxy like token
+  
+  // 4. echoing  Proxy validation response 
 	header("Content-length: ".strlen($token));
 	header("Content-type: text/xml");
 	
@@ -503,65 +507,57 @@ function samlValidate()
 		
                 //  1-   get the soap message()  
                 $soapbody = extractSoap(); 
-		$log->LogDebug("soap Request: $soapbody"); 
+		            $log->LogDebug("soap Request: $soapbody"); 
                 
 	        // 2-   get the Target and validate it()
                  $service = $_REQUEST['TARGET'];
-		$log->LogDebug("Service: $service"); 
+		             $log->LogDebug("Service: $service"); 
                //************ verifiying the service 
                if (!isset($service))
                  {
-			$log->LogError("No authorized service was found !");                     
-			throw new Exception('No authorized service was found ! ');
+		                	$log->LogError("No authorized service was found !");                     
+		                	throw new Exception('No authorized service was found ! ');
                  }
 
                // 3-  get the saml Request out of the SOAP message
                  $samlRequest=extractRequest($soapbody);
-		$log->LogDebug("Saml Request: $samlRequest");
-//               
+		              $log->LogDebug("Saml Request: $samlRequest");
+
                  $samloneschema = CAS_PATH.'/schemas/oasis-sstc-saml-schema-protocol-1.1.xsd' ; 
-                 
-                 
-                 // 4- validate the SAML Request
+                // 4- validate the SAML Request (removed because it takes long time to return)
 //                 $validRequest=validateSamlschema($samlRequest, $samloneschema); 
 //                 
 //                if (!$validRequest)
 //                {
 //                    throw new Exception('non valid SAML Request'); 
 //                }
-                
-                                
-//                
+
+
                 //  5- get the Ticket (Artifact)
                 // note: later there will be more than one artifact in the message
                 // extractTicket gets only one artifact
                 $ticket = extractTicket($samlRequest);
-		$log->LogDebug("Extracted Ticket: $ticket"); 
+            		$log->LogDebug("Extracted Ticket: $ticket"); 
                 //echo $ticket;   
 
-//                  //  6- validate the ticket
+                //  6- validate the ticket
                  if(!isset($ticket)|| $ticket=='')
                     {
                      $log->LogError("No valid ticket !"); 
                      throw new Exception('No valid ticket'); 
                      // add some code to view saml error message.
-                    }
-                    
-                    
-                   // verifying if ST ticket is valid and return the attributes.
+                       }
+                 
+                 // verifying if ST ticket is valid and return the attributes.
                   $attr = validateTicket($ticket, $service); 
-                 $log->LogDebug("Validate the ticket"); 
-////                                
-//                             
-//                
-                   $time= time()+60*60;
+                  $log->LogDebug("Validate the ticket"); 
+
+                  $time= time()+60*60;
                    $validity = $time+600; 
-////                   
-                   
                    if(empty($attr)){ 
-			$log->LogError("user not recognized !"); 
+                			$log->LogError("user not recognized !"); 
                        throw new Exception ('user not recognized');
-		  }
+              		  }
                    
                    
                    $nameIdentifier=$attr['user'];
@@ -569,9 +565,6 @@ function samlValidate()
 //                 generateSamlReponse
                    $samlSuccess= PronoteTokenBuilder(0, $attr, $nameIdentifier,''); 
                    $log->LogDebug("Response: $samlSuccess"); 
-                   //$validResponse=validateSamlschema( $samlSuccess, $samloneschema);
-//                   $validResponse=1;
-                   
                    // 8- Send Soap Reponse  
 //                   if ($validResponse)
                          soapReponse($samlSuccess);

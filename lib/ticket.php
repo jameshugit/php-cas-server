@@ -327,6 +327,8 @@ class ServiceTicket {
 
 }
 
+/*****proxyTicket Class **/
+
 class ProxyTicket {
 
      private $_ticket = false;
@@ -336,7 +338,7 @@ class ProxyTicket {
         
     }
 
-    // creates a st ticket for tgt
+    // creates a PT  ticket for pgt
     public function create($pgt = false, $pgtIou= false, $service = false, $username = false, $proxy = false) {
         global $CONFIG;
         assert($pgt && $service && $username);
@@ -406,6 +408,7 @@ class ProxyTicket {
 
 }
 
+/* Proxy Granting Ticket Class */
 class ProxyGrantingTicket {
 
     private $_ticket = false;
@@ -415,7 +418,7 @@ class ProxyGrantingTicket {
         
     }
 
-    // creates a st ticket for tgt
+    // creates a PGT ticket for PGTIOU 
     public function create($PGTIOU= false, $service = false, $username = false) {
         global $CONFIG;
         assert($PGTIOU && $service && $username);
@@ -471,6 +474,8 @@ class ProxyGrantingTicket {
 
 }
 
+/* proxy Granting ticket Iou */
+
 class ProxyGrantingTicketIOU {
 
     private $_ticket = false;
@@ -480,7 +485,7 @@ class ProxyGrantingTicketIOU {
         
     }
 
-    // creates a st ticket for tgt
+    // creates a pgtiou
     public function create($service = false, $username = false) {
         global $CONFIG;
         assert($service && $username);
