@@ -324,9 +324,9 @@ function serviceValidate() {
 //The web application asks for  a proxy ticket by sending pgtUrl(callback to storing proxy tickets)
         if(isset($_GET['pgtUrl']))
         {    
-	$log->LogInfo("The service asks for a proxy ticket to a proxied service"); 
+	    $log->LogInfo("The service asks for a proxy ticket to a proxied service"); 
 	    $pgtUrl= urldecode($_GET['pgtUrl']);
-		$log->LogDebug("Proxied Service:  $pgtUrl "); 
+		  $log->LogDebug("Proxied Service:  $pgtUrl "); 
             //print_r($pgtid); 
             $pgtou = new ProxyGrantingTicketIOU(); 
             $pgtou->create($service,$st->username()); 
@@ -339,16 +339,15 @@ function serviceValidate() {
 	    
 	    $log->LogDebug("Generate PGTIOU: $pgtIou");
 	    $log->LogDebug("Generate PGTID: $pgtid"); 
-		$url = urldecode($pgtUrl);
-                $pos = strpos($url, '?');
-                if ($pos === false) $url = $url.'?pgtIou='.$pgtIou.'&pgtId='.$pgtid;
-		else $url = $url.'&pgtIou='.$pgtIou.'&pgtId='.$pgtid;
+      
+      $url = urldecode($pgtUrl);
+      $pos = strpos($url, '?');
+      if ($pos === false) $url = $url.'?pgtIou='.$pgtIou.'&pgtId='.$pgtid;
+		    else $url = $url.'&pgtIou='.$pgtIou.'&pgtId='.$pgtid;
                 //echo $url;
-              $log->LogDebug("Send Request to: $url"); 
-	       $content = get_web_page( $url ); 
-     		//echo $content['content'];
-		//$content['errmsg'] ;
- 
+      $log->LogDebug("Send Request to: $url"); 
+	    $content = get_web_page( $url ); 
+
         }
 
          // If we pass here, ticket and service are validated
@@ -403,7 +402,8 @@ global $CONFIG;
 		$log->LogError("INVALID_PROXY_GRANTING_TICKET".$PGT." is not recognized.");
 		viewProxyAuthFailure(array('code'=>'INVALID_PROXY_GRANTING_TICKET',  'message'=> "Ticket ".$PGT._(" is not recognized.")));
 		die();
-	}
+  }
+
 	
 	// 3. generate ProxyTicket  and send success reponse
 	$log->LogInfo('generate proxy ticket with the following parameters: '); 
