@@ -40,14 +40,19 @@ page  and then (show metadata)
 //---------------Academie de lyon metadata---------------------------//
 #saml20-idp-remote file in the simplesamlphp  metadata directory contains the
 #configuration of the (academie de lyon) metadata.
-#we find two metadata configuration ( agent, parent/eleve)
+#we find two metadata configuration (agent, parent/eleve)
+
 //----------------certificates---------------------------------------//
-#generate and add certificates to the cert directory in the simplesamlphp
+#generate and add certificates to the /cert directory in the simplesamlphp
+openssl genrsa -des3 -out server.key 1024 
+openssl rsa -in server.key -out server.pem
+openssl req -new -key server.key -out server.csr
+openssl x509 -req -days 9999 -in server.csr -signkey server.key -out server.crt
 
 
-//----add simplesamlphp path to cas server configuration-------//
+//----add simplesamlphp path and authentication sources (agent portal,parent portal )to cas server configuration-------//
 # add  /path/to/simplesamlphp-1.9.0/www to the config.inc.php file
 # add the url of the ENT server to config.inc.php 
 # add the url of the cas server to config.inc.php 
 # add the url of the inscription page to config.inc.php
-
+# add the names of authentication sources to config.inc.php
