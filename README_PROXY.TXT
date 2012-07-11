@@ -1,9 +1,11 @@
-Using Cas Proxy avec imap: 
+Using Cas Proxy with imap
+==========================
 you can find a detailed reference for proxy configuration avec cyrus-imap on the following link:
 http://www.esup-portail.org/consortium/espace/SSO_1B/tech/imap/CyrusImap-cas.html;
 The configurations consists of:
 1- Casifiyin Cyrus-imap by the installation of Pam_cas.so Module and configuring the Pam_cas.conf file as explained in : http://www.esup-portail.org/consortium/espace/SSO_1B/tech/cas/cas_pam.html.
-	1-1- 	# Prerequisites:
+
+		# Prerequisites:
 		* pam devel headers (Debian Sarge: libpam0g-dev)
 		* openssl devel headers
 
@@ -96,11 +98,10 @@ The configurations consists of:
 	     use pam_unix instead.
 
 2- Casifiying the Web mail (proxy service) in our case roundcubemail: 
-	2-1- download to roundcubemail/plugins the latest version of rcera_cas_authentication  from gitlab with phpCas= 1.3.1
+	2-1- download to roundcubemail/plugins the latest version of rcera_cas_authentication  from gitlab with PHPCAS client  version = 1.3.1
         2-2- $ vi /rcera_cas_authentication/config.inc.php
-		enable or disable proxy  
-		$rcmail_config['cas_proxy'] = 'true'/ 'false';
-	        $rcmail_config['cas_cert'] = '/path/to/cert/file' to add the certificate of CAS server when self signed 'this option does not work' or the CA certifiactes;
+		    enable or disable proxy : $rcmail_config['cas_proxy'] = 'true'/ 'false';
+	      $rcmail_config['cas_cert'] = '/path/to/cert/file' to add the certificate of CAS server when self signed 'this option does not work' or the CA certifiactes;
 	2-3- add the rcera_cas_authentication plugin to roundcube mail by modifiying the file main.inc.php in the config directory: 
 		-----/roundcubemail/config/main.inc.php-----------------			
 		$rcmail_config['plugins'] = array('rcera_cas_authentication');

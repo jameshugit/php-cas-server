@@ -130,21 +130,6 @@ $isAuth = $as->isAuthenticated();
 <script type="text/javascript" src="../js/jquery.lightbox_me.js"></script>
 <script language="JavaScript" type="text/javascript">
 $(function() {
-            //this script is for showing the popup ( choice menu )
-           // function launch() {
-              //   $('#sign_up').lightbox_me({centered: true, onLoad: function() { $('#sign_up').find('input:first').focus()}});
-           // }
-            
-           // $('#try-1').click(function(e) {
-               // $("#sign_up").lightbox_me({centered: true, onLoad: function() {
-				//	$("#sign_up").find("input:first").focus();
-          //      }}); 				
-            //    e.preventDefault();
-           // }); 
-
-             // $('#close_x').click(function(e) {
-               //            $("#sign_up").trigger('close');
-             // }); 
             function WaitForIFrame() {
               var iframe = $('#myIFrame');
              // console.log('iframe.contentDocument.readyState: '+iframe[0].readyState);
@@ -170,14 +155,12 @@ $(function() {
               function done(){
                   location.reload();
                           };
-            // $('table tr:nth-child(even)').addClass('stripe');
              $('#logout').click(function(){
 
                 $('#myIFrame').attr("src","https://services.ac-lyon.fr/login/ct_logout.jsp");setTimeout(function() { $('#myIFrame2').attr("src","?logout"); }, 1000);
 
                 return false;
              });
-           // $('table tr:nth-child(even)').addClass('stripe');
         });
 </script>
 <link rel="stylesheet" href="../css/style.css" type="text/css" media="screen" title="no title" charset="utf-8">
