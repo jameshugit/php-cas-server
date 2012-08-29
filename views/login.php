@@ -16,6 +16,7 @@ function getNewsList($t) {
     /** Create Rediska instance **/
     $options = array('servers' => array());
     foreach ($CONFIG['REDIS_SERVERS'] as $srvary) {
+      error_log("Added server " . $srvary[0]);
       array_push($options['servers'], array('host' => $srvary[0], 'port' => $srvary[1]));
     }
 	$cache = new Rediska($options);
@@ -75,12 +76,14 @@ function getFormLogin($t) {
               <br />
             </div>
             <div style = "border-top: solid #3399FF; background-color:white; width: 260px; padding: 5px;">
-                <p> <font color="red"><b>Nouveau:</b></font> <br/></p>
+                <div class="row">
+                <p> <img src="images/AcademieLogo.jpeg" style="float: left;" /><b>Connectez-vous avec votre compte académique. </b> </p>
+                </div>
                 <div  style=" margin:0px auto ;  text-align:center;">
-                <p><a  href="lib/parentPortalIdp.php?login"class="tt" ><img src="images/parents_eleves1b.png" alt="ADLyon"/><span class="tooltip"><span class="top"> </span>
+                <p><a  href="lib/parentPortalIdp.php?login" class="tt" ><img src="images/parents_eleves1.png" alt="ADLyon"/><span class="tooltip"><span class="top"> </span>
                 <span class="middle">se connecter avec votre profil parent/élève de l\'academie de lyon</span><span class="bottom"></span></span>
                 </a><span style="margin-left:30px;"></span>
-                <a  href="lib/agentPortalIdp.php?login" class="tt"><img src="images/profs_agents1b.png" alt="ADLyon"/><span class="tooltip"><span class="top"> </span>
+                <a  href="lib/agentPortalIdp.php?login" class="tt"><img src="images/profs_agents1.png" alt="ADLyon"/><span class="tooltip"><span class="top"> </span>
                 <span class="middle">se connecter avec votre profil prof/agent  de l\'academie de lyon</span><span class="bottom"></span></span></a></p>
                 </div> 
              </div> 
