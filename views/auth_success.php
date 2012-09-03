@@ -17,7 +17,7 @@ require_once(CAS_PATH.'/views/auth_attribute.php');
 	@param $t an array of param to be include in the view. this is a key/value array.
 	@returns
 */
-function viewAuthSuccess($viewName, $t){
+function viewAuthSuccess($viewName, $t, $pgtIou){
 	if ($viewName == 'Default') {
         $token = viewAuthHeader();
 		if (is_array($t)){
@@ -25,6 +25,8 @@ function viewAuthSuccess($viewName, $t){
 				$token .= viewAuthAtttribute($k, $v);
 			}
 		}
+        if($pgtIou!=null)
+               $token .= viewProxyGrantingTicket($pgtIou);   
     	$token .= viewAuthFooter();
 	}
 	else { // custom view 
@@ -37,3 +39,36 @@ function viewAuthSuccess($viewName, $t){
 	}
 	return $token;
 }
+/*
+ proxy token generated after success /proxy request and PGT (proxy granting ticket) exists 
+*/
+function proxySuccesToken($PT)
+{
+	$token= '<cas:serviceResponse xmlns:cas="http://www.yale.edu/tp/cas">
+   		<cas:proxySuccess>
+     		<cas:proxyTicket>'.$PT.'</cas:proxyTicket>
+   		</cas:proxySuccess>
+		</cas:serviceResponse>'; 
+         
+	return $token;
+}
+/*
+   proxy authentication token generated after successful proxy ticket validation
+*/
+function proxyAuthSuccess($username,$pgtiou,$proxy)
+{
+	$token= '<cas:serviceResponse xmlns:cas="http://www.yale.edu/tp/cas">
+		    <cas:authenticationSuccess>
+			<cas:user>'.$username.'</cas:user>
+			<cas:proxyGrantingTicket>'.$pgtiou.'</cas:proxyGrantingTicket>
+			<cas:proxies>
+			  <cas:proxy>'.$proxy.'</cas:proxy>
+			  </cas:proxies>
+		    </cas:authenticationSuccess>
+		</cas:serviceResponse>';
+        return $token; 
+
+}
+
+
+

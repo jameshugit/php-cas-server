@@ -5,15 +5,6 @@
  * and open the template in the editor.
  */
 
-//------------------------------------------------------------------------------
-// Constantes de connexion au Backend  MySQL
-//------------------------------------------------------------------------------
-/** Database name */
-define('MYSQL_DBNAME', 'mysql:host=192.168.0.206;dbname=annuaire');
-/** Database username */
-define('MYSQL_DBUSER', 'root');
-/** Database password */
-define('MYSQL_DBPASS', 'root');
 
 
 //-----------------------------------------------------------------

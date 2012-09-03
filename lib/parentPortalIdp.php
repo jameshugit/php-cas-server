@@ -130,21 +130,6 @@ $isAuth = $as->isAuthenticated();
 <script type="text/javascript" src="../js/jquery.lightbox_me.js"></script>
 <script language="JavaScript" type="text/javascript">
 $(function() {
-            //this script is for showing the popup ( choice menu )
-            function launch() {
-                 $('#sign_up').lightbox_me({centered: true, onLoad: function() { $('#sign_up').find('input:first').focus()}});
-            }
-            
-            $('#try-1').click(function(e) {
-                $("#sign_up").lightbox_me({centered: true, onLoad: function() {
-					$("#sign_up").find("input:first").focus();
-                }}); 				
-                e.preventDefault();
-            }); 
-
-              $('#close_x').click(function(e) {
-                           $("#sign_up").trigger('close');
-              }); 
             function WaitForIFrame() {
               var iframe = $('#myIFrame');
              // console.log('iframe.contentDocument.readyState: '+iframe[0].readyState);
@@ -170,14 +155,12 @@ $(function() {
               function done(){
                   location.reload();
                           };
-             $('table tr:nth-child(even)').addClass('stripe');
              $('#logout').click(function(){
 
                 $('#myIFrame').attr("src","https://services.ac-lyon.fr/login/ct_logout.jsp");setTimeout(function() { $('#myIFrame2').attr("src","?logout"); }, 1000);
 
                 return false;
              });
-            $('table tr:nth-child(even)').addClass('stripe');
         });
 </script>
 <link rel="stylesheet" href="../css/style.css" type="text/css" media="screen" title="no title" charset="utf-8">
@@ -186,7 +169,6 @@ $(function() {
 <body id="cas">
       <div id="page">
         <h1 id="app-name"> Service D'Authentification Central de laclasse.com</h1>
-
 <?php
 /* Show a logout message if authenticated or a login message if not. */
 
@@ -212,36 +194,32 @@ else
         $accounts= $_SESSION["famillyAccount"];
         unset($_SESSION["famillyAccount"]);
 
-        echo '<br>Votre compte est un compte familiale<br/>';
+       // echo '<h3>Votre compte est un compte familiale</h3>';
 
-	      echo 'Pour finir l\'authentification, Cliquez sur le lien et choisissez votre identité: ';
-        echo '<a href= "#" id="try-1" style="font-weight:bold; color:red; " > Identité </a></br>';
-?>
+	     // echo 'Pour finir l\'authentification, Cliquez sur le lien et choisissez votre identité: ';
+       // echo '<a href= "#" id="try-1" style="font-weight:bold; color:red; " > Identité </a></br>';
 
-<div id="sign_up" >
-                <span><h3>Choisissez  un compte et puis se connecter</h3></span>
+        echo '<div>
+                <span><h3>Votre compte est un compte familiale
+                Choisissez  un compte et puis cliquer sur se connecter:</h3></span>
                 <div id="sign_up_form">
 
-                <form name="login" action= <?php echo  $_SERVER['PHP_SELF']?> method="post">
+                <form name="login" action='.$_SERVER["PHP_SELF"].' method="post">
               <input type="hidden" name="method" value"precise">
-               <select name="loginidp" id="logindip">
-<?php
+               <select name="loginidp" id="logindip">';
+        
         foreach($accounts as $record)
         {
             echo '<option value="'.$record["login"].'">'.$record["prenom"].' '.$record["nom"].'</option>'; 
 
         }
-
-?>
-  </select></br></br>
-              <input id ="log_in"  style= "background: -moz-linear-gradient(center top , #00ADEE, #0078A5) repeat scroll 0 0 transparent; border: 1px solid #0076A3;" type="submit" name="submit" value="se connecter" />
-			</form>
+         echo ' </select></br></br>
+              <input id ="log_in"  type="submit" name="submit" value="se connecter" />
+			      </form>
 
                 </div>
-                <a id="close_x" href="#" class="close sprited"></a>
 
-            </div>
-<?php
+            </div>'; 
 
        // echo '</div>';
        // echo '</div>'; 

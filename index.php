@@ -70,7 +70,7 @@
     require_once(CAS_PATH . '/lib/ticket.php');
     require_once(CAS_PATH . '/lib/Utilities.php');
     require_once (CAS_PATH . '/lib/saml/binding/HttpSoap.php');
-    //require_once (CAS_PATH . '/lib/saml/saml1.php');
+    require_once (CAS_PATH . '/lib/KLogger.php');
 
     require_once(CAS_PATH . '/views/error.php');
     require_once(CAS_PATH . '/views/login.php');
@@ -86,10 +86,17 @@
      */
     function login() {
         global $CONFIG;
+
+	$log = new KLogger ( $CONFIG['DEBUG_FILE'] ,$CONFIG['DEBUG_LEVEL']);
+	$log->LogInfo("Login Function is called");
+
         $selfurl = str_replace('index.php/', 'login', $_SERVER['PHP_SELF']);
         $service = isset($_REQUEST['service']) ? $_REQUEST['service'] : false;
         $loginTicketPosted = isset($_REQUEST['loginTicket']) ? $_REQUEST['loginTicket'] : false;
-
+        
+	$log->LogDebug("selfurl:  $selfurl");
+	$log->LogDebug("service:  $service");
+	$log->LogDebug("loginTicketPosted: $loginTicketPosted");
 
         if (!array_key_exists('CASTGC', $_COOKIE)) { /*     * * user has no TGC ** */
             if (!array_key_exists('username', $_POST)) {
@@ -100,6 +107,8 @@
                 // displaying login Form with a new login ticket.
                 $lt = new LoginTicket();
                 $lt->create();
+		$loginticket=$lt->key(); 
+		$log->LogDebug("user has no TGC and is not trying to post credentials, generate new login ticket:$loginticket");
                 viewLoginForm(array('service' => $service,
                     'action' => $selfurl,
                     'loginTicket' => $lt->key()));
@@ -112,6 +121,7 @@
                   => redirect to login
                  */
                 // create database provider
+	        $log->LogInfo('user has no TGC but is trying to post credentials'); 
                 $factoryInstance = new DBFactory();
                 $db=$factoryInstance->createDB($CONFIG['DATABASE'],BACKEND_DBUSER, BACKEND_DBPASS,BACKEND_DBNAME);
 
@@ -121,7 +131,10 @@
 
                 if (!$lt->find($loginTicketPosted)) {
                     $lt->create();
-                    viewLoginFailure(array('service' => $service,
+		 
+		$log->LogError("the login Ticket is not valid, no need to go futher : redirect to login form");
+                    
+		 viewLoginFailure(array('service' => $service,
                         'action' => $selfurl,
                         'errorMsg' => _("La session de cette page a expir&eacute;. r&eacute;-essayez en rafra&icirc;chissant votre page."),
                         'loginTicket' => $lt->key()));
@@ -131,16 +144,24 @@
                 // @fl : Hack de dev : on est toujours authentifié !
                 if (($_POST ['username'] == 'flecluse') || (strtoupper($db->verifyLoginPasswordCredential($_POST['username'], $_POST['password'])) == strtoupper($_POST['username']))) {
                     /* credentials ok */
+		   $log->LogInfo('credentials are valid, generate a TGC');
                     $ticket = new TicketGrantingTicket();
                     $ticket->create($_POST['username']);
-
-                    /* send TGC */
-                    setcookie("CASTGC", $ticket->key(), 0);
-                    /* Redirect to /login */
+	            $var=$ticket->key();
+		    $log->LogDebug("ticket: $var");   
+                    
+		/* send TGC */
+                   setcookie("CASTGC", $ticket->key(), 0);
+                   $log->LogDebug("CASTGC cookie is set succesfully");
+                   $log->LogInfo('redirect to login'); 
+		  
+		 /* Redirect to /login */
                     header("Location: " . url($selfurl) . "service=" . urlencode($service) . "");
                 } else {
                     /* credentials failed */
                     // verify if we need a new login ticket
+                    $log->LogInfo('Credentials faild');
+		    $log->LogInfo('Try Again');
                     $newloginTicket = $loginTicketPosted;
                     $lt = new LoginTicket();
                     if (!$lt->find($loginTicketPosted)) {
@@ -158,6 +179,7 @@
               => destroy TGC
               => present login form
              */
+	    $log->LogDebug('client has TGT and renew parameter set to true, destroy TGC, redirect to login form');
             if (array_key_exists('renew', $_GET) && $_GET['renew'] == 'true') {
                 $tgt = new TicketGrantingTicket();
                 $tgt->find($_COOKIE["CASTGC"]);
@@ -178,28 +200,32 @@
               => build a service ticket
               => send a redirect to 'service' url with newly created ST as GET param
              */
-
+            $log->LogDebug('client has valid TGT, build a service ticket');
             // Assert validity of TGC
             $tgt = new TicketGrantingTicket();
             /// @todo Well, do something meaningful...
             if (!$tgt->find($_COOKIE["CASTGC"])) {
+		$log->LogError("Oops:Ticket Granting Ticket is not found");
                 viewError("Oh noes !");
                 die();
             }
             if ($service) {
                 if (!isServiceAutorized($service)) {
-                    showError(_("Cette application n'est pas autoris&eacute;e &agrave; s'authentifier sur le serveur CAS."));
+		     $log->LogError("Oops:Service is not authorized");
+                     showError(_("Cette application n'est pas autoris&eacute;e &agrave; s'authentifier sur le serveur CAS."));
                     die();
                 }
 
                 // build a service ticket
                 $st = new ServiceTicket();
                 $st->create($tgt->key(), $service, $tgt->username());
-
+		$log->LogDebug("Service Ticket :".$st->key()."");
+		$log->LogDebug("Redirect to :".url($service)." &ticket:".$st->key()."");
                 // Redirecting for futher client request for serviceValidate
                 header("Location: " . url($service) . "ticket=" . $st->key() . "");
             } else {
                 // xNo service, user just wanted to login to SSO
+		$log->LogInfo("no Service");
                 viewLoginSuccess();
             }
         }
@@ -216,8 +242,11 @@
  * @return void
  */
 function logout() {
+global $CONFIG; 
+$log = new KLogger ( $CONFIG['DEBUG_FILE'] ,$CONFIG['DEBUG_LEVEL']);
+$log->LogInfo("Logout function is called");
 
-  if (array_key_exists('CASTGC',$_COOKIE)) {
+if (array_key_exists('CASTGC',$_COOKIE)) {
 		/* Remove TGT */
 		$tgt = new TicketGrantingTicket();
 		$tgt->find($_COOKIE["CASTGC"]);
@@ -226,7 +255,10 @@ function logout() {
 
 		/* Remove cookie from client */
 		setcookie ("CASTGC", FALSE, 0);
+	$log->LogDebug("TGT is deleted...");
+     	$log->LogDebug("CASTGT is removed...");
   } else {
+	$log->LogDebug("TGC_NOT_FOUND");
     writeLog("LOGOUT_FAILURE", "TGC_NOT_FOUND");
   }
   
@@ -240,22 +272,7 @@ function logout() {
 	return;
 }
 
-function loggedout() {
 
-  if (array_key_exists('CASTGC',$_COOKIE)) {
-		/* Remove TGT */
-		$tgt = new TicketGrantingTicket();
-		$tgt->find($_COOKIE["CASTGC"]);
-        writeLog("LOGOUT_SUCCESS", $tgt->username());
-		$tgt->delete();
-
-		/* Remove cookie from client */
-		setcookie ("CASTGC", FALSE, 0);
-  } else {
-    writeLog("LOGOUT_FAILURE", "TGC_NOT_FOUND");
-  }
- 
-}
 
 /**
 	serviceValidate
@@ -265,15 +282,24 @@ function loggedout() {
 */
 function serviceValidate() {
   global $CONFIG;
-  //for test purpose only·
-  // $database = isset($_REQUEST['database']) ? $_REQUEST['database'] : $CONFIG['DATABASE'];
+  	$log = new KLogger ( $CONFIG['DEBUG_FILE'] ,$CONFIG['DEBUG_LEVEL']);
+	$log->LogInfo("Service Validate is called ...");
 
 	$ticket 	= isset($_GET['ticket']) ? $_GET['ticket'] : "";
 	$service 	= urldecode(isset($_GET['service']) ? $_GET['service'] : "");
 	$renew 		= isset($_GET['renew']) ? $_GET['renew'] : "";
 	
+	$log->LogInfo("Request parameters .....");
+	$log->LogDebug("Service Ticket :$ticket");
+	$log->LogDebug("Service: $service");
+	$log->logDebug("renew:$renew"); 
+
+	  //for proxy validate
+	//$pgtUrl		= urldecode(isset($_GET['pgtUrl']) ? $_GET['pgtUrl'] : "");
+	
 	// 1. verifying parameters ST ticket and service should not be empty.
 	if (!isset($ticket) || !isset($service)) {
+		$log->LogError("INVALID_REQUEST: serviceValidate requires at least two parameters : ticket and service."); 
 		viewAuthFailure(array('code'=>'INVALID_REQUEST', 'message'=> _("serviceValidate require at least two parameters : ticket and service.")));
 		die();
 	}
@@ -281,6 +307,7 @@ function serviceValidate() {
 	// 2. verifying if ST ticket is valid.
 	$st = new ServiceTicket();
 	if (!$st->find($ticket)) {
+		$log->LogError("INVALID_TICKET".$ticket." is not recognized.");
 		viewAuthFailure(array('code'=>'INVALID_TICKET',  'message'=> "Ticket ".$ticket._(" is not recognized.")));
 		die();
 	}
@@ -293,21 +320,120 @@ function serviceValidate() {
 //		die();
 //	} 
 	
-	// If we pass here, ticket and service are validated
-  // So give back the CAS2 like token
+        $pgtIou=null;
+//The web application asks for  a proxy ticket by sending pgtUrl(callback to storing proxy tickets)
+        if(isset($_GET['pgtUrl']))
+        {    
+	    $log->LogInfo("The service asks for a proxy ticket to a proxied service"); 
+	    $pgtUrl= urldecode($_GET['pgtUrl']);
+		  $log->LogDebug("Proxied Service:  $pgtUrl "); 
+      // creating pgtIou ticket to be used in PGT 
+            $pgtou = new ProxyGrantingTicketIOU(); 
+            $pgtou->create($service,$st->username()); 
+            $pgtIou=$pgtou->key(); 
+		
+	    //creating indexed proxyGrantingTicket            
+	    $pgt = new ProxyGrantingTicket();
+            $pgt->create($pgtIou,$service,$st->username());
+            $pgtid=$pgt->key(); 
+	    
+	    $log->LogDebug("Generate PGTIOU: $pgtIou");
+	    $log->LogDebug("Generate PGTID: $pgtid"); 
+      
+      $url = urldecode($pgtUrl);
+      $pos = strpos($url, '?');
+      if ($pos === false) $url = $url.'?pgtIou='.$pgtIou.'&pgtId='.$pgtid;
+		    else $url = $url.'&pgtIou='.$pgtIou.'&pgtId='.$pgtid;
+                //echo $url;
+      $log->LogDebug("Send Request to: $url");
+
+      //send Pgtid and pgtIou to the call back address pgtUrl
+	    $content = get_web_page( $url ); 
+
+        }
+
+         // If we pass here, ticket and service are validated
+ 	 // So give back the CAS2 like token
   $factoryInstance = new DBFactory();
   $db=$factoryInstance->createDB($CONFIG['DATABASE'],BACKEND_DBUSER, BACKEND_DBPASS,BACKEND_DBNAME);
-	$token =$db->getServiceValidate($st->username(), $service);
+	$token =$db->getServiceValidate($st->username(), $service, $pgtIou);
+	$log->LogInfo("call getServiceValidate"); 
 
-	// 4. destroy ST ticket because this is a one shot ticket.
+  // 4. destroy ST ticket because this is a one shot ticket.
 	$st->delete();
-	
-	// 6. echoing CAS2 like token
+	$log->LogDebug("Delete the service ticket:".$st->key()."");
+	$log->LogDebug("Response of serviceValidate:$token");
+
+  // 6. echoing CAS2 like token
 	header("Content-length: ".strlen($token));
 	header("Content-type: text/xml");
 	
 	echo $token;
+       $log->LogInfo("End of ServiceValidate ..."); 
 }
+
+
+
+/**
+	proxy
+	Provides proxy ticket to proxied service
+	
+	@file
+	@author 
+	@param  targetService and PGT
+	@returns  Proxy Ticket 
+*/
+function proxy() {
+  global $CONFIG;
+
+  // prepare loggin parameters
+	$log = new KLogger ( $CONFIG['DEBUG_FILE'] ,$CONFIG['DEBUG_LEVEL']);
+	$log->LogInfo("/Proxy is called ...");	
+	$log->LogInfo("request parameters"); 
+
+	$PGT	= isset($_GET['pgt']) ? $_GET['pgt'] : "";
+	$targetService 	= urldecode(isset($_GET['targetService']) ? $_GET['targetService'] : "");
+  $log->LogDebug("PGT:$PGT");
+	$log->LogDebug("TargetService:$targetService");
+
+	// 1. verifying parameters PGT ticket and targetService should not be empty.
+	if (!isset($PGT) || !isset($targetService)) {
+		$log->LogError("INVALID_REQUEST: proxy requires at least two parameters : PGT ticket and targetService.");
+		viewProxyAuthFailure(array('code'=>'INVALID_REQUEST', 'message'=> _("proxy require at least two parameters : PGT ticket and targetService.")));
+		die();
+	}
+	// 2. validating the PGT ticket
+	$pgtkt = new ProxyGrantingTicket();
+	if (!$pgtkt->find($PGT)) {
+		$log->LogError("INVALID_PROXY_GRANTING_TICKET".$PGT." is not recognized.");
+		viewProxyAuthFailure(array('code'=>'INVALID_PROXY_GRANTING_TICKET',  'message'=> "Ticket ".$PGT._(" is not recognized.")));
+		die();
+  }
+
+	
+	// 3. generate ProxyTicket  and send success reponse
+	$log->LogInfo('generate proxy ticket with the following parameters: '); 
+  $log->LogDebug("Pgt: ".$pgtkt->key()."\tPGTIOU: ".$pgtkt->PGTIOU()."\t username: ".$pgtkt->username()."\t service: ".$pgtkt->service()."");
+	 $PT= new ProxyTicket(); 
+   $PT->create($pgtkt->key(),$pgtkt->PGTIOU(),$targetService,$pgtkt->username(),$pgtkt->service()); 
+
+  //there is some doubt about deleting the ticket	
+	//$pgt->delete();
+	$log->LogDebug("proxy ticket: ".$PT->key().""); 
+        $token= proxySuccesToken($PT->key()); 
+	$log->LogDebug("Response: $token");
+
+   // echoing CAS2 Proxy like token
+	header("Content-length: ".strlen($token));
+	header("Content-type: text/xml");
+	
+	echo $token;
+       $log->LogInfo("/proxy call ended..");  
+
+}
+
+
+
 
 /**
 	proxyValidate
@@ -315,13 +441,50 @@ function serviceValidate() {
 	
 	@file
 	@author PGL pgl@erasme.org
-	@param 
+	@param: service and ticket(PT)
 	@returns
 */
 function proxyValidate() {
-	// @todo to be implemented if needed. I don't really thing it is neccesary ???
-	echo "proxyValidate is not implemented yet !";
-	die();
+  global $CONFIG;
+
+  //logging 
+	$log = new KLogger ( $CONFIG['DEBUG_FILE'] ,$CONFIG['DEBUG_LEVEL']);
+	$log->LogInfo("/Proxy Validate is called ...");	
+	$log->LogInfo("request parameters"); 
+	
+	$proxyticket 	= isset($_GET['ticket']) ? $_GET['ticket'] : "";
+	$service 	= urldecode(isset($_GET['service']) ? $_GET['service'] : "");
+	$log->LogDebug("proxyticket: $proxyticket"); 
+        $log->LogDebug("service: $service"); 	
+	
+	// 1. verifying parameters PT ticket and service should not be empty.
+	if (!isset($proxyticket) || !isset($service)) {
+		$log->LogError("INVALID_REQUEST: proxy Validate requires at least two parameters : PT ticket and Service.");
+		viewAuthFailure(array('code'=>'INVALID_REQUEST', 'message'=> _("proxyValidate require at least two parameters : ticket and service.")));
+		die();
+	}
+	
+	// 2. verifying if PT ticket is valid.
+	$ptkt = new ProxyTicket();
+	if (!$ptkt->find($proxyticket)) {
+		$log->LogError("INVALID_PROXY_TICKET".$proxyticket." is not recognized."); 
+		viewAuthFailure(array('code'=>'INVALID_PROXY_TICKET',  'message'=> "Ticket ".$proxyticket._(" is not recognized.")));
+		die();
+	}
+	
+	// 3. generate success reponse
+       $token= proxyAuthSuccess($ptkt->username(),$ptkt->PGTIOU(),$ptkt->proxy()); 
+	//delete tiket after validation
+	$ptkt->delete();
+  $log->LogDebug("proxy ticket deleted");
+	$log->LogDebug("Response: $token"); 
+  
+  // 4. echoing  Proxy validation response 
+	header("Content-length: ".strlen($token));
+	header("Content-type: text/xml");
+	
+	echo $token;
+       $log->LogInfo("Proxy Validate Ended ..."); 
 
 }
 
@@ -337,72 +500,71 @@ function proxyValidate() {
 
 function samlValidate() 
  {
-      
+      global $CONFIG; 
+      $log = new KLogger ( $CONFIG['DEBUG_FILE'] ,$CONFIG['DEBUG_LEVEL']);
+      $log->LogInfo("Saml Validate is called ...");	 
      try{
+		
                 //  1-   get the soap message()  
                 $soapbody = extractSoap(); 
-                // 2-   get the Target and validate it()
+		            $log->LogDebug("soap Request: $soapbody"); 
+                
+	        // 2-   get the Target and validate it()
                  $service = $_REQUEST['TARGET'];
-
+		             $log->LogDebug("Service: $service"); 
                //************ verifiying the service 
                if (!isset($service))
                  {
-                     throw new Exception('No authorized service was found ! ');
+		                	$log->LogError("No authorized service was found !");                     
+		                	throw new Exception('No authorized service was found ! ');
                  }
 
                // 3-  get the saml Request out of the SOAP message
                  $samlRequest=extractRequest($soapbody);
-//               
+		              $log->LogDebug("Saml Request: $samlRequest");
+
                  $samloneschema = CAS_PATH.'/schemas/oasis-sstc-saml-schema-protocol-1.1.xsd' ; 
-                 
-                 
-                 // 4- validate the SAML Request
+                // 4- validate the SAML Request (removed because it takes long time to return)
 //                 $validRequest=validateSamlschema($samlRequest, $samloneschema); 
 //                 
 //                if (!$validRequest)
 //                {
 //                    throw new Exception('non valid SAML Request'); 
 //                }
-                
-                                
-//                
+
+
                 //  5- get the Ticket (Artifact)
                 // note: later there will be more than one artifact in the message
                 // extractTicket gets only one artifact
-                $ticket = extractTicket($samlRequest); 
+                $ticket = extractTicket($samlRequest);
+            		$log->LogDebug("Extracted Ticket: $ticket"); 
                 //echo $ticket;   
 
-//                  //  6- validate the ticket
+                //  6- validate the ticket
                  if(!isset($ticket)|| $ticket=='')
                     {
-                     
-                     throw new Exception('non valid ticket'); 
+                     $log->LogError("No valid ticket !"); 
+                     throw new Exception('No valid ticket'); 
                      // add some code to view saml error message.
-                    }
-                    
-                    
-                   // verifying if ST ticket is valid and return the attributes.
-                  $attr = validateTicket($ticket, $service); 
+                       }
                  
-////                                
-//                             
-//                
-                   $time= time()+60*60;
+                 // verifying if ST ticket is valid and return the attributes.
+                  $attr = validateTicket($ticket, $service); 
+                  $log->LogDebug("Validate the ticket"); 
+
+                  $time= time()+60*60;
                    $validity = $time+600; 
-////                   
-                   
-                   if(empty($attr)) 
+                   if(empty($attr)){ 
+                			$log->LogError("user not recognized !"); 
                        throw new Exception ('user not recognized');
+              		  }
                    
                    
                    $nameIdentifier=$attr['user'];
                    
 //                 generateSamlReponse
                    $samlSuccess= PronoteTokenBuilder(0, $attr, $nameIdentifier,''); 
-                   
-                   //$validResponse=validateSamlschema( $samlSuccess, $samloneschema);
-//                   $validResponse=1;
-                   
+                   $log->LogDebug("Response: $samlSuccess"); 
                    // 8- Send Soap Reponse  
 //                   if ($validResponse)
                          soapReponse($samlSuccess);
@@ -421,7 +583,7 @@ function samlValidate()
             //genterate  a failure saml reponse
            
              $samlFailure=PronoteTokenBuilder(8, null,null,$e->getMessage());
-                 
+                  $log->LogDebug("Response: $samlFailure");
                  soapReponse($samlFailure); 
                     
              }
@@ -523,7 +685,7 @@ function validateTicket($ticket, $service)
 
     $action = array_key_exists('action', $_REQUEST) ? $_REQUEST['action'] : "";
 
-    // defined ('IS_SOAP') || define ('IS_SOAP', strlen ($action) && array_key_exists ($action, array ('samlValidate')));
+    defined ('IS_SOAP') || define ('IS_SOAP', strlen ($action) && array_key_exists ($action, array ('samlValidate')));
     
     /* Verify that this thing is happening over https
       if we are using a production running mode.
@@ -560,7 +722,7 @@ function validateTicket($ticket, $service)
     // Sittin' on the dock of the PT...
         case "proxyvalidate" :
     // Consider that we can handle case insensitive (great ! this is not in CAS specs.)
-            //proxyvalidate();
+           // proxyvalidate();
             serviceValidate();
             break;
         case "servicevalidate" :
@@ -571,10 +733,10 @@ function validateTicket($ticket, $service)
             samlValidate();
             //showError(_("Saml Validate"));
             break;
-        case 'extractsoap': 
-
-           echo( extractSoap());
-           break;
+        
+	case 'proxy': 
+	    proxy();
+            break;
 
         default :
             showError(_("Action inconnue."));

@@ -36,7 +36,7 @@ interface casAuthentication {
 	 * @param service Service that requests ST validation
 	 * @return string containing loads of XML
 	 */
-	public function getServiceValidate($login, $service);
+	public function getServiceValidate($login, $service,$pgtIou);
 
 	/** 
 	 * Returns the smalValidate CAS 1.0 XML fragment response
@@ -164,7 +164,7 @@ class ORACLE implements casAuthentication
 	 * @param service Service that requests ST validation
 	 * @return string containing loads of XML
 	 */
-	public function getServiceValidate($login, $service)
+	public function getServiceValidate($login, $service,$pgtIou)
         {
             global $CONFIG;
 	// index of the global array containing the list of autorized sites.
@@ -210,7 +210,7 @@ class ORACLE implements casAuthentication
 	}
 	
 	// call the token model with the default view or custom view
-	return viewAuthSuccess($myTokenView, $attributes);
+	return viewAuthSuccess($myTokenView, $attributes,$pgtIou);
         }
 
 	/** 
@@ -414,7 +414,7 @@ class MYSQL implements casAuthentication
 	 * @param service Service that requests ST validation
 	 * @return string containing loads of XML
 	 */
-	public function getServiceValidate($login, $service)
+	public function getServiceValidate($login, $service, $pgtIou)
         {
             global $CONFIG;
 	// index of the global array containing the list of autorized sites.

@@ -33,6 +33,11 @@ echo 'extension=oci8.so' > /etc/php5/apache2/conf.d/oci8.ini
 echo '<?phpinfo();?>' > /var/www/phpinfo.php
 # point browser to http://server/phpinfo.php and check that oci8 extension is loaded
 
+Federation and proxy install
+===========================
+view README_FEDERATION and README_PROXY files for information.
+
+
 Authors
 =======
 Piere-Gilles Levallois <pgl@erasme.org>

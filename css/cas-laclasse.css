@@ -182,7 +182,7 @@ a.tt{
             #cas #list-languages ul li.first {padding-left:0;}
             #cas #list-languages ul li.last {padding-right:0; border:0;}
 
-#cas #footer {position:absolute;top:372px;margin:10px;}
+#cas #footer {position:absolute;top:350px;}
 #cas #footer p {margin:0; padding:0;}
 
 .row{float:left; padding-bottom:2px;}

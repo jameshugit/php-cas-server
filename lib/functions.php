@@ -25,7 +25,6 @@ function matchString($str, $model){
  * Specific i18n function that pass the text to html entities
  */
 
-
 function __($text) {
 	return htmlentities(_($text));
 }
@@ -89,23 +88,39 @@ function isServiceAutorized($pService){
 
 	/* Verifying the service is listed in $CONFIG['AUTHORIZED_SITES'] array. */
 	if ($pService != "") {
-		foreach($CONFIG['AUTHORIZED_SITES'] as $k => $site) {
-			$pattern  = preg_quote($CONFIG['AUTHORIZED_SITES'][$k]['url']);
-			$pattern = str_replace('\\*', '.*', $pattern);
-			$pattern = str_replace('/', '\/', $pattern);
-			preg_match("/$pattern/", $pService, $matches);
-			
-			if (isset($matches) && count($matches) > 0 && $matches[0] == $pService) {
-				return true;
-			}
-		}
-	} else {
-		return true; // Service is null
-	}
+        foreach ($CONFIG['AUTHORIZED_SITES'] as $k => $site) {
+            if (is_array($site['url'])) 
+                {
+                  foreach($site['url'] as $url)
+                  {
+                      $pattern = preg_quote($url);
+                      $pattern = str_replace('\\*', '.*', $pattern);
+                      $pattern = str_replace('/', '\/', $pattern);
+                       preg_match("/$pattern/", $pService, $matches);
 
-	return false;
+                       if (isset($matches) && count($matches) > 0 && $matches[0] == $pService) {
+                            return true;
+                             }
+                  }
+                }  
+            else{
+                $pattern = preg_quote($CONFIG['AUTHORIZED_SITES'][$k]['url']);
+                $pattern = str_replace('\\*', '.*', $pattern);
+                $pattern = str_replace('/', '\/', $pattern);
+                preg_match("/$pattern/", $pService, $matches);
+
+                if (isset($matches) && count($matches) > 0 && $matches[0] == $pService) {
+                    return true;
+                }
+            }
+        }
+    } else {
+        return true; // Service is null
+    }
+
+    return false;
+
 }
-
 /**
  * Retrieves the index of array $CONFIG['AUTHORIZED_SITES'] for a service.
  * If the service is not in the list of authorized services, this function returns null
@@ -115,19 +130,34 @@ function isServiceAutorized($pService){
  * @returns index of array $CONFIG['AUTHORIZED_SITES'] or null
  */
 function getServiceIndex($pService) {
-	global $CONFIG;
-	/* Verifying the service is listed in $CONFIG['AUTHORIZED_SITES'] array. */
-		foreach($CONFIG['AUTHORIZED_SITES'] as $k => $site) {
-			$pattern  = preg_quote($CONFIG['AUTHORIZED_SITES'][$k]['url']);
-			$pattern = str_replace('\\*', '.*', $pattern);
-			$pattern = str_replace('/', '\/', $pattern);
-			preg_match("/$pattern/", $pService, $matches);
-			if (isset($matches) && count($matches) > 0 && $matches[0] == $pService) {
-				return $k;
-			}
-		}
-	return null;
-}
+    global $CONFIG;
+    /* Verifying the service is listed in $CONFIG['AUTHORIZED_SITES'] array. */
+
+    foreach ($CONFIG['AUTHORIZED_SITES'] as $k => $site) {
+        if (is_array($site['url'])) {
+            foreach ($site['url'] as $url) {
+                $pattern = preg_quote($url);
+                $pattern = str_replace('\\*', '.*', $pattern);
+                $pattern = str_replace('/', '\/', $pattern);
+                preg_match("/$pattern/", $pService, $matches);
+
+                if (isset($matches) && count($matches) > 0 && $matches[0] == $pService) {
+                    return $k;
+                }
+            }
+        } else {
+
+            $pattern = preg_quote($CONFIG['AUTHORIZED_SITES'][$k]['url']);
+            $pattern = str_replace('\\*', '.*', $pattern);
+            $pattern = str_replace('/', '\/', $pattern);
+            preg_match("/$pattern/", $pService, $matches);
+            if (isset($matches) && count($matches) > 0 && $matches[0] == $pService) {
+                return $k;
+            }
+        }
+       }
+        return null;
+    }
 
 /**
  * Sanitizes HTTP_ACCEPT_LANGUAGE server variable and returns array of
@@ -272,5 +302,52 @@ function trackUser($login) {
         $message." to remove him from ['TRACKED_USERS'] array if you do not want to track him anymore.\n\n".
         "This mail is automatically send because you activated tracking feature on ".$_SERVER['SERVER_NAME']."\n".
         "Please do not answer to this mail.");
+}
+
+/*
+function to send get request using curl
+this function must also handles the ssl certificates 
+for the moment this is not done
+*/
+
+function get_web_page($url)
+{
+       global $CONFIG; 
+	$options = array(
+		CURLOPT_RETURNTRANSFER => true,     // return web page
+		CURLOPT_HEADER         => false,    // don't return headers
+		//CURLOPT_FOLLOWLOCATION => true,     // follow redirects
+		CURLOPT_ENCODING       => "",       // handle compressed
+		//CURLOPT_USERAGENT      => "spider", // who am i
+		CURLOPT_AUTOREFERER    => true,     // set referer on redirect
+		CURLOPT_CONNECTTIMEOUT => 120,      // timeout on connect
+		CURLOPT_TIMEOUT        => 120,      // timeout on response
+		CURLOPT_MAXREDIRS      => 10,       // stop after 10 redirects
+		);
+
+	$ch      = curl_init( $url );
+	curl_setopt_array( $ch, $options );
+	
+	//SSL CONFIGURATIONS to trust CA certificate  
+	if (isset($CONFIG['caCertPath'])) {
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 1);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 1);
+            curl_setopt($ch, CURLOPT_CAINFO, $this->caCertPath);
+            phpCAS::trace('CURL: Set CURLOPT_CAINFO');
+        } else {
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 1);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        }
+
+	$content = curl_exec( $ch );
+	$err     = curl_errno( $ch );
+	$errmsg  = curl_error( $ch );
+	$header  = curl_getinfo( $ch );
+	curl_close( $ch );
+
+	$header['errno']   = $err;
+	$header['errmsg']  = $errmsg;
+	$header['content'] = $content;
+	return $header;
 }
 ?>

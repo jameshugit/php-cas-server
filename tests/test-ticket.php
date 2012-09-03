@@ -8,8 +8,8 @@ require_once(CAS_PATH.'/lib/ticket.php');
 
 $SERVICE  = 'Umpa-lumpa-Serv';
 $USERNAME = 'charlie';
-
-echo "<h1>TGT unit tests</h1>";
+echo "<ul>";
+echo "<li><h1>TGT unit tests</h1></li>";
 
 echo "<h2>Testing ticket creation</h2><ol>";
 
@@ -77,7 +77,7 @@ else
 echo "</ol>";
 $tgt = $key;
 
-echo "<h1>ST unit tests</h1>";
+echo "<li><h1>ST unit tests</h1></li>";
 
 echo "<h2>Testing ticket creation</h2><ol>";
 
@@ -91,7 +91,7 @@ else
 echo "<li>Getting ST key...";
 $stkey = $st->key();
 echo $stkey;
-if (strlen($stkey) == 29) 
+if (strlen($stkey) == 20) 
 	echo "...OK</li>";
 else
 	echo "...FAILED!</li>";
@@ -124,7 +124,7 @@ else {
 
 echo "</ol>";
 
-echo "<h1>LT unit tests</h1>";
+echo "<li><h1>LT unit tests</h1></li>";
 
 echo "<h2>Testing ticket creation</h2><ol>";
 
@@ -152,6 +152,137 @@ else {
 }
 
 echo "</ol>";
+
+echo "<li><h1> PGT unit tests</h1></li>";
+
+echo "<h2>Testing ticket creation</h2><ol>";
+
+echo "<li>Creating a Proxy Granting IOU ticket...";
+echo "</br>"; 
+	$pgtou = new ProxyGrantingTicketIOU(); 
+	$pgtou->create($SERVICE, $USERNAME); 
+	$pgtIou=$pgtou->key(); 
+	 if ($pgtIou)
+	echo "...OK Proxy Granting IOU Ticket is " . $pgtIou . "</li>";
+	else {
+		echo "...FAILED!</li>";
+		exit;	
+	     }
+echo "<li>Creating a Proxy Granting ticket for ".$pgtIou."";
+	$pgt = new ProxyGrantingTicket();
+        $pgt->create($pgtIou,$SERVICE, $USERNAME);
+        $pgtid=$pgt->key();
+if ($pgtid)
+	echo "...OK Proxy Granting Ticket is " . $pgtid . "</li>";
+else {
+	echo "...FAILED!</li>";
+	exit;	
+}
+echo "</ol>";
+
+echo "<h2>Testing ticket retrieval</h2><ol>";
+
+echo "<li>Retrieving a proxy granting ticket like $pgtid...";
+$pgt = new ProxyGrantingTicket();
+if ($pgt->find($pgtid))
+	echo "...OK proxy granting ticket found .</li>";
+else {
+	echo "...FAILED!</li>";
+	exit;	
+}
+
+echo "<li>PGT checking match for PGTIOU key $pgtIou and service $SERVICE  and username  $USERNAME...";
+if ($pgt->PGTIOU() == $pgtIou && $pgt->username() == $USERNAME && $pgt->service() == $SERVICE)
+{
+	echo "...OK for pgtIou " . $pgt->PGTIOU() . "</br>";
+	echo "...OK for service " . $pgt->service() . "</br>";
+	echo "...OK for username " . $pgt->username() . "</li>";
+}
+else {
+	echo "...FAILED!</li>";
+	exit;	
+}
+
+echo "<li>Removing ticket ID $pgtid ...";
+if ($pgt->delete())
+	echo "...OK</li>";
+else
+	echo "...FAILED!</li>";
+
+echo "<li>Checking that ID $pgtid has been removed...";
+$pgt = new ProxyGrantingTicket();
+if (!$pgt->find($pgtid)) 
+	echo "...OK</li>";
+else
+	echo "...FAILED!</li>";
+
+echo "</ol>";
+
+echo "<li><h1>Proxy Ticket (PT) unit tests</h1></li>";
+
+echo "<h2>Testing ticket creation</h2><ol>";
+
+echo "<li>Creating a Proxy Granting ticket for ".$pgtIou."";
+	$pgt = new ProxyGrantingTicket();
+        $pgt->create($pgtIou,$SERVICE, $USERNAME);
+        $pgtid=$pgt->key();
+if ($pgtid)
+	echo "...OK Proxy Granting Ticket is " . $pgtid . "</li>";
+else {
+	echo "...FAILED!</li>";
+	exit;	
+}
+echo "<li>Creating a Proxy ticket for ".$pgtid."";
+	$pt = new ProxyTicket();
+        $pt->create($pgt->key(),$pgt->PGTIOU(),$SERVICE,$USERNAME,$SERVICE);
+        $ptkey=$pt->key();
+if ($ptkey)
+	echo "...OK Proxy Ticket is " . $ptkey . "</li>";
+else {
+	echo "...FAILED!</li>";
+	exit;	
+}
+
+echo "</ol>"; 
+echo "<h2>Testing ticket retrieval</h2><ol>";
+
+echo "<li>Retrieving a proxy granting ticket like $ptkey ...";
+$pt = new ProxyTicket();
+if ($pt->find($ptkey))
+	echo "...OK proxy ticket found .</li>";
+else {
+	echo "...FAILED!</li>";
+	exit;	
+}
+
+echo "<li> PT checking match for PGT: " .$pgt->key(). " PGTIOU $pgtIou and service $SERVICE  and username  $USERNAME...";
+if ($pt->PGTIOU() == $pgtIou && $pt->username() == $USERNAME && $pt->service() == $SERVICE)
+{
+	echo "...OK for pgtIou " . $pt->PGTIOU() . "</br>";
+	echo "...OK for service " . $pt->service() . "</br>";
+	echo "...OK for username " . $pt->username() . "</li>";
+}
+else {
+	echo "...FAILED!</li>";
+	exit;	
+}
+
+echo "<li>Removing ticket ID $ptkey ...";
+if ($pt->delete())
+	echo "...OK</li>";
+else
+	echo "...FAILED!</li>";
+
+echo "<li>Checking that ID $ptkey has been removed...";
+$pt = new ProxyTicket();
+if (!$pt->find($ptkey)) 
+	echo "...OK</li>";
+else
+	echo "...FAILED!</li>";
+
+echo "</ol>"; 
+
+echo "</ul>";
 
 //------------------------------------------------------------------------------------
 // Performance testing.
