@@ -121,6 +121,7 @@ a.tt{
 		background-image:url(../images/philactere.png);
 		background-repeat:no-repeat;
 		background-color:transparent;
+		z-index:1000;
 	}
 	
 #cas #page #newsbox #tweet {
