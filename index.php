@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @mainpage php-cas-server 
  * @section What What ?
@@ -130,6 +129,7 @@ function login() {
             // If the login Ticket is not valid, no need to go futher : redirect to login form
 
             if (!$lt->find($loginTicketPosted)) {
+
                 $lt->create();
 
                 $log->LogError("the login Ticket is not valid, no need to go futher : redirect to login form");
