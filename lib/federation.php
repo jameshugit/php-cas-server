@@ -352,14 +352,14 @@ function agentLogin($attributes) {
         } else {
             if (count($search) == 1) {
                 //echo '' . $search[0]['login'];
-                if ($db->has_default_password(search[0]['login']))
-                    $db->update_password(search[0]['login'],  generatePassword(3,3)); 
+                if ($db->has_default_password($search[0]['login']))
+                    $db->update_password($search[0]['login'],  generatePassword(3,3)); 
                 CASlogin($search[0]['login'], 'FIM');
             } else {
                 //person with multiple accounts
                 sendalert($search);
-                if ($db->has_default_password(search[0]['login']))
-                    $db->update_password(search[0]['login'],  generatePassword(3,3)); 
+                if ($db->has_default_password($search[0]['login']))
+                    $db->update_password($search[0]['login'],  generatePassword(3,3)); 
                 CASlogin($search[0]['login'], 'FIM');
             }
         }
