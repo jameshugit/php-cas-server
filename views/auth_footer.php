@@ -11,6 +11,6 @@ function viewAuthFooter() {
         return  
                // @bug : suppressed "attributes" xml node, because of different buggy client xml parser ???	
                 //"		</cas:attributes>\n".
-                "	</cas:authenticationSuccess>\n".
+                "</cas:authenticationSuccess>\n".
                 "</cas:serviceResponse>\n";
 }

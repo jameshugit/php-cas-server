@@ -575,35 +575,12 @@ class MYSQL implements casAuthentication
 
 class DBFactory{
    // create database class instance
-   public function createDB
-($db,$user='',$password='',$database='db.sqlite'){
+   public function createDB($db,$user='',$password='',$database='db.sqlite'){
      if($db!='MYSQL'&&$db!='ORACLE'){
        throw new Exception('Invalid type of database class');
      }
      return new $db($user,$password,$database);
    }
 }
-
-/*
-
-$auth = new ORACLE(BACKEND_DBUSER, BACKEND_DBPASS, BACKEND_DBNAME); 
-print_r($auth); 
-echo $auth->verifyLoginPasswordCredential('bsaleh', '6333033azerty'); 
-//echo $auth;
-//print_r( $auth->getSamlAttributes('abelilita','*://sesamath2.sesamath.net/*'));
-
-$auth2= new MYSQL(MYSQL_DBUSER, MYSQL_DBPASS,MYSQL_DBNAME); 
-print_r($auth2); 
-echo $auth2->verifyLoginPasswordCredential('abelilita', 'abelilita');
-
-   $factoryInstance = new DBFactory();
-   $db=$factoryInstance->createDB('MYSQL',MYSQL_DBUSER, MYSQL_DBPASS,MYSQL_DBNAME);
-   echo $db->verifyLoginPasswordCredential('abelilita', 'abelilita');
-  //print_r( $db->getSamlAttributes('abelilita','*://sesamath2.sesamath.net/*')); 
-   
-*/
-
-
-
 
 ?>
