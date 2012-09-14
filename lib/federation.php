@@ -230,6 +230,9 @@ function login($attributes) {
                 }
                 if (count($casattributes) == 1) { // one corresponding record is found in the database
                     $var = $casattributes[0]['login'];
+                    //user has a default password that need to be changed
+                    if ($db->has_default_password($var))
+                        $db->update_password($var,  generatePassword(3,3));
                     CASLogin($casattributes[0]['login'], 'FIM');
                 } else {
                     if (count($casattributes) == 0) {  // 'no matching is found'
@@ -248,6 +251,8 @@ function login($attributes) {
                     } else { //'more than one record are found ! '
                         //sand an email to the administrator and then login in with the most recent id
                         sendalert($casattributes);
+                        if ($db->has_default_password($casattributes[0]['login']))
+                            $db->update_password($casattributes[0]['login'], generatePassword(3,3));
                         CASLogin($casattributes[0]['login'], 'FIM');
                     }
                 }
@@ -281,6 +286,9 @@ function login($attributes) {
 
                 if (count($casattributes) == 1) { // one corresponding record is found in the database
                     $var = $casattributes[0]['login'];
+                    //user has a default password that need to be changed
+                    if ($db->has_default_password($var))
+                        $db->update_password($var,  generatePassword(3,3));
                     CASLogin($casattributes[0]['login'], 'FIM');
                 } else {
                     if (count($casattributes) == 0) {  // 'no matching is found ! '
@@ -302,6 +310,9 @@ function login($attributes) {
                             $_SESSION['famillyAccount'] = $unique;
                         } else {
                             sendalert($casattributes);
+                            //user has a default password
+                            if ($db->has_default_password($casattributes[0]['login']))
+                            $db->update_password($casattributes[0]['login'],  generatePassword(3,3));
                             CASLogin($casattributes[0]['login'], 'FIM');
                             // echo 'person with multiple accounts';
                         }
@@ -340,11 +351,15 @@ function agentLogin($attributes) {
             exit();
         } else {
             if (count($search) == 1) {
-                //echo '' . $search[0]['login']; 
+                //echo '' . $search[0]['login'];
+                if ($db->has_default_password(search[0]['login']))
+                    $db->update_password(search[0]['login'],  generatePassword(3,3)); 
                 CASlogin($search[0]['login'], 'FIM');
             } else {
                 //person with multiple accounts
                 sendalert($search);
+                if ($db->has_default_password(search[0]['login']))
+                    $db->update_password(search[0]['login'],  generatePassword(3,3)); 
                 CASlogin($search[0]['login'], 'FIM');
             }
         }

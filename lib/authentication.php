@@ -13,56 +13,58 @@ require_once(CAS_PATH.'/views/auth_success.php');
 require_once(CAS_PATH.'/views/auth_failure.php');
 
 interface casAuthentication {
-	/**
-	 * Validates login and password
-	 * This function returns the username that has to be associated to the TGT
-	 * This is useful, for instance, if you want to change the username on the fly after authentication
-	 * e.g. changing the username to uppercase, or appending some string, etc...
-	 * @param login User login
-	 * @param password User password
-	 * @return string containing the user login (credentials ok) or an empty string (authentication failed)
-	 */
-         //function dbConnect($BACKEND_DBUSER, $BACKEND_DBPASS, $BACKEND_DBNAME);
-        
-         //function ExecuteQuery($conn, $sql, $param); 
-        
-         //function dbDisconnect($conn); 
 
-   public function verifyLoginPasswordCredential($login, $password);
+    /**
+     * Validates login and password
+     * This function returns the username that has to be associated to the TGT
+     * This is useful, for instance, if you want to change the username on the fly after authentication
+     * e.g. changing the username to uppercase, or appending some string, etc...
+     * @param login User login
+     * @param password User password
+     * @return string containing the user login (credentials ok) or an empty string (authentication failed)
+     */
+    //function dbConnect($BACKEND_DBUSER, $BACKEND_DBPASS, $BACKEND_DBNAME);
+    //function ExecuteQuery($conn, $sql, $param); 
+    //function dbDisconnect($conn); 
 
-	/** 
-	 * Returns the serviceValidate CAS 2.0 XML fragment response
-	 * @param login Login for user (as returned by verifyLoginPasswordCredential)
-	 * @param service Service that requests ST validation
-	 * @return string containing loads of XML
-	 */
-	public function getServiceValidate($login, $service,$pgtIou);
+    public function verifyLoginPasswordCredential($login, $password);
 
-	/** 
-	 * Returns the smalValidate CAS 1.0 XML fragment response
-	 * @param login Login for user (as returned by verifyLoginPasswordCredential)
-	 * @param service Service that requests ST validation
-	 * @return string containing loads of XML
-	 */
-	public function getSamlAttributes($login, $service);
+    /**
+     * Returns the serviceValidate CAS 2.0 XML fragment response
+     * @param login Login for user (as returned by verifyLoginPasswordCredential)
+     * @param service Service that requests ST validation
+     * @return string containing loads of XML
+     */
+    public function getServiceValidate($login, $service, $pgtIou);
 
-	/** 
-	 * Returns the validate CAS 1.0 response
-	 * @param login Login for user (as returned by verifyLoginPasswordCredential)
-	 * @param service Service that requests ST validation
-	 * @return string containing loads of XML
-	 */
-  public function getValidate($login, $service);
+    /**
+     * Returns the smalValidate CAS 1.0 XML fragment response
+     * @param login Login for user (as returned by verifyLoginPasswordCredential)
+     * @param service Service that requests ST validation
+     * @return string containing loads of XML
+     */
+    public function getSamlAttributes($login, $service);
 
-  public function Search_User_By_Email($mail); 
+    /**
+     * Returns the validate CAS 1.0 response
+     * @param login Login for user (as returned by verifyLoginPasswordCredential)
+     * @param service Service that requests ST validation
+     * @return string containing loads of XML
+     */
+    public function getValidate($login, $service);
 
- //InsEmail means institutional Email 
-  public function Search_Agent_By_InsEmail($mail); 
+    public function Search_User_By_Email($mail);
 
-  public function Search_Parent_By_Name_EleveSconetId($nom, $prenom, $eleveid);
+    //InsEmail means institutional Email 
+    public function Search_Agent_By_InsEmail($mail);
 
-  public function Search_Eleve_By_Name_SconetId($nom,$prenom,$eleveid);
+    public function Search_Parent_By_Name_EleveSconetId($nom, $prenom, $eleveid);
 
+    public function Search_Eleve_By_Name_SconetId($nom, $prenom, $eleveid);
+
+    public function has_default_password($login);
+
+    public function update_password($login,$pwd); 
 
 }
 
@@ -136,7 +138,8 @@ class ORACLE implements casAuthentication
         oci_close($conn);
     }
 	
-        public function verifyLoginPasswordCredential($login, $password) {
+    public function verifyLoginPasswordCredential($login, $password) 
+    {
         $sqlParam = array('LOGIN' => $login, 'PWD' => $password);
         $r = $this->ExecuteQuery(SQL_AUTH, $sqlParam);
 
@@ -165,53 +168,53 @@ class ORACLE implements casAuthentication
 	 * @return string containing loads of XML
 	 */
 	public function getServiceValidate($login, $service,$pgtIou)
-        {
-            global $CONFIG;
-	// index of the global array containing the list of autorized sites.
-	$idxOfAutorizedSiteArray = getServiceIndex($service);
-	$myAttributesProvider = isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['attributesProvider']) ? 
-							$CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['attributesProvider'] : SQL_FOR_ATTRIBUTES;
+    {
+        global $CONFIG;
+    	// index of the global array containing the list of autorized sites.
+    	$idxOfAutorizedSiteArray = getServiceIndex($service);
+    	$myAttributesProvider = isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['attributesProvider']) ? 
+    							$CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['attributesProvider'] : SQL_FOR_ATTRIBUTES;
 
-	$myTokenView = isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['tokenModele']) ? 
-				   $CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['tokenModele'] : 'Default';
-	// If service index is null, service is not allow to connect to our sso.
-	//if ($idxOfAutorizedSiteArray == "")
-	//	return viewAuthFailure(array('code'=> '', 
-	//								 'message'=> _('This application is not allowed to authenticate on this server')));
-	
-	// An array with the needed attributes for this service.
-	$neededAttr = explode(	",", 
-							str_replace(" ", "", 
-							strtoupper($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['allowedAttributes']))
-						);
-	$attributes = array(); // What to pass to the function that generate token
-	
-	/// @note : no need for the moment... $CASversion = $CONFIG['CAS_VERSION'];
-	
-	// Adding data to the array for displaying.
-	// user attribute is requiered in any way.
-	// this is requiered in CAS 1.0 for phpCAS Client.
-	$attributes['user'] = $login;
-	
-	// executing second SQL Statment for other attributes.
+    	$myTokenView = isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['tokenModele']) ? 
+    				   $CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['tokenModele'] : 'Default';
+    	// If service index is null, service is not allow to connect to our sso.
+    	//if ($idxOfAutorizedSiteArray == "")
+    	//	return viewAuthFailure(array('code'=> '', 
+    	//								 'message'=> _('This application is not allowed to authenticate on this server')));
+    	
+    	// An array with the needed attributes for this service.
+    	$neededAttr = explode(	",", 
+    							str_replace(" ", "", 
+    							strtoupper($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['allowedAttributes']))
+    						);
+    	$attributes = array(); // What to pass to the function that generate token
+    	
+    	/// @note : no need for the moment... $CASversion = $CONFIG['CAS_VERSION'];
+    	
+    	// Adding data to the array for displaying.
+    	// user attribute is requiered in any way.
+    	// this is requiered in CAS 1.0 for phpCAS Client.
+    	$attributes['user'] = $login;
+    	
+    	// executing second SQL Statment for other attributes.
 
-	
-	$r = $this->ExecuteQuery($myAttributesProvider,array('LOGIN'=>$login)); 
-        
-	// Should have only one row returned.
-	$rowSet = $r[0];
-	if (isset($rowSet)) {
-		// For all attributes returned
-		foreach($rowSet as $idx => $val) {
-			if (in_array(strtoupper($idx), $neededAttr)) {
-				$attributes[$idx] = $val;
-			}
-		}
-	}
-	
-	// call the token model with the default view or custom view
-	return viewAuthSuccess($myTokenView, $attributes,$pgtIou);
-        }
+    	
+    	$r = $this->ExecuteQuery($myAttributesProvider,array('LOGIN'=>$login)); 
+            
+    	// Should have only one row returned.
+    	$rowSet = $r[0];
+    	if (isset($rowSet)) {
+    		// For all attributes returned
+    		foreach($rowSet as $idx => $val) {
+    			if (in_array(strtoupper($idx), $neededAttr)) {
+    				$attributes[$idx] = $val;
+    			}
+    		}
+    	}
+    	
+    	// call the token model with the default view or custom view
+    	return viewAuthSuccess($myTokenView, $attributes,$pgtIou);
+    }
 
 	/** 
 	 * Returns the smalValidate CAS 1.0 XML fragment response
@@ -220,59 +223,59 @@ class ORACLE implements casAuthentication
 	 * @return string containing loads of XML
 	 */
 	public function getSamlAttributes($login, $service)
-        {
-            global $CONFIG;
-	// index of the global array containing the list of autorized sites.
-	$idxOfAutorizedSiteArray = getServiceIndex($service);
-	$myAttributesProvider = isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['attributesProvider']) ? 
-							$CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['attributesProvider'] : SQL_FOR_ATTRIBUTES;
+    {
+        global $CONFIG;
+    	// index of the global array containing the list of autorized sites.
+    	$idxOfAutorizedSiteArray = getServiceIndex($service);
+    	$myAttributesProvider = isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['attributesProvider']) ? 
+    							$CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['attributesProvider'] : SQL_FOR_ATTRIBUTES;
 
-	$myTokenView = isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['tokenModele']) ? 
-				   $CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['tokenModele'] : 'Default';
-	// If service index is null, service is not allow to connect to our sso.
-	//if ($idxOfAutorizedSiteArray == "")
-	//	return viewAuthFailure(array('code'=> '', 
-	//								 'message'=> _('This application is not allowed to authenticate on this server')));
-	
-	// An array with the needed attributes for this service.
-	$neededAttr = explode(	",", 
-							str_replace(" ", "", 
-							strtoupper($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['allowedAttributes']))
-						);
-        
-//                                                foreach ($neededAttr as $value) {
-//                                                    echo "$value \n"; 
-//                                                    
-//                                                }
-	$attributes = array(); // What to pass to the function that generate token
-	
-	/// @note : no need for the moment... $CASversion = $CONFIG['CAS_VERSION'];
-	
-	// Adding data to the array for displaying.
-	// user attribute is requiered in any way.
-	// this is requiered in CAS 1.0 for phpCAS Client.
-	$attributes['user'] = $login;
-        //echo $myAttributesProvider; 
-	
-	// executing second SQL Statment for other attributes.
+    	$myTokenView = isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['tokenModele']) ? 
+    				   $CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['tokenModele'] : 'Default';
+    	// If service index is null, service is not allow to connect to our sso.
+    	//if ($idxOfAutorizedSiteArray == "")
+    	//	return viewAuthFailure(array('code'=> '', 
+    	//								 'message'=> _('This application is not allowed to authenticate on this server')));
+    	
+    	// An array with the needed attributes for this service.
+    	$neededAttr = explode(	",", 
+    							str_replace(" ", "", 
+    							strtoupper($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['allowedAttributes']))
+    						);
+            
+    //                                                foreach ($neededAttr as $value) {
+    //                                                    echo "$value \n"; 
+    //                                                    
+    //                                                }
+    	$attributes = array(); // What to pass to the function that generate token
+    	
+    	/// @note : no need for the moment... $CASversion = $CONFIG['CAS_VERSION'];
+    	
+    	// Adding data to the array for displaying.
+    	// user attribute is requiered in any way.
+    	// this is requiered in CAS 1.0 for phpCAS Client.
+    	$attributes['user'] = $login;
+            //echo $myAttributesProvider; 
+    	
+    	// executing second SQL Statment for other attributes.
 
-	$r = $this->ExecuteQuery($myAttributesProvider, array(':LOGIN' => $login));
-	
-	// Should have only one row returned.
-	$rowSet = $r[0];
-        //echo count($rowSet);  
-	if (isset($rowSet)) {
-		// For all attributes returned
-		foreach($rowSet as $idx => $val) {
-			if (in_array(strtoupper($idx), $neededAttr)) {
-				$attributes[$idx] = $val;
-			}
-		}
-	}
-        
-        //echo count($attributes); 
-        return $attributes; 
-        }
+    	$r = $this->ExecuteQuery($myAttributesProvider, array(':LOGIN' => $login));
+    	
+    	// Should have only one row returned.
+    	$rowSet = $r[0];
+            //echo count($rowSet);  
+    	if (isset($rowSet)) {
+    		// For all attributes returned
+    		foreach($rowSet as $idx => $val) {
+    			if (in_array(strtoupper($idx), $neededAttr)) {
+    				$attributes[$idx] = $val;
+    			}
+    		}
+    	}
+            
+            //echo count($attributes); 
+            return $attributes; 
+    }
 
 	/** 
 	 * Returns the validate CAS 1.0 response
@@ -281,9 +284,9 @@ class ORACLE implements casAuthentication
 	 * @return string containing loads of XML
 	 */
 	public function getValidate($login, $service)
-        {
-            return 0; 
-        }
+    {
+        return 0; 
+    }
 
     public function Search_User_By_Email($mail)
     {
@@ -319,6 +322,20 @@ class ORACLE implements casAuthentication
 
 
     }
+
+    public function has_default_password($login){
+      global $CONFIG;
+      $query = Is_Default_password;
+      $r = $this-> ExecuteQuery($query, array(':login'=> $login));
+      return $r[0]["COMPTES.IS_DEFAULT_PASSWORD(:LOGIN)"];    
+    }
+
+    public function update_password($login,$pwd){
+        global $CONFIG; 
+        $query = Update_password; 
+        $r = $this-> ExecuteQuery($query, array(':login' => $login, ':pwd' =>$pwd));
+    } 
+
 
 }
 
@@ -565,6 +582,13 @@ class MYSQL implements casAuthentication
       $query = Mysql_Search_student_By_Id;
       $r =$this->ExecuteQuery($query,array(':nom'=>$nom,'prenom'=> $prenom, ':eleveid' => $eleveid));
       return $r;
+    }
+    public function has_default_password($login){
+
+    }
+
+    public function update_password($login,$pwd){
+        
     }
 
 }
