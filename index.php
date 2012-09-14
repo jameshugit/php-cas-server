@@ -97,6 +97,7 @@
 	$log->LogDebug("selfurl:  $selfurl");
 	$log->LogDebug("service:  $service");
 	$log->LogDebug("loginTicketPosted: $loginTicketPosted");
+	$log->LogDebug("indexOfService=".getServiceIndex($service));
 
         if (!array_key_exists('CASTGC', $_COOKIE)) { /*     * * user has no TGC ** */
             if (!array_key_exists('username', $_POST)) {
