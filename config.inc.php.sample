@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file config.inc.php 
  * Server configuration directives
@@ -7,23 +8,24 @@
  * Configuration directives for CAS server
  * @{
  */
-/** 
-	Absolute path to your CAS install directory.
-*/
-define ('CAS_PATH', '/path/to/cas');
-define ('SimpleSamlPATH', '/path/to/simplesamlphp/lib'); 
-define ('ENT_SERVER', 'https://www.dev.laclasse.com');
+/**
+  Absolute path to your CAS install directory.
+ */
+define('CAS_PATH', '/path/to/cas');
+define('SimpleSamlPATH', '/path/to/simplesamlphp/lib');
+define('ENT_SERVER', 'https://www.dev.laclasse.com');
 
-define('CASUrl','https://www.dev.laclasse.com/sso'); 
-define('SERVICE',ENT_SERVER.'/pls/education/!page.laclasse');
-define('INSCRIPTION_URL', ENT_SERVER.'/pls/public/!page.laclasse?contexte=INSCRIPTION&rubrique=0');
+define('CASUrl', 'https://www.dev.laclasse.com/sso');
+define('SERVICE', ENT_SERVER . '/pls/education/!page.laclasse');
+define('INSCRIPTION_URL', ENT_SERVER . '/pls/public/!page.laclasse?contexte=INSCRIPTION&rubrique=0');
 
-define ('ENT_SERVER', 'URL of the ENT server'); //https://www.dev.laclasse.com
-define('CASUrl','URL of CAS server'); // http://..../sso
-define('SERVICE',ENT_SERVER.'/pls/education/!page.laclasse');
-define('INSCRIPTION_URL', ENT_SERVER.'/pls/public/!page.laclasse?contexte=INSCRIPTION&rubrique=0');
+define('ENT_SERVER', 'URL of the ENT server'); //https://www.dev.laclasse.com
+define('CASUrl', 'URL of CAS server'); // http://..../sso
+define('SERVICE', ENT_SERVER . '/pls/education/!page.laclasse');
+define('INSCRIPTION_URL', ENT_SERVER . '/pls/public/!page.laclasse?contexte=INSCRIPTION&rubrique=0');
 
-Server mode
+/*
+  Server mode
  * @param MODE
  *  - 'dev'   : http protocol allowed
  *  - 'prod'  : https required
@@ -41,14 +43,11 @@ $CONFIG['CAS_VERSION'] = '2.0';
 $CONFIG['DATABASE'] = 'ORACLE';
 //$CONFIG['DATABASE']= 'MYSQL'; 
 //-------------------------------------------------------------------
-
-
 //-------------------------------------------------------------------
 // DATABASE BACKEND TYPE Only supports oracle and mysql
- $CONFIG['DATABASE'] = 'ORACLE';
+$CONFIG['DATABASE'] = 'ORACLE';
 //$CONFIG['DATABASE']= 'MYSQL';
 //-------------------------------------------------------------------
-
 //------------------------------------------------------------------------------
 // Constantes de connexion au Backend.
 //------------------------------------------------------------------------------
@@ -63,27 +62,24 @@ define('BACKEND_DBPASS', 'incredible_hard_to_guess_password');
 //------------------------------------------------------------------
 //php simple saml authentication sources in authSource.php
 //-------------------------------------------------------------------
-// Profile Parent Eleve Metadata name  in /simplesamlphp/config authSource.php·
- $CONFIG['PARENT_ELEVE_SOURCE'] = 'simpleexample';
+// Profile Parent Eleve Metadata name  in /simplesamlphp/config authSource.phpï¿½
+$CONFIG['PARENT_ELEVE_SOURCE'] = 'simpleexample';
 // Profile Agent Metadata name in /simplesamlphp/config authSource.php
- $CONFIG['AGENT_SOURCE'] = 'Agentportal'; 
+$CONFIG['AGENT_SOURCE'] = 'Agentportal';
 //-------------------------------------------------------------------
 
-/****** Debugging****/
-$CONFIG['DEBUG_LEVEL'] = 1; //Values DEBUG  = 1;DEBUG// Most Verbose
-
-            //INFO      = 2;INFO// ...
-
-            //WARN      = 3;WARN// ...
-
-            //ERROR   = 4;ERROR// ...
-
-            //FATAL   = 5;FATAL// Least Verbose
-            //OFF   = 6;  //no log
-$CONFIG['DEBUG_FILE'] = '/tmp/log.txt'; 
+/* * **** Debugging*** */
+/* Values 
+  DEBUG  = 1;
+  INFO      = 2;
+  WARN      = 3;
+  ERROR   = 4;
+  FATAL   = 5;
+  OFF   = 6;  //no log
+ */
+$CONFIG['DEBUG_LEVEL'] = 1;
+$CONFIG['DEBUG_FILE'] = '/tmp/log.txt';
 //----------------------------------------------------------------------
-
-
 /** Redis server array
  * Redis is the datastorage for versions above 1.1
  * @param REDIS_SERVERS Array of servers. Each server is an array of (host, port).
@@ -113,42 +109,40 @@ $CONFIG['TWITTER_HASHTAG'] = '#sys';
 $CONFIG['REDIS_NEWS_ROOT'] = 'org.example.sso.last_message.';
 
 /**
-	Timeout in second for each kind of ticket
-	LT for LoginTicket : The timeout shouldbe very short. It should not be over 4 minutes.
-	ST for ServiceTicket : Could be short too because it  is a one shot ticket tha have to 
-						   be validated : 4 minutes for example
-	ST for TicketGrantingTicket : Could be long : 8 hours for example
-*/
-
-$CONFIG['LT_TIMOUT']  = 4*60;
-$CONFIG['ST_TIMOUT']  = 4*60;
-$CONFIG['TGT_TIMOUT'] = 8*60*60;
-ONFIG['PT_TIMOUT']= 4*60;
-$CONFIG['PGT_TIMOUT']= 4*60;
-$CONFIG['PGTIOU_TIMOUT']= 4*60;
+  Timeout in second for each kind of ticket
+  LT for LoginTicket : The timeout shouldbe very short. It should not be over 4 minutes.
+  ST for ServiceTicket : Could be short too because it  is a one shot ticket tha have to
+  be validated : 4 minutes for example
+  ST for TicketGrantingTicket : Could be long : 8 hours for example
+ */
+$CONFIG['LT_TIMOUT'] = 4 * 60;
+$CONFIG['ST_TIMOUT'] = 4 * 60;
+$CONFIG['TGT_TIMOUT'] = 8 * 60 * 60;
+$CONFIG['PT_TIMOUT'] = 4 * 60;
+$CONFIG['PGT_TIMOUT'] = 4 * 60;
+$CONFIG['PGTIOU_TIMOUT'] = 4 * 60;
 /**
-    Logging and tracker config
-The logging format is as follows (All field are Tab separated):
-    CODE USERNAME IP DATE
-Available codes are :
-=> LOGIN_SUCCESS
-=> LOGIN_FAILURE
-=> LOGOUT_SUCCESS
-=> TRACKING_ALERT
-*/
-
-$CONFIG['ACTIVATE_TRACKING']  = true;
+  Logging and tracker config
+  The logging format is as follows (All field are Tab separated):
+  CODE USERNAME IP DATE
+  Available codes are :
+  => LOGIN_SUCCESS
+  => LOGIN_FAILURE
+  => LOGOUT_SUCCESS
+  => TRACKING_ALERT
+ */
+$CONFIG['ACTIVATE_TRACKING'] = true;
 // Array of tracked users : usernames have to be uppercased
-$CONFIG['TRACKED_USERS']  = array('PLEVALLOIS', 'MBLANC');
+$CONFIG['TRACKED_USERS'] = array('PLEVALLOIS', 'MBLANC');
 // Sending mail alert ?
-$CONFIG['SEND_ME_A_MAIL']  = true;
+$CONFIG['SEND_ME_A_MAIL'] = true;
 // Mail of admin who need to receive the tracking alert 
-$CONFIG['MAIL_ADMIN']  = "you@yourdomain.com";
+$CONFIG['MAIL_ADMIN'] = "you@yourdomain.com";
 
 /*
  * Authentication backend
  */
- 
+
 include_once('lib/authentication.php');
 
 
@@ -159,129 +153,124 @@ include_once('lib/authentication.php');
 define('SQL_AUTH', 'select user from table having certain login and password');
 
 //------------------------------------------------------------------------------
-// Requete SQL d'extration des données pour le jeton d'authentification CAS.
+// Requete SQL d'extration des donnï¿½es pour le jeton d'authentification CAS.
 //
 // You can define one Attributes provider per authorized service
 // By default, the sql statment for DB backend is SQL_FOR_ATTRIBUTES
 //------------------------------------------------------------------------------
-define('SQL_FOR_ATTRIBUTES', 
-		'select whatever field you need                 
+define('SQL_FOR_ATTRIBUTES', 'select whatever field you need                 
 		from whatever, table, is, required
 		where u.login = :LOGIN and few joins');
 
-define('MY_LDAP_REQUEST_STRING', 
-		'Some Ldap request to provide your attributes');
-		
+define('MY_LDAP_REQUEST_STRING', 'Some Ldap request to provide your attributes');
+
 //------------------------------------------------------------------------------
-// Federation d'identité : Requêtes de backend.
+// Federation d'identitï¿½ : Requï¿½tes de backend.
 //------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 //*** search agent by institutional email***/
 define('Search_Agent_by_mail', 'selcet user having a certain institutional  email from table'); ///attention to upper and small case comparation
 //-------------------------------------------------------------------------------
 //*** search user by email for google login ***//
-define('Search_user_by_mail', select user having a personal email from table');
+define('Search_user_by_mail', 'select user having a personal email from table');
 
 //-----------------------------------------------------------------------------
 // search parent with name, firstname, etablissement, son's sconet id //
 // subquery changed to in 
 
-define('Search_Parent_By_Name_EleveId','select parent having a certain name and having a children with certain sconetid ');
+define('Search_Parent_By_Name_EleveId', 'select parent having a certain name and having a children with certain sconetid ');
 //----------------------------------------------------------------------------
 //--------------------------------------------------------------------------
 //*** search eleve by sconet id and name in the database**/ 
-define('Search_student_By_Name_SconetId',
-            '');
+define('Search_student_By_Name_SconetId', '');
 
 //------------------------------------------------------------------------------
-// Services autorisés à s'authentifier avec le service CAS.
+// Services autorisï¿½s ï¿½ s'authentifier avec le service CAS.
 //------------------------------------------------------------------------------
-/*******************************************************************************
- Site allowed to use this CAS server for authentication
+/* * *****************************************************************************
+  Site allowed to use this CAS server for authentication
   @param AUTHORIZED_SITES Array of authorized sites. Each authorized site is itself an associative array
   having the following keys : sitename, url and authorizedAttributes which respectively contain the site name, the site URL
   and the attributes that the site will get in serviceValidate.
- 
- Structure of $CONFIG['AUTHORIZED_SITES'] :
- sitename : this is the short name of the site you need to authenticate via this CAS server.
 
- url	  : Contains the url of the servie that is authorized to authenticate ith your CAS server. 
- 			This parameter accepts wilcards. 
- 			"http*://mysurpersite.com/*" will authorize both http and https urls 
- 			and all the virtual pathes under the site's root.
+  Structure of $CONFIG['AUTHORIZED_SITES'] :
+  sitename : this is the short name of the site you need to authenticate via this CAS server.
+
+  url	  : Contains the url of the servie that is authorized to authenticate ith your CAS server.
+  This parameter accepts wilcards.
+  "http*://mysurpersite.com/*" will authorize both http and https urls
+  and all the virtual pathes under the site's root.
 
   having the following keys : sitename, url and authorizedAttributes which respectively contain the site name, the site URL
   and the attributes that the site will get in serviceValidate.
- 
- Structure of $CONFIG['AUTHORIZED_SITES'] :
- sitename : this is the short name of the site you need to authenticate via this CAS server.
 
- url	  : Contains the url of the servie that is authorized to authenticate ith your CAS server. 
- 			This parameter accepts wilcards. 
- 			"http*://mysurpersite.com/*" will authorize both http and https urls 
- 			and all the virtual pathes under the site's root.
+  Structure of $CONFIG['AUTHORIZED_SITES'] :
+  sitename : this is the short name of the site you need to authenticate via this CAS server.
+
+  url	  : Contains the url of the servie that is authorized to authenticate ith your CAS server.
+  This parameter accepts wilcards.
+  "http*://mysurpersite.com/*" will authorize both http and https urls
+  and all the virtual pathes under the site's root.
 
   @param AUTHORIZED_SITES Array of authorized sites. Each authorized site is itself an associative array
   having the following keys : sitename, url and authorizedAttributes which respectively contain the site name, the site URL
   and the attributes that the site will get in serviceValidate.
- 
- Structure of $CONFIG['AUTHORIZED_SITES'] :
- sitename : this is the short name of the site you need to authenticate via this CAS server.
 
- url	  : Contains the url of the servie that is authorized to authenticate ith your CAS server. 
- 			This parameter accepts wilcards. 
- 			"http*://mysurpersite.com/*" will authorize both http and https urls 
- 			and all the virtual pathes under the site's root.
+  Structure of $CONFIG['AUTHORIZED_SITES'] :
+  sitename : this is the short name of the site you need to authenticate via this CAS server.
 
- allowedAttributes : these are the attributes that are passed in token after service validate.
- 				     The names MUST match with the names in the attributes Provider.
- 				     For example, in the attributes provider is a database, you need to match the names of SQL statement
- 				     with the attributes list in $CONFIG['AUTHORIZED_SITES'] array.
- 				     In the case (SQL request attributes proveider), your SQL request should return ONE rows.
- 				     The multivalued attributes should appear in one line separated by comma and encapsulated 
- 				     with double quotes.
+  url	  : Contains the url of the servie that is authorized to authenticate ith your CAS server.
+  This parameter accepts wilcards.
+  "http*://mysurpersite.com/*" will authorize both http and https urls
+  and all the virtual pathes under the site's root.
 
- tokenModel	   : By default the model of the token is CAS conpliant (Great !)
- 
-					 <cas:serviceResponse xmlns:cas='http://www.yale.edu/tp/cas'>
-						<cas:authenticationSuccess>
-								<cas:user>[Here is the login the user entered]</cas:user>
-								<Some other attributes you defined />
-						</cas:authenticationSuccess>
-					</cas:serviceResponse>
-					You can define your own token model for attributes by defining the 'tokenModel' key. 
-					In this case the custom model is only available for the site for which it is defined.
-					2 rules you have to respect to define your custo model :
-						1. the name of the model must be unique
-						2. the model 'my_custom_model' must match with the name of the view you will code and
-						   the file is located in '/views/my_custom_model.php'
-						3. This file must contain the function 'view_my_custom_model'.
-						
-					Keep in mind that the header and the footer of the token are unchanged.
-					
- attributesProvider : This is a constant you define in this config file containing  : 
- 						- the SQL request for the DB backend of the service
- 						- the LDAP request for the LDAP backend of the service
- 						- ...
-*************************************************************************************/
+  allowedAttributes : these are the attributes that are passed in token after service validate.
+  The names MUST match with the names in the attributes Provider.
+  For example, in the attributes provider is a database, you need to match the names of SQL statement
+  with the attributes list in $CONFIG['AUTHORIZED_SITES'] array.
+  In the case (SQL request attributes proveider), your SQL request should return ONE rows.
+  The multivalued attributes should appear in one line separated by comma and encapsulated
+  with double quotes.
+
+  tokenModel	   : By default the model of the token is CAS conpliant (Great !)
+
+  <cas:serviceResponse xmlns:cas='http://www.yale.edu/tp/cas'>
+  <cas:authenticationSuccess>
+  <cas:user>[Here is the login the user entered]</cas:user>
+  <Some other attributes you defined />
+  </cas:authenticationSuccess>
+  </cas:serviceResponse>
+  You can define your own token model for attributes by defining the 'tokenModel' key.
+  In this case the custom model is only available for the site for which it is defined.
+  2 rules you have to respect to define your custo model :
+  1. the name of the model must be unique
+  2. the model 'my_custom_model' must match with the name of the view you will code and
+  the file is located in '/views/my_custom_model.php'
+  3. This file must contain the function 'view_my_custom_model'.
+
+  Keep in mind that the header and the footer of the token are unchanged.
+
+  attributesProvider : This is a constant you define in this config file containing  :
+  - the SQL request for the DB backend of the service
+  - the LDAP request for the LDAP backend of the service
+  - ...
+ * *********************************************************************************** */
 $CONFIG['AUTHORIZED_SITES'] = array(
-			array(	'sitename'  		=>  'CAS Enabled App',
-					'url'  				=>  '*://some.great.wep.app/*',
-					'allowedAttributes' =>  'uid,gid,someField'
-					'tokenModele'		=>  'Default',
-					'authneticationMethod' => 'SQL',
-					'attributesProvider' =>	SQL_FOR_ATTRIBUTES
-          'mysqlattributeProvider' => MYSQL_FOR_ATTRIBUTES),
-			
-			array(	'sitename'  		=>  'Another CAS Enabled App',
-					'url'  				=>  'https://yet.another.great.web.app/app/*',
-					'allowedAttributes' =>  'uid,foo,bar'),
-					'tokenModele'		=>  'My Really fantastic token model',
-					'authneticationMethod' => 'LDAP',
-					'attributesProvider' =>	MY_LDAP_REQUEST_STRING)				
-			);
-			
-	
-
+	array( 
+		'sitename' 	  => 'CAS Enabled App',
+		 'url' => '*://some.great.wep.app/*',
+		 'allowedAttributes' => 'uid,gid,someField'
+		'tokenModele' => 'Default',
+		'authneticationMethod' => 'SQL',
+		'attributesProvider' => SQL_FOR_ATTRIBUTES
+		'mysqlattributeProvider' => MYSQL_FOR_ATTRIBUTES),
+	array( 
+		'sitename' => 'Another CAS Enabled App',
+		'url' => 'https://yet.another.great.web.app/app/*',
+		'allowedAttributes' => 'uid,foo,bar'),
+		'tokenModele' => 'My Really fantastic token model',
+		'authneticationMethod' => 'LDAP',
+		'attributesProvider' => MY_LDAP_REQUEST_STRING)
+);
 ?>
 

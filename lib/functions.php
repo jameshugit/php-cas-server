@@ -350,4 +350,54 @@ function get_web_page($url)
 	$header['content'] = $content;
 	return $header;
 }
+
+
+/**
+generate password function 
+@param $ch number of characters 
+@param $let number of numbers 
+@returns a string that contains $ch characters and $let random numbers followd by a postfix ="_sconet"
+
+*/
+function generatePassword($ch=3, $let=3) {
+
+  // start with a blank password
+    $password = "";
+    $postfix = "_sconet";
+
+    // define possible characters - any character in this string can be
+    // picked for use in the password, so if you want to put vowels back in
+    // or add special characters such as exclamation marks, this is where
+    // you should do it
+    $chiffres = "123456789";
+    $lettres = "abcdefghijklmnopqrtvwxyz";
+    $possible = array($chiffres, $lettres);
+
+    // we refer to the length of $possible a few times, so let's grab it now
+    $length = $ch + $let;
+
+    // set up a counter for how many characters are in the password so far
+    $i = 0;
+    $j = 0;
+
+    // add random characters to $password until $length is reached
+    while ($i < $ch) {
+        // pick a random character from the possible chiffres ones 
+        $char = substr($possible[0], mt_rand(0, 8), 1);
+        $password .= $char;
+        $i++;
+    }
+
+    while ($j < $let) {
+        $char = substr($possible[1], mt_rand(0, 23), 1);
+        $password .= $char;
+        $j++;
+    }
+    //suffle the string 
+    $password = str_shuffle($password);
+    // done!
+    $password .= $postfix;
+    return $password;
+}
+
 ?>
