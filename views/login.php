@@ -38,10 +38,12 @@ function getNewsList($t) {
 //------------------------------------------------------------------------------
 // Callback getFormLogin
 //------------------------------------------------------------------------------
-function getFormLogin($t) {
+function getFormLogin($t, $msg="") {
 	$actionForm = $t["action"];
 	$service = urldecode($t["service"]);
 	$lt = $t["loginTicket"];
+	echo '<div id="mire">';
+	if ($msg != "") echo '<div id="status" class="errors">'.$msg.'</div>';
 	echo '
 			<form id="fm1" class="fm-v clearfix" method="post" action="'.$actionForm.'"> 
 	
@@ -94,27 +96,94 @@ function getFormLogin($t) {
               </div>
             </div>
           </form>
+        </div>
 ';          
 }
 
 //------------------------------------------------------------------------------
+// Callback getFormLogin for mobile device
+//------------------------------------------------------------------------------
+function getFormLoginMobile($t, $msg="") {
+	$actionForm = $t["action"];
+	$service = urldecode($t["service"]);
+	$lt = $t["loginTicket"];
+  echo '
+       <!-- Home -->
+        <div data-role="page" id="page1">
+            <div data-theme="a" data-role="header">
+                <h3>
+                    '._('Laclasse.com').'
+                </h3>
+            </div>
+            <div data-role="content" style="padding: 15px">
+                <div style=" text-align:center">
+                    <img src="http://www.laclasse.com/v25/images/logo-laclasse.gif" />
+                </div>';
+	if ($msg != "") echo '<div id="status" class="errors">'.$msg.'</div>';
+	echo '
+                <form action="'.$actionForm.'" method="post" data-ajax="false">
+                  <input type="hidden" name="action" value="login"/>
+                  <input type="hidden" name="service" value="'.$service.'"/>
+                  <input type="hidden" name="loginTicket" value="'.$lt.'"/>
+                  <input type="hidden" name="lt" value="" />
+                    <div data-role="fieldcontain">
+                        <fieldset data-role="controlgroup" data-mini="true">
+                            <label for="textinput1">
+                                Login
+                            </label>
+                            <input name="username" id="username" placeholder="" value="" type="text" />
+                        </fieldset>
+                    </div>
+                    <div data-role="fieldcontain">
+                        <fieldset data-role="controlgroup" data-mini="true">
+                            <label for="textinput2">
+                                Mot de passe
+                            </label>
+                            <input name="password" id="password" placeholder="" value="" type="password" />
+                        </fieldset>
+                    </div>
+                  <input data-theme="a" data-icon="arrow-r" data-iconpos="right" name= "_eventId" value="'._('SE CONNECTER').'" type="submit" />
+                </form>
+            </div>
+        </div>
+        <script>
+            //App custom javascript
+        </script>
+  ';
+}
+
+//------------------------------------------------------------------------------
 // Callback viewLoginForm
+// 
+// Analyzing browser type and deciding if this is a mobile device or not.
 //------------------------------------------------------------------------------
 function viewLoginForm($t) {
 	global $CONFIG;
-	getHeader();
+	
+  $device = ""; // By default the device is a true real pc browser (not a mobile one)
+  if ($_SESSION['isMobile']) {
+    $device = 'Mobile';
+  }
+
+	call_user_func('getHeader'.$device);
+	//getHeader();
 	if ($CONFIG['DISPLAY_NEWS']) getNewsList($t);
-	echo '<div id="mire">';
-	getFormLogin($t);
-	echo '</div>';
-	getFooter();
+	//getFormLogin($t);
+	call_user_func('getFormLogin'.$device, $t);
+	//getFooter();
+	call_user_func('getFooter'.$device);
 }
 
 //------------------------------------------------------------------------------
 // Callback viewLoginSuccess
 //------------------------------------------------------------------------------
 function viewLoginSuccess() {
-	getHeader();
+  $device = ""; // By default the device is a true real pc browser (not a mobile one)
+  if ($_SESSION['isMobile']) {
+    $device = 'Mobile';
+  }
+
+	call_user_func('getHeader'.$device);
 	echo '
 	<div id="mire">
 		<div id="msg" class="success">
@@ -124,7 +193,7 @@ function viewLoginSuccess() {
 		</div>
 	</div>
 ';
-	getFooter();
+	call_user_func('getFooter'.$device);
 }
 
 //------------------------------------------------------------------------------
@@ -132,12 +201,18 @@ function viewLoginSuccess() {
 //------------------------------------------------------------------------------
 function viewLoginFailure($t) {
 	$msg = array_key_exists('errorMsg', $t)? $t['errorMsg'] : _("Les informations transmises n'ont pas permis de vous authentifier.");
-	getHeader();
-	echo '<div id="mire">';
-	echo '		<div id="status" class="errors">'.$msg.'</div>';
-	getFormLogin($t);
-	echo '</div>';
-	getFooter();
+
+  $device = ""; // By default the device is a true real pc browser (not a mobile one)
+  if ($_SESSION['isMobile']) {
+    $device = 'Mobile';
+  }
+
+	call_user_func('getHeader'.$device);
+	//echo '<div id="mire">';
+	//echo '		<div id="status" class="errors">'.$msg.'</div>';
+	call_user_func('getFormLogin'.$device, $t, $msg);
+	//echo '</div>';
+	call_user_func('getFooter'.$device);
 }
 
 //------------------------------------------------------------------------------
