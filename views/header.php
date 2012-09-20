@@ -1,6 +1,6 @@
 <?php
 //------------------------------------------------------------------------------
-// Footer 
+// Header 
 //------------------------------------------------------------------------------
 function getHeader(){
 	header("Content-type: text/html");
@@ -20,6 +20,50 @@ function getHeader(){
         <h1 id="app-name">'._('Service d\'Authentification Central de laclasse.com').'</h1>
 ';
 }
+
+//------------------------------------------------------------------------------
+// Header formobile Device
+//------------------------------------------------------------------------------
+function getHeaderMobile(){
+	header("Content-type: text/html");
+	echo '
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>
+        </title>
+        <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/jquery.mobile/1.1.1/jquery.mobile-1.1.1.min.css" />
+        <link rel="stylesheet" href="css/mobile.css" />
+       
+        <style>
+            body {background-color:#ffffff;}
+            .errors {
+                  border: 1px dotted #D21033;
+                  color: #D21033;
+                  padding-bottom: 20px;
+              }
+              .info, .errors, .success {
+                  clear: both;
+                  font-size: 10px;
+                  line-height: 1.5;
+                  margin: 5px 0;
+                  padding: 10px 20px 10px 20px;
+                  
+              }
+        </style>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js">
+        </script>
+        <script src="https://ajax.aspnetcdn.com/ajax/jquery.mobile/1.1.1/jquery.mobile-1.1.1.min.js">
+        </script>
+        <script src="js/mobile.js">
+        </script>
+    </head>
+    <body>
+';
+}
+
 
 function getHeader2()
 {

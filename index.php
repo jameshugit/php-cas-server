@@ -71,6 +71,7 @@ require_once(CAS_PATH . '/lib/ticket.php');
 require_once(CAS_PATH . '/lib/Utilities.php');
 require_once (CAS_PATH . '/lib/saml/binding/HttpSoap.php');
 require_once (CAS_PATH . '/lib/KLogger.php');
+require_once (CAS_PATH . '/lib/Mobile_Detect.php');
 
 require_once(CAS_PATH . '/views/error.php');
 require_once(CAS_PATH . '/views/login.php');
@@ -141,8 +142,7 @@ function login() {
                 return;
             }
 
-            // @fl : Hack de dev : on est toujours authentifié !
-            if (($_POST ['username'] == 'flecluse') || (strtoupper($db->verifyLoginPasswordCredential($_POST['username'], $_POST['password'])) == strtoupper($_POST['username']))) {
+            if ((strtoupper($db->verifyLoginPasswordCredential($_POST['username'], $_POST['password'])) == strtoupper($_POST['username']))) {
                 /* credentials ok */
                 $log->LogInfo('credentials are valid, generate a TGC');
                 $ticket = new TicketGrantingTicket();
@@ -288,7 +288,6 @@ function serviceValidate() {
     $log->logDebug("renew:$renew");
 
     //for proxy validate
-    //$pgtUrl		= urldecode(isset($_GET['pgtUrl']) ? $_GET['pgtUrl'] : "");
     // 1. verifying parameters ST ticket and service should not be empty.
     if (!isset($ticket) || !isset($service)) {
         $log->LogError("INVALID_REQUEST: serviceValidate requires at least two parameters : ticket and service.");
@@ -337,7 +336,6 @@ function serviceValidate() {
             $url = $url . '?pgtIou=' . $pgtIou . '&pgtId=' . $pgtid;
         else
             $url = $url . '&pgtIou=' . $pgtIou . '&pgtId=' . $pgtid;
-        //echo $url;
         $log->LogDebug("Send Request to: $url");
 
         //send Pgtid and pgtIou to the call back address pgtUrl
@@ -662,6 +660,14 @@ if ($CONFIG['MODE'] == 'prod') {
 
 setLanguage();
 
+/*
+  Storing device type in session
+*/
+$detect = new Mobile_Detect;
+if(!isset($_SESSION['isMobile'])){
+  $_SESSION['isMobile'] = $detect->isMobile();
+}
+
 if ($action == "") {
     showError(_("Aucune action trouv&eacute;e."));
     die();
@@ -678,7 +684,6 @@ switch (strtolower($action)) {
     // Sittin' on the dock of the PT...
     case "proxyvalidate" :
         // Consider that we can handle case insensitive (great ! this is not in CAS specs.)
-        // proxyvalidate();
         serviceValidate();
         break;
     case "servicevalidate" :
@@ -687,7 +692,6 @@ switch (strtolower($action)) {
     // Consider that we can handle case insensitive (great ! this is not in CAS specs.)
     case "samlvalidate" :
         samlValidate();
-        //showError(_("Saml Validate"));
         break;
 
     case 'proxy':
