@@ -29,6 +29,7 @@ function viewLogoutSuccess($t) {
 // Logout content page
 //------------------------------------------------------------------------------
 function logoutText($redirect){
+    global $CONFIG;
     if ($CONFIG['DISPLAY_NEWS']) getNewsList($t);
 	echo '
 	<div id="mire">

@@ -166,11 +166,8 @@ function viewLoginForm($t) {
   }
 
 	call_user_func('getHeader'.$device);
-	//getHeader();
 	if ($CONFIG['DISPLAY_NEWS']) getNewsList($t);
-	//getFormLogin($t);
 	call_user_func('getFormLogin'.$device, $t);
-	//getFooter();
 	call_user_func('getFooter'.$device);
 }
 
@@ -208,10 +205,7 @@ function viewLoginFailure($t) {
   }
 
 	call_user_func('getHeader'.$device);
-	//echo '<div id="mire">';
-	//echo '		<div id="status" class="errors">'.$msg.'</div>';
 	call_user_func('getFormLogin'.$device, $t, $msg);
-	//echo '</div>';
 	call_user_func('getFooter'.$device);
 }
 
