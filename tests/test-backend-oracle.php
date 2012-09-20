@@ -114,8 +114,15 @@ if ($_GET['test'] == "token") {
 	echo "<select id='psite' name='psite'>\n";
 	foreach($CONFIG["AUTHORIZED_SITES"] as $col => $val) {
 		$selected = "";
-		if ($val === $_POST['psite']) $selected = " selected";
-		echo "<option value='".$val["url"]."'".$selected.">". $val["sitename"] ." : " . $val["url"] . "</option>\n";
+    if ($val === $_POST['psite']) $selected = " selected";
+    if(is_array($val["url"])){
+      foreach($val["url"] as $url){
+      echo "<option value='".$url."'".$selected.">". $val["sitename"] ." : " . $url. "</option>\n";
+      }
+    }
+    else{
+      echo "<option value='".$val["url"]."'".$selected.">". $val["sitename"] ." : " . $val["url"] . "</option>\n";
+    }
 	}
 	echo "</select>\n";
 	
