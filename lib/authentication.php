@@ -9,6 +9,7 @@
 //include_once('../config.inc.php'); 
 
 include_once(CAS_PATH.'/lib/functions.php');
+require_once(CAS_PATH.'/lib/rest_request.php')
 require_once(CAS_PATH.'/views/auth_success.php');
 require_once(CAS_PATH.'/views/auth_failure.php');
 
@@ -347,7 +348,7 @@ class MYSQL implements casAuthentication
 {
     private $conn; 
     
-     function __construct($BACKEND_DBUSER, $BACKEND_DBPASS, $BACKEND_DBNAME) {
+    function __construct($BACKEND_DBUSER, $BACKEND_DBPASS, $BACKEND_DBNAME) {
         $this->conn = $this->dbConnect($BACKEND_DBUSER, $BACKEND_DBPASS, $BACKEND_DBNAME);
     }
     
@@ -446,7 +447,11 @@ class MYSQL implements casAuthentication
 	//	return viewAuthFailure(array('code'=> '', 
 	//								 'message'=> _('This application is not allowed to authenticate on this server')));
 	
-	// An array with the needed attributes for this service.
+	// An array with the needed attributes for this servifunction __construct($BACKEND_DBUSER, $BACKEND_DBPASS, $BACKEND_DBNAME) {
+        $this->conn = $this->dbConnect($BACKEND_DBUSER, $BACKEND_DBPASS, $BACKEND_DBNAME);
+    }function __construct($BACKEND_DBUSER, $BACKEND_DBPASS, $BACKEND_DBNAME) {
+        $this->conn = $this->dbConnect($BACKEND_DBUSER, $BACKEND_DBPASS, $BACKEND_DBNAME);
+    }ce.
 	$neededAttr = explode(	",", 
 							str_replace(" ", "", 
 							strtoupper($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['allowedAttributes']))
@@ -592,6 +597,141 @@ class MYSQL implements casAuthentication
     }
 
 }
+
+
+//--------------------------------------------------------------------------------------//
+classe WEBAPI implements casAuthentication
+{
+    var $api_access_key;
+    var $api_secret_key; 
+    var $api_url; 
+
+    function __construct($BACKEND_API_ACCESS, $BACKEND_API_SECRET , $BACKEND_API_URL) {
+        $this->api_access_key = $BACKEND_API_ACCESS; 
+        $this->api_secret_key = $BACKEND_API_SECRET;
+        $this->api_url = $BACKEND_API_URL;      
+    }
+    
+    // @getApi  finds an api parameters with a specific name
+    //@param $api_name  
+    //@return array of parameters or null if not found
+    private function getApi($api_name)
+    {
+      global $CONFIG;
+      foreach ($CONFIG['APIS'] as $api) 
+      {
+             if array_search($api_name, $api)
+             {
+                 return $api; 
+             }   
+      }
+      return null; 
+            
+    }
+
+    private function build_get_request($api,$params_values, $path_param = null)
+    {
+        $query_string = ""; 
+        $params = array_real_combine($api["url_params"], $params_values);
+         if(is_null($params)){
+            if(is_null($api["path_param"]))
+               return null;
+            else 
+            { 
+                $query_string = is_null($path_param)? $query_string : ($query_string."/".urlencode ($path_param))   ; 
+            }
+        }
+        else 
+        {
+            $query_string = is_null($path_param)? $query_string : ($query_string."/".urlencode ($path_param))   ; 
+        }
+        
+        $query_string = $query_string."?".http_build_query($params, '','&');
+        $url = $api['url'].$query_string;
+        $headers = $api['headers']; 
+        $method = $api['method']; 
+        $parameters = null; 
+        return new HttpRequest($url, $headers, $method, $parameters); 
+    }
+    
+    // for the moment this supports only body parameters
+    // For put and post params
+    private function build_post_request($api,$body_params)
+    {
+        $params = array_real_combine($api["body_params"], $body_params);
+        if(is_null($params)){
+            return null;  
+        }
+        $url = $api['url']; 
+        $headers = $api['headers'];
+        $method = $api['method']; 
+        $parameters = $params; 
+        return new HttpRequest($url, $headers, $method, $parameters);        
+    }
+
+    private function executeRequest($api,$params_values,$access_id, $secret_key,$path_params = null)
+    {
+        if ($api["method"] == "get" || "delete") 
+        {
+            $request = build_get_request($api, $params_values,$path_params);
+           
+        } 
+        elseif ($api["method"] == "post" || "put") 
+        {
+           $request = build_post_request($api, $params_values);
+        }
+         $restrequest = new RestRquest($request); 
+         $reponse = $restrequest->execute($access_id, $secret_key);
+                  
+         return $reponse; 
+    }
+
+    
+    public function verifyLoginPasswordCredential($login, $password)
+    {
+        global $CONFIG; 
+        $api = getApi("verify_user_password"); 
+        if (is_null($api))
+            return "" ; 
+        else
+        {
+            try{
+                $response = executeRequest($api, array($login, $password), access_id, secret_key); 
+            }
+            catch(Exception $e){
+                return ""; 
+            }
+
+        }
+        if ($response->code = 200) {
+             $json_array = json_decode($response->body, true ); 
+             return strtoupper($json_array['login']);
+        }
+        return ""; 
+
+    }
+    
+    public function getServiceValidate($login, $service, $pgtIou);
+
+    public function getSamlAttributes($login, $service);
+    
+    public function getValidate($login, $service);
+
+    public function Search_User_By_Email($mail);
+
+    public function Search_Agent_By_InsEmail($mail);
+
+    public function Search_Parent_By_Name_EleveSconetId($nom, $prenom, $eleveid);
+
+    public function Search_Eleve_By_Name_SconetId($nom, $prenom, $eleveid);
+
+    public function has_default_password($login);
+
+    public function update_password($login,$pwd); 
+}
+
+
+
 
 //DBFactory Class to instansiate the suitable DATabase handler class (Oracle or mysql)
 

@@ -184,6 +184,9 @@ define('Search_Parent_By_Name_EleveId', 'select parent having a certain name and
 //*** search eleve by sconet id and name in the database**/ 
 define('Search_student_By_Name_SconetId', '');
 
+define('accss_id',"1044"); 
+define('secret_key',"secret"); 
+
 //------------------------------------------------------------------------------
 // Services autoris�s � s'authentifier avec le service CAS.
 //------------------------------------------------------------------------------
@@ -272,5 +275,23 @@ $CONFIG['AUTHORIZED_SITES'] = array(
 		'authneticationMethod' => 'LDAP',
 		'attributesProvider' => MY_LDAP_REQUEST_STRING)
 );
+
+/**
+definir les parametres pour les apis utiliser
+**/
+
+$CONFIG['APIS'] = array(
+  array( 
+    'url' => 'http://localhost:9292/user',
+    'method' => 'get',
+    'headers' => null; 
+    'body_params' => null, //post or put 
+    'resource_params' => null,   //example user/(id) 
+    'url_params' => array("login", "password"), // user?login=&password=
+    'name' => "verify_user_password"; 
+    ); 
+
+); 
+
 ?>
 
