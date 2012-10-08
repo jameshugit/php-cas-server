@@ -244,10 +244,7 @@ class ORACLE implements casAuthentication
     							strtoupper($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['allowedAttributes']))
     						);
             
-    //                                                foreach ($neededAttr as $value) {
-    //                                                    echo "$value \n"; 
-    //                                                    
-    //                                                }
+    
     	$attributes = array(); // What to pass to the function that generate token
     	
     	/// @note : no need for the moment... $CASversion = $CONFIG['CAS_VERSION'];
@@ -711,7 +708,10 @@ classe WEBAPI implements casAuthentication
 
     }
     
-    public function getServiceValidate($login, $service, $pgtIou);
+    public function getServiceValidate($login, $service, $pgtIou)
+    {
+
+    }
 
     public function getSamlAttributes($login, $service);
     
