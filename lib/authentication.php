@@ -400,7 +400,7 @@ class MYSQL implements casAuthentication
          $conn=null; 
     }
 	
-        public function verifyLoginPasswordCredential($login, $password) {
+    public function verifyLoginPasswordCredential($login, $password) {
         $sqlParam = array('LOGIN' => $login, 'PWD' => $password);
         $query = MySQL_AUTH;
         $r = $this->ExecuteQuery($query, $sqlParam);
@@ -430,58 +430,54 @@ class MYSQL implements casAuthentication
 	 * @return string containing loads of XML
 	 */
 	public function getServiceValidate($login, $service, $pgtIou)
-        {
-            global $CONFIG;
-	// index of the global array containing the list of autorized sites.
-	$idxOfAutorizedSiteArray = getServiceIndex($service);
-	$myAttributesProvider = isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['MysqlattributesProvider']) ? 
-							$CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['MysqlattributesProvider'] : MySQL_FOR_ATTRIBUTES;
+    {
+        global $CONFIG;
+    	// index of the global array containing the list of autorized sites.
+    	$idxOfAutorizedSiteArray = getServiceIndex($service);
+    	$myAttributesProvider = isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['MysqlattributesProvider']) ? 
+    							$CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['MysqlattributesProvider'] : MySQL_FOR_ATTRIBUTES;
 
-	$myTokenView = isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['tokenModele']) ? 
-				   $CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['tokenModele'] : 'Default';
-	// If service index is null, service is not allow to connect to our sso.
-	//if ($idxOfAutorizedSiteArray == "")
-	//	return viewAuthFailure(array('code'=> '', 
-	//								 'message'=> _('This application is not allowed to authenticate on this server')));
-	
-	// An array with the needed attributes for this servifunction __construct($BACKEND_DBUSER, $BACKEND_DBPASS, $BACKEND_DBNAME) {
-        $this->conn = $this->dbConnect($BACKEND_DBUSER, $BACKEND_DBPASS, $BACKEND_DBNAME);
-    }function __construct($BACKEND_DBUSER, $BACKEND_DBPASS, $BACKEND_DBNAME) {
-        $this->conn = $this->dbConnect($BACKEND_DBUSER, $BACKEND_DBPASS, $BACKEND_DBNAME);
-    }ce.
-	$neededAttr = explode(	",", 
-							str_replace(" ", "", 
-							strtoupper($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['allowedAttributes']))
-						);
-	$attributes = array(); // What to pass to the function that generate token
-	
-	/// @note : no need for the moment... $CASversion = $CONFIG['CAS_VERSION'];
-	
-	// Adding data to the array for displaying.
-	// user attribute is requiered in any way.
-	// this is requiered in CAS 1.0 for phpCAS Client.
-	$attributes['user'] = $login;
-	
-	// executing second SQL Statment for other attributes.
-   
+    	$myTokenView = isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['tokenModele']) ? 
+    				   $CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['tokenModele'] : 'Default';
+    	// If service index is null, service is not allow to connect to our sso.
+    	//if ($idxOfAutorizedSiteArray == "")
+    	//	return viewAuthFailure(array('code'=> '', 
+    	//								 'message'=> _('This application is not allowed to authenticate on this server')));
+    	
+    	// An array with the needed attributes for this service.
+    	$neededAttr = explode(	",", 
+    							str_replace(" ", "", 
+    							strtoupper($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['allowedAttributes']))
+    						);
+    	$attributes = array(); // What to pass to the function that generate token
+    	
+    	/// @note : no need for the moment... $CASversion = $CONFIG['CAS_VERSION'];
+    	
+    	// Adding data to the array for displaying.
+    	// user attribute is requiered in any way.
+    	// this is requiered in CAS 1.0 for phpCAS Client.
+    	$attributes['user'] = $login;
+    	
+    	// executing second SQL Statment for other attributes.
+       
         $r= $this->ExecuteQuery($myAttributesProvider, array(':LOGIN'=>$login)); 
-	//$r = _dbExecuteSQL($db, $myAttributesProvider, array('LOGIN'=>$login));
-        //print_r($r);
+    	//$r = _dbExecuteSQL($db, $myAttributesProvider, array('LOGIN'=>$login));
+            //print_r($r);
+    	
+    	// Should have only one row returned.
+    	$rowSet = $r[0];
+    	if (isset($rowSet)) {
+    		// For all attributes returned
+    		foreach($rowSet as $idx => $val) {
+    			if (in_array(strtoupper($idx), $neededAttr)) {
+    				$attributes[$idx] = $val;
+    			}
+    		}
+    	}
 	
-	// Should have only one row returned.
-	$rowSet = $r[0];
-	if (isset($rowSet)) {
-		// For all attributes returned
-		foreach($rowSet as $idx => $val) {
-			if (in_array(strtoupper($idx), $neededAttr)) {
-				$attributes[$idx] = $val;
-			}
-		}
-	}
-	
-	// call the token model with the default view or custom view
-	return viewAuthSuccess($myTokenView, $attributes);
-        }
+    	// call the token model with the default view or custom view
+    	return viewAuthSuccess($myTokenView, $attributes,$pgtIou);
+    }
 
 	/** 
 	 * Returns the smalValidate CAS 1.0 XML fragment response
@@ -630,7 +626,7 @@ classe WEBAPI implements casAuthentication
     {
         $query_string = ""; 
         $params = array_real_combine($api["url_params"], $params_values);
-         if(is_null($params)){
+        if(is_null($params)){
             if(is_null($api["path_param"]))
                return null;
             else 
@@ -643,7 +639,7 @@ classe WEBAPI implements casAuthentication
             $query_string = is_null($path_param)? $query_string : ($query_string."/".urlencode ($path_param))   ; 
         }
         
-        $query_string = $query_string."?".http_build_query($params, '','&');
+        $query_string = is_null($api["url_params"]) ?  $query_string : $query_string."?".http_build_query($params, '','&');
         $url = $api['url'].$query_string;
         $headers = $api['headers']; 
         $method = $api['method']; 
@@ -710,10 +706,118 @@ classe WEBAPI implements casAuthentication
     
     public function getServiceValidate($login, $service, $pgtIou)
     {
+        global $CONFIG;
+        // index of the global array containing the list of autorized sites.
+        $idxOfAutorizedSiteArray = getServiceIndex($service);
+        $myAttributesProvider = isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['attributesProvider']) ? 
+                                $CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['attributesProvider'] : SQL_FOR_ATTRIBUTES;
 
+        $myTokenView = isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['tokenModele']) ? 
+                       $CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['tokenModele'] : 'Default';
+
+        // An array with the needed attributes for this service.
+        $neededAttr = explode(",", str_replace(" ", "", strtoupper(isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['allowedAttributes']) ?
+                                        $CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['allowedAttributes'] :
+                                        'login,nom,prenom,date_naissance,code_postal,categories')));
+
+        $attributes = array(); // What to pass to the function that generate token
+        switch ($myAttributesProvider) 
+        {
+            case SQL_FOR_ATTRIBUTES:
+                $api = getApi("sso_attributes");                  
+                break;           
+            case SQL_FOR_ATTRIBUTES_MEN:
+                $api = getApi("sso_attributes_men"); 
+                break;
+            case  SQL_FOR_PRONOTE:
+                $api = getApi("info"); #sql_for_pronote
+                break; 
+        }
+
+        if (!is_null($api))
+        {
+         try{
+                $response = executeRequest($api, null, access_id, secret_key, $login);
+            }
+            catch(Exception $e){
+                throw new Exception('une erreur'); 
+            }
+
+        }
+
+        if ($response->code = 200) {
+            $rowSet = json_decode($response->body, true ); 
+        }
+
+        if (isset($rowSet)) {
+            // For all attributes returned
+            foreach($rowSet as $idx => $val) {
+                if (in_array(strtoupper($idx), $neededAttr)) {
+                    $attributes[$idx] = $val;
+                }
+            }
+        }
+    
+        // call the token model with the default view or custom view
+        return viewAuthSuccess($myTokenView, $attributes, $pgtIou); 
     }
 
-    public function getSamlAttributes($login, $service);
+    public function getSamlAttributes($login, $service)
+    {
+        global $CONFIG;
+        // index of the global array containing the list of autorized sites.
+        $idxOfAutorizedSiteArray = getServiceIndex($service);
+        $myAttributesProvider = isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['attributesProvider']) ? 
+                                $CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['attributesProvider'] : SQL_FOR_PRONOTE;
+
+        $myTokenView = isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['tokenModele']) ? 
+                       $CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['tokenModele'] : 'Default';
+
+        // An array with the needed attributes for this service.
+        $neededAttr = explode(  ",", str_replace(" ", "", strtoupper($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['allowedAttributes']))
+                            );
+        $attributes = array(); // What to pass to the function that generate token
+        switch ($myAttributesProvider) 
+        {
+            case SQL_FOR_ATTRIBUTES:
+                $api = getApi("sso_attributes");                  
+                break;           
+            case SQL_FOR_ATTRIBUTES_MEN:
+                $api = getApi("sso_attributes_men"); 
+                break;
+            case  SQL_FOR_PRONOTE:
+                $api = getApi("info"); #sql_for_pronote
+                break; 
+        }
+
+        if (!is_null($api))
+        {
+         try{
+                $response = executeRequest($api, null, access_id, secret_key, $login);
+            }
+            catch(Exception $e){
+                throw new Exception('une erreur'); 
+            }
+
+        }
+
+        if ($response->code = 200) {
+            $rowSet = json_decode($response->body, true ); 
+        }
+
+        if (isset($rowSet)) {
+            // For all attributes returned
+            foreach($rowSet as $idx => $val) {
+                if (in_array(strtoupper($idx), $neededAttr)) {
+                    $attributes[$idx] = $val;
+                }
+            }
+        }
+    
+        // call the token model with the default view or custom view
+        return $attributes; 
+
+    }
     
     public function getValidate($login, $service);
 
