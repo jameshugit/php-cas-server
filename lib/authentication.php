@@ -819,7 +819,10 @@ classe WEBAPI implements casAuthentication
 
     }
     
-    public function getValidate($login, $service);
+    public function getValidate($login, $service)
+    {
+        return 0; 
+    }
 
     public function Search_User_By_Email($mail);
 
