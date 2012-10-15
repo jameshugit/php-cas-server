@@ -544,9 +544,9 @@ class MYSQL implements casAuthentication
 	 * @return string containing loads of XML
 	 */
 	public function getValidate($login, $service)
-        {
-            return 0; 
-        }
+    {
+        return 0; 
+    }
 
     public function Search_User_By_Email($mail)
     {
@@ -689,7 +689,7 @@ classe WEBAPI implements casAuthentication
         else
         {
             try{
-                $response = executeRequest($api, array($login, $password), access_id, secret_key); 
+                $response = executeRequest($api, array($login, $password), $this->api_access_key, $this->secret_key); 
             }
             catch(Exception $e){
                 return ""; 
@@ -737,7 +737,7 @@ classe WEBAPI implements casAuthentication
         if (!is_null($api))
         {
          try{
-                $response = executeRequest($api, null, access_id, secret_key, $login);
+                $response = executeRequest($api, null, $this->api_access_key, $this->secret_key, $login);
             }
             catch(Exception $e){
                 throw new Exception('une erreur'); 
@@ -793,7 +793,7 @@ classe WEBAPI implements casAuthentication
         if (!is_null($api))
         {
          try{
-                $response = executeRequest($api, null, access_id, secret_key, $login);
+                $response = executeRequest($api, null, $this->api_access_key, $this->secret_key, $login);
             }
             catch(Exception $e){
                 throw new Exception('une erreur'); 
@@ -824,17 +824,105 @@ classe WEBAPI implements casAuthentication
         return 0; 
     }
 
-    public function Search_User_By_Email($mail);
+    public function Search_User_By_Email($mail)
+    {
+        global $CONFIG;
+        $api = getApi("Search_User_By_Email");
 
-    public function Search_Agent_By_InsEmail($mail);
+        if (!is_null($api))
+        {
+         try{
+                $response = executeRequest($api, array("login,nom,prenom", $mail), $this->api_access_key, $this->secret_key);
+            }
+            catch(Exception $e){
+                throw new Exception('une erreur'); 
+            }
 
-    public function Search_Parent_By_Name_EleveSconetId($nom, $prenom, $eleveid);
+        }
+        if ($response->code = 200) {
+            $r = json_decode($response->body, true ); 
+        }
 
-    public function Search_Eleve_By_Name_SconetId($nom, $prenom, $eleveid);
+    
+        return $r["Data"];  
 
-    public function has_default_password($login);
 
-    public function update_password($login,$pwd); 
+    }
+
+    public function Search_Agent_By_InsEmail($mail){
+        global $CONFIG;
+        $api = getApi("Search_Agent_By_Instmail"); // search agent by academic email
+
+        if (!is_null($api))
+        {
+         try{
+                $response = executeRequest($api, array("login,nom,prenom", $mail, "true"), $this->api_access_key, $this->secret_key);
+            }
+            catch(Exception $e){
+                throw new Exception('une erreur'); 
+            }
+
+        }
+         if ($response->code = 200) {
+            $r = json_decode($response->body, true ); 
+        }
+
+    
+        return $r['Data'];   
+
+    }
+
+    public function Search_Parent_By_Name_EleveSconetId($nom, $prenom, $eleveid)
+    {
+        global $CONFIG; 
+        $api = getApi("Search_Parent_By_Name_EleveSconetId");
+        if (!is_null($api))
+        {
+         try{
+                $response = executeRequest($api, array($nom, $prenom, $eleveid), $this->api_access_key, $this->secret_key);
+            }
+            catch(Exception $e){
+                throw new Exception('une erreur'); 
+            }
+
+        }
+         if ($response->code = 200) {
+            $r = json_decode($response->body, true ); 
+        }
+
+    
+        return $r['Data']; 
+    }
+
+
+    public function Search_Eleve_By_Name_SconetId($nom, $prenom, $eleveid){
+        global $CONFIG; 
+        $api = getApi("Search_Eleve_By_Name_SconetId");
+        if (!is_null($api))
+        {
+         try{
+                $response = executeRequest($api, array("login,nom,prenom,date_naissance,code_postal", $nom, $prenom, $eleveid), $this->api_access_key, $this->secret_key);
+            }
+            catch(Exception $e){
+                throw new Exception('une erreur'); 
+            }
+
+        }
+         if ($response->code = 200) {
+            $r = json_decode($response->body, true ); 
+        }
+
+    
+        return $r['Data'];     
+    }
+
+    public function has_default_password($login){
+        return 0; 
+    }
+
+    public function update_password($login,$pwd){
+        return 0; 
+    }
 }
 
 
