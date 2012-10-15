@@ -730,7 +730,7 @@ classe WEBAPI implements casAuthentication
                 $api = getApi("sso_attributes_men"); 
                 break;
             case  SQL_FOR_PRONOTE:
-                $api = getApi("info"); #sql_for_pronote
+                $api = getApi("pronote"); #sql_for_pronote
                 break; 
         }
 
@@ -786,7 +786,7 @@ classe WEBAPI implements casAuthentication
                 $api = getApi("sso_attributes_men"); 
                 break;
             case  SQL_FOR_PRONOTE:
-                $api = getApi("info"); #sql_for_pronote
+                $api = getApi("pronote"); #sql_for_pronote
                 break; 
         }
 

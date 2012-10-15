@@ -347,7 +347,16 @@ $CONFIG['APIS'] = array(
     'path_param' => null,   //example user/(id)  only one parameter 
     'url_params' => ("columns", "nom", "prenom", "where[id_sconet]"), //columns = "nom, prenom, login, date_naissance, code_postal" id_sconet
     'name' => "Search_Eleve_By_Name_SconetId",
-    )
+    ), 
+  array( 
+    'url' => 'http://localhost:9292/user/info',
+    'method' => 'get',
+    'headers' => null,
+    'body_params' => null, //post or put 
+    'path_param' => "login",   //example user/(id)  only one parameter 
+    'url_params' => null, // user?login=&password=
+    'name' => "info",
+    ),
 
 ); 
 
