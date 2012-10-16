@@ -9,7 +9,7 @@
 //include_once('../config.inc.php'); 
 
 include_once(CAS_PATH.'/lib/functions.php');
-require_once(CAS_PATH.'/lib/rest_request.php')
+require_once(CAS_PATH.'/lib/rest_request.php'); 
 require_once(CAS_PATH.'/views/auth_success.php');
 require_once(CAS_PATH.'/views/auth_failure.php');
 
@@ -593,7 +593,7 @@ class MYSQL implements casAuthentication
 
 
 //--------------------------------------------------------------------------------------//
-classe WEBAPI implements casAuthentication
+class WEBAPI implements casAuthentication
 {
     var $api_access_key;
     var $api_secret_key; 
@@ -602,24 +602,23 @@ classe WEBAPI implements casAuthentication
     function __construct($BACKEND_API_ACCESS, $BACKEND_API_SECRET , $BACKEND_API_URL) {
         $this->api_access_key = $BACKEND_API_ACCESS; 
         $this->api_secret_key = $BACKEND_API_SECRET;
-        $this->api_url = $BACKEND_API_URL;      
+        $this->api_url = $BACKEND_API_URL;
     }
-    
     // @getApi  finds an api parameters with a specific name
     //@param $api_name  
     //@return array of parameters or null if not found
     private function getApi($api_name)
     {
       global $CONFIG;
-      foreach ($CONFIG['APIS'] as $api) 
+      foreach ($CONFIG['APIS'] as $api)
       {
-             if array_search($api_name, $api)
+             if (array_search($api_name, $api))
              {
-                 return $api; 
-             }   
+                 return $api;
+             }
       }
-      return null; 
-            
+      return null;
+
     }
 
     private function build_get_request($api,$params_values, $path_param = null)
@@ -638,58 +637,58 @@ classe WEBAPI implements casAuthentication
         {
             $query_string = is_null($path_param)? $query_string : ($query_string."/".urlencode ($path_param))   ; 
         }
-        
+
         $query_string = is_null($api["url_params"]) ?  $query_string : $query_string."?".http_build_query($params, '','&');
-        $url = $api['url'].$query_string;
+        $url =$this->api_url.$api['url'].$query_string;
         $headers = $api['headers']; 
         $method = $api['method']; 
-        $parameters = null; 
+        $parameters = array(); 
         return new HttpRequest($url, $headers, $method, $parameters); 
     }
-    
+
     // for the moment this supports only body parameters
-    // For put and post params
+    // builds a put or  post requests
     private function build_post_request($api,$body_params)
     {
         $params = array_real_combine($api["body_params"], $body_params);
         if(is_null($params)){
             return null;  
         }
-        $url = $api['url']; 
+        $url = $this->api_url.$api['url']; 
         $headers = $api['headers'];
         $method = $api['method']; 
         $parameters = $params; 
-        return new HttpRequest($url, $headers, $method, $parameters);        
+        return new HttpRequest($url, $headers, $method, $parameters);
     }
 
     private function executeRequest($api,$params_values,$access_id, $secret_key,$path_params = null)
     {
         if ($api["method"] == "get" || "delete") 
         {
-            $request = build_get_request($api, $params_values,$path_params);
-           
+            $request = $this->build_get_request($api, $params_values,$path_params);
+
         } 
         elseif ($api["method"] == "post" || "put") 
         {
-           $request = build_post_request($api, $params_values);
+           $request = $this->build_post_request($api, $params_values);
         }
-         $restrequest = new RestRquest($request); 
+         $restrequest = new RestRequest($request); 
          $reponse = $restrequest->execute($access_id, $secret_key);
-                  
+
          return $reponse; 
     }
 
-    
+
     public function verifyLoginPasswordCredential($login, $password)
     {
         global $CONFIG; 
-        $api = getApi("verify_user_password"); 
+        $api = $this->getApi("verify_user_password"); 
         if (is_null($api))
             return "" ; 
         else
         {
             try{
-                $response = executeRequest($api, array($login, $password), $this->api_access_key, $this->secret_key); 
+                $response = $this->executeRequest($api, array($login, $password), $this->api_access_key, $this->api_secret_key); 
             }
             catch(Exception $e){
                 return ""; 
@@ -700,10 +699,10 @@ classe WEBAPI implements casAuthentication
              $json_array = json_decode($response->body, true ); 
              return strtoupper($json_array['login']);
         }
-        return ""; 
+        return "";
 
     }
-    
+
     public function getServiceValidate($login, $service, $pgtIou)
     {
         global $CONFIG;
@@ -721,23 +720,24 @@ classe WEBAPI implements casAuthentication
                                         'login,nom,prenom,date_naissance,code_postal,categories')));
 
         $attributes = array(); // What to pass to the function that generate token
+        $attributes['user'] = $login;
         switch ($myAttributesProvider) 
         {
             case SQL_FOR_ATTRIBUTES:
-                $api = getApi("sso_attributes");                  
+                $api = $this->getApi("sso_attributes");
                 break;           
             case SQL_FOR_ATTRIBUTES_MEN:
-                $api = getApi("sso_attributes_men"); 
+                $api = $this->getApi("sso_attributes_men");
                 break;
             case  SQL_FOR_PRONOTE:
-                $api = getApi("pronote"); #sql_for_pronote
+                $api = $this->getApi("pronote"); #sql_for_pronote
                 break; 
         }
 
         if (!is_null($api))
         {
          try{
-                $response = executeRequest($api, null, $this->api_access_key, $this->secret_key, $login);
+                $response = $this->executeRequest($api, null, $this->api_access_key, $this->api_secret_key, $login);
             }
             catch(Exception $e){
                 throw new Exception('une erreur'); 
@@ -757,7 +757,8 @@ classe WEBAPI implements casAuthentication
                 }
             }
         }
-    
+        
+        print_r($attributes);
         // call the token model with the default view or custom view
         return viewAuthSuccess($myTokenView, $attributes, $pgtIou); 
     }
@@ -935,7 +936,7 @@ classe WEBAPI implements casAuthentication
 class DBFactory{
    // create database class instance
    public function createDB($db,$user='',$password='',$database='db.sqlite'){
-     if($db!='MYSQL'&&$db!='ORACLE'){
+     if($db!='MYSQL'&&$db!='ORACLE'&&$db!='WEBAPI'){
        throw new Exception('Invalid type of database class');
      }
      return new $db($user,$password,$database);

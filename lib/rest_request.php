@@ -6,7 +6,7 @@ defines functions and classes to send authenticated Rest request to restful api
 
 //httpful.phar is a library that facilites sending rest requests 
 // @ref = https://github.com/nategood/httpful
-include('httpful.phar');
+include_once('httpful.phar');
 
 /* 
 As its name implies HttpRequest Class defines a an http request that needs to be signed
@@ -81,7 +81,7 @@ class HttpRequest
     {
         $head = array(); 
         $content_type = isset($this->headers['Content-Type']) ? $this->headers['Content-Type'] : "plain/text"; 
-        var_dump($content_type);
+        //var_dump($content_type);
         $head['Content-Type'] = $content_type;
         
         if (!isset($this->headers['Content-MD5'])&& ($this->method =='post'|| 'put')){
@@ -94,11 +94,11 @@ class HttpRequest
         {
             $content_md5 = $this->headers['Content-MD5']; 
         }
-        var_dump($content_md5);
+        //var_dump($content_md5);
         $head['Content-MD5'] = $content_md5; 
         
         $timestamp = isset($this->headers['Date']) ? $this->headers['Date'] :  gmdate("D, d M Y H:i:s T");
-        var_dump($timestamp); 
+        //var_dump($timestamp); 
         
         $head['Date']=$timestamp; 
         
@@ -118,13 +118,13 @@ class HttpRequest
     {
         $this->populate_headers(); 
         $content_type  =   $this->headers['Content-Type'];
-        var_dump($content_type); 
+        //var_dump($content_type); 
         
         $content_md5 = $this->headers['Content-MD5']; 
        
         
         $timestamp = $this->headers['Date'];
-        var_dump($timestamp); 
+        //var_dump($timestamp); 
 
         $canonical_string = $content_type.",".$content_md5.",".$this->url.",".$timestamp; 
         return $canonical_string; 
@@ -135,9 +135,9 @@ class HttpRequest
     private function hmac_signature($secret_key)
     {  
         $canonical_string = $this->build_canonical_string();
-        var_dump($canonical_string); 
+        //var_dump($canonical_string); 
         $signature = base64_encode(hash_hmac('sha1',$canonical_string, $secret_key,true));
-        var_dump($signature); 
+        //var_dump($signature); 
         return $signature;
     }
 
