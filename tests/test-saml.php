@@ -8,7 +8,8 @@ require_once(CAS_PATH.'/views/auth_success.php');
 require_once(CAS_PATH.'/views/auth_failure.php'); 
 echo "<h1>SAML/CAS unit tests</h1>";
 
-$SERVICE  = 'Umpa-lumpa-Serv';
+//$SERVICE  = 'Umpa-lumpa-Serv';
+$SERVICE  = 'http://pronote.dev.laclasse.lan:8080/pornote.net/cas/validationcas/'; 
 $USERNAME = 'charlie';
 
 $tgt = new TicketGrantingTicket();
@@ -24,7 +25,7 @@ $st = new ServiceTicket();
 $st->create($tgt, $SERVICE, $USERNAME);
 $stkey = $st->key();
 
-$validateSTsaml = '
+$validateSTsaml = '<?xml version="1.0"?>
 <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
   <SOAP-ENV:Header/>
   <SOAP-ENV:Body>
@@ -38,6 +39,11 @@ $validateSTsaml = '
   </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>';
 
+$header = array(
+  "Content-type: text/xml;charset=\"utf-8\""
+);
+
+
 echo "TGT = " . $key."<br>";
 echo "ST = ".$stkey."<br>";
 echo "<h2> here is a typical saml message to ask for ST validation...</h2>";
@@ -50,18 +56,19 @@ echo "
 if (isset($_REQUEST['action']) && $_REQUEST['action']=='samlValidate') {
     echo "<h3>Let's do the post with curl...</h3>";
     
-    $urlValidate = "http://".$_SERVER['SERVER_NAME']."/sso/samlValidate";
+    $urlValidate = "http://".$_SERVER['SERVER_NAME']."/sso/samlValidate?TARGET=".urlencode("http://pronote.dev.laclasse.lan:8080/pornote.net/cas/validationcas/");
    echo "Url smalValidate = ".$urlValidate;
 
     $post_data = array();
     $post_data['ticket'] = $validateSTsaml;
-    $post_data['service'] = "http://pronote.dev.laclasse.lan:8080/pornote.net/cas/validationcas/";
+    $post_data['TARGET'] = "http://pronote.dev.laclasse.lan:8080/pornote.net/cas/validationcas/";
     
     $ch = curl_init($urlValidate);
     curl_setopt($ch, CURLOPT_POST,1);
-    curl_setopt($ch, CURLOPT_POSTFIELDS,$post_data);
+    curl_setopt($ch, CURLOPT_POSTFIELDS,$validateSTsaml);
     //curl_setopt($ch, CURLOPT_FOLLOWLOCATION ,1);
     curl_setopt($ch, CURLOPT_HEADER,0);  // DO NOT RETURN HTTP HEADERS
+    curl_setopt($ch, CURLOPT_HTTPHEADER,     $header);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);  // RETURN THE CONTENTS OF THE CALL
     $Rec_Data = curl_exec($ch);
 

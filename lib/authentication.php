@@ -115,6 +115,7 @@ class ORACLE implements casAuthentication
         }
 
         // Exécution de la logique de la requête
+        //print_r ($stid);
         $b = oci_execute($stid);
         if (!$b) {
             $e = oci_error($stid);
@@ -187,7 +188,9 @@ class ORACLE implements casAuthentication
     	$neededAttr = explode(	",", 
     							str_replace(" ", "", 
     							strtoupper($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['allowedAttributes']))
-    						);
+                );
+
+      //var_dump($myAttributesProvider);
     	$attributes = array(); // What to pass to the function that generate token
     	
     	/// @note : no need for the moment... $CASversion = $CONFIG['CAS_VERSION'];
