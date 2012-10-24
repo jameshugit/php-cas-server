@@ -18,6 +18,7 @@ require_once(CAS_PATH . '/lib/ticket.php');
 //require_once(CAS_PATH . '/views/logout.php');
 //require_once(CAS_PATH . '/views/auth_failure.php');
 require_once(CAS_PATH . '/lib/backend.db.oracle.php');
+require_once (CAS_PATH . '/lib/KLogger.php');
 
 //CASLogin function takes the (laclasse login) as input and generates  a ticket to login to Laclasse server.
 function CASLogin($nom, $idp) {
@@ -88,7 +89,8 @@ function extractVector($attributes) {
     if (!empty($attributes)) {
         if (array_key_exists('FrEduVecteur', $attributes)) {
             if (count($attributes['FrEduVecteur']) >= 1) {
-                foreach ($attributes['FrEduVecteur']as $val) {
+              foreach ($attributes['FrEduVecteur']as $val) {
+                if(!empty($val)){
                     $temp = explode("|", $val);
                     foreach ($temp as $key => $value) {
                         if ($key == 0)
@@ -104,9 +106,23 @@ function extractVector($attributes) {
                     }
                     array_push($attr, $att);
                 }
+                else
+                {
+                  throw new Exception("le vecteur d\'identite est vide");
+                }
+              }
+            }
+            else
+            {
+              throw new Exception("le vecteur d\'identite est vide");
             }
         }
     }
+    else
+    {
+      throw new Exception("la response de l/'academie est vide");
+    }
+
     return $attr;
 }
 
@@ -200,13 +216,15 @@ function sendalert($attributes) {
 //login function handles the different cases of profile parent/eleve and make the good action (login to CAS server , redirect to inscription page, ..)
 function login($attributes) {
     global $CONFIG;
-    if (empty($attributes)) { // no attributes sent by the idp 
-        echo 'le serveur de la féderation n\'a pas envoyé des attributs, vous allez être redirigé vers la page d\'inscription';
-        echo '<META HTTP-EQUIV="Refresh" Content="2;' . INSCRIPTION_URL . '">';
-        exit();
-    } else {
+    $log = new KLogger($CONFIG['DEBUG_FILE'], $CONFIG['DEBUG_LEVEL']);
+    $log->LogInfo("Login profile parent/eleve is called");
+    try {
+      if (empty($attributes)) { // no attributes sent by the idp 
+        throw new Exception("le serveur de la f&eacute;deration n\'a pas envoy&eacute; des attributs");
+      } else {
         $attr = extractVector($attributes);
-
+        $log->LogDebug("Recieved identity vector :".print_r($attributes,true));
+        $log->LogDebug("extracted attributes:".print_r($attr,true));
         // print_r($attr) ;
         if (count($attr) > 0) {      // identity vector is successfully extracted
             if (count($attr) == 1) {  // case of one identity vector
@@ -228,9 +246,11 @@ function login($attributes) {
                     $db = $factoryInstance->createDB($CONFIG['DATABASE'], BACKEND_DBUSER, BACKEND_DBPASS, BACKEND_DBNAME);
                     $casattributes = $db->Search_Parent_By_Name_EleveSconetId($nom, $prenom, $eleveid);
                 }
+                $log->LogDebug("casattributes".print_r($casattributes,true));
                 if (count($casattributes) == 1) { // one corresponding record is found in the database
                     $var = $casattributes[0]['login'];
                     //user has a default password that need to be changed
+                    $log->LogDebug("user has default passowrd:".$db->has_default_password($var));
                     if ($db->has_default_password($var))
                         $db->update_password($var,  generatePassword(3,3));
                     CASLogin($casattributes[0]['login'], 'FIM');
@@ -238,15 +258,11 @@ function login($attributes) {
                     if (count($casattributes) == 0) {  // 'no matching is found'
                         if ($attr[0]["profile"] == 3 || $attr[0]["profile"] == 4) { // profile eleve·
                             // echo '<br> you dont have an account on the laclasse.com, you will be redirected to inscription page <br/>';
-                            echo '<h1>Vous n\'avez pas de compte sur le laclasse.com, vous serez redirig&eacute; vers la page d\'inscription </h1>';
-                            echo '<META HTTP-EQUIV="Refresh" Content="2;' . INSCRIPTION_URL . '">';
-                            exit();
+                            throw new Exception ("Vous n\'avez pas de compte sur le laclasse.com");
                         }
                         if ($attr[0]["profile"] == 1 || $attr[0]["profile"] == 2) { // profile parent
-                            // echo '<br> you dont have an account on the laclasse.com, you will be redirected to inscription page <br/>';
-                            echo '<h1>Vous n\'avez pas de compte sur le laclasse.com, vous serez redirig&eacute; vers la page d\'inscription </h1>';
-                            echo '<META HTTP-EQUIV="Refresh" Content="2;' . INSCRIPTION_URL . '">';
-                            exit();
+                          // echo '<br> you dont have an account on the laclasse.com, you will be redirected to inscription page <br/>';
+                          throw new Exception ("Vous n\'avez pas de compte sur le laclasse.com");
                         }
                     } else { //'more than one record are found ! '
                         //sand an email to the administrator and then login in with the most recent id
@@ -261,9 +277,7 @@ function login($attributes) {
                 $casattributes = array();
                 $temp = array();
                 if ($attr[0]['profile'] == 3 || $attr[0]['profile'] == 4) {
-                    echo ' <h1>Erreur: un vecteur multivalué pour un eleve </h1>';
-                    echo '<META HTTP-EQUIV="Refresh" Content="2;' . INSCRIPTION_URL . '">';
-                    exit();
+                  throw new Exception ("un vecteur multivalué pour un eleve");
                 }
                 $factoryInstance = new DBFactory();
                 $db = $factoryInstance->createDB($CONFIG['DATABASE'], BACKEND_DBUSER, BACKEND_DBPASS, BACKEND_DBNAME);
@@ -293,10 +307,8 @@ function login($attributes) {
                 } else {
                     if (count($casattributes) == 0) {  // 'no matching is found ! '
                         // session_start();
-                        // $_SESSION["noresult"]= $attr;
-                        echo ' <h1>Vous n\'avez pas de compte sur le laclasse.com, vous serez redirig&eacute; vers la page d\'inscription </h1>';
-                        echo '<META HTTP-EQUIV="Refresh" Content="2;' . INSCRIPTION_URL . '">';
-                        exit();
+                      // $_SESSION["noresult"]= $attr;
+                      throw new Exception ("Vous n\'avez pas de compte sur le laclasse.com");
                     } else { //multiple corresponding records are found in the database! '
                         // session_start() ;
                         // $_SESSION["Result"]= $casattributes;
@@ -320,22 +332,25 @@ function login($attributes) {
                 }
             }
         } else {
-            echo '<h1>Aucun vecteur d\'identité est reçu, vous serez redirigé vers la page d\'inscription</h1>';
-            echo '<META HTTP-EQUIV="Refresh" Content="2;' . INSCRIPTION_URL . '">';
-            exit();
+            throw new Exception ("Aucun vecteur d\'identité est reçu de l'academie");
         }
+      }
+    }//try
+    catch(Exception $e)
+    {
+      logoutAcademie($e->getMessage());
+      exit();
     }
 }
 
 //agent login handles the different cases of profile agent/prof 
 function agentLogin($attributes) {
-    global $CONFIG;
+  global $CONFIG;
+  try{
     $email = extractEmail($attributes);
     //print_r($email);
     if (empty($email)) {
-        echo 'le vecteur d\'identité est vide;vous serez redirigé vers la page d\'inscription <br/>';
-        echo '<META HTTP-EQUIV="Refresh" Content="2;' . INSCRIPTION_URL . '">';
-        exit();
+       throw new Exception("le vecteur d\'identité est vide");
     } else {
         // create database connection
         $factoryInstance = new DBFactory();
@@ -343,12 +358,8 @@ function agentLogin($attributes) {
 
         $search = $db->Search_Agent_By_InsEmail($email['email']);
         if (empty($search)) {
-            // echo 'the user does not exist in the database';
-            echo ' <h1>Vous n\'avez pas un compte sur le laclasse.com, vous serez redirigé vers la page d\'inscription </h1>';
-            // redirect to inscription page
-            // may be i had to add some information to the request
-            echo '<META HTTP-EQUIV="Refresh" Content="2;' . INSCRIPTION_URL . '">';
-            exit();
+          // echo 'the user does not exist in the database';
+          throw new Exception("Vous n\'avez pas un compte sur le laclasse.com");
         } else {
             if (count($search) == 1) {
                 //echo '' . $search[0]['login'];
@@ -364,31 +375,29 @@ function agentLogin($attributes) {
             }
         }
     }
+  }
+  catch(Exception $e)
+  {
+    logoutAcademie($e->getMessage());
+    exit();
+  }
 }
 
 function googlelogin($attributes) {
-    global $CONFIG;
+  global $CONFIG;
+  try {
     $info = extractGoogleInfo($attributes);
     if (empty($info)) {
-        echo 'le vecteur d\'identité est vide;vous serez redirigé vers la page d\'inscription <br/>';
-        echo '<META HTTP-EQUIV="Refresh" Content="2;' . INSCRIPTION_URL . '">';
-
-        exit();
+      throw new Exception("le vecteur d\'identité est vide");
     } else {
-        if (!array_key_exists('email', $info)) {
-            echo ' votre email n\'est pas valide,  vous serez redirigé vers la page d\'inscription <br/>';
-            echo '<META HTTP-EQUIV="Refresh" Content="2;' . INSCRIPTION_URL . '">';
-            exit();
+      if (!array_key_exists('email', $info)) {
+          throw new Exception("votre email n\'est pas valide");
         } else {
             $factoryInstance = new DBFactory();
             $db = $factoryInstance->createDB($CONFIG['DATABASE'], BACKEND_DBUSER, BACKEND_DBPASS, BACKEND_DBNAME);
             $search = $db->Search_user_by_email($info['email']);
             if (empty($search)) {
-                echo ' <h1>Vous n\'avez pas un compte sur le laclasse.com, vous serez redirigé vers la page d\'inscription </h1>';
-                // redirect to inscription page
-                // may be i had to add some information to the request
-                echo '<META HTTP-EQUIV="Refresh" Content="2;' . INSCRIPTION_URL . '">';
-                exit();
+              throw new Exception("Vous n\'avez pas un compte sur le laclasse.com");
             } else {
                 if (count($search) == 1) {
                     //echo '' . $search[0]['login'];·
@@ -401,6 +410,41 @@ function googlelogin($attributes) {
             }
         }
     }
+  }
+  catch(Exception $e)
+  {
+    logoutAcademie($e->getMessage());
+    exit();
+
+  }
+}
+function logoutAcademie($message = "erreur")
+{
+  global $CONFIG;
+  echo '<html> <head>
+    <script>
+      function logout(){
+      //IE8 or lower
+      if (document.all && !document.addEventListener) {
+      //document//La deconnexion des services académique ne marche pas avec des iframes
+        //des//On est donc obligé d\'ouvrir une fenêtre...
+        window.open("https://services.ac-lyon.fr/login/ct_logout.jsp", "Deconnexion");
+       //window.open("?logout", "Deconnexion");
+      }
+  }
+  </script></head>';
+  echo '<body>
+    <h3>une erreur est survenue, les donn&eacute;es envoy&eacute;es par l\'academie ne permetent pas de vous identifier</h3>
+    <p> Message d\'erreur: '.$message.'</p>
+    <ul> 
+    <li> <a href="'.INSCRIPTION_URL.'" onclick="logout();">cre&eacute;z un compte sur laclasse.com </a></li>
+    <li> <a href="'.ENT_SERVER.'" onclick = "logout();"> ou connectez-vous avec un compte laclasse.com </a></li>
+    <li><A HREF="mailto:support@laclasse.com" onclick="logout();" >Envoyer le message d\'erreur au support</a></li>
+    </ul>
+    <iframe id="myIFrame"   style="display:none" src="https://services.ac-lyon.fr/login/ct_logout.jsp" ></iframe>
+    <iframe id="myIFrame"   style="display:none" src="?logout" ></iframe>
+    </body>';
+
 }
 
 ?>

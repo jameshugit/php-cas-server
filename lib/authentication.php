@@ -743,12 +743,12 @@ class WEBAPI implements casAuthentication
                 $response = $this->executeRequest($api, null, $this->api_access_key, $this->api_secret_key, $login);
             }
             catch(Exception $e){
-                throw new Exception('une erreur'); 
+                throw new Exception($e->getMessage()); 
             }
 
         }
 
-        if ($response->code = 200) {
+        if ($response->code == 200) {
             $rowSet = json_decode($response->body, true ); 
         }
 
@@ -781,31 +781,32 @@ class WEBAPI implements casAuthentication
         $neededAttr = explode(  ",", str_replace(" ", "", strtoupper($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['allowedAttributes']))
                             );
         $attributes = array(); // What to pass to the function that generate token
+        $attributes['user'] = $login;
         switch ($myAttributesProvider) 
         {
             case SQL_FOR_ATTRIBUTES:
-                $api = getApi("sso_attributes");                  
+                $api = $this->getApi("sso_attributes");                  
                 break;           
             case SQL_FOR_ATTRIBUTES_MEN:
-                $api = getApi("sso_attributes_men"); 
+                $api = $this->getApi("sso_attributes_men"); 
                 break;
             case  SQL_FOR_PRONOTE:
-                $api = getApi("pronote"); #sql_for_pronote
+                $api =$this->getApi("pronote"); #sql_for_pronote
                 break; 
         }
 
         if (!is_null($api))
         {
          try{
-                $response = executeRequest($api, null, $this->api_access_key, $this->secret_key, $login);
+                $response =$this->executeRequest($api, null, $this->api_access_key, $this->api_secret_key, $login);
             }
             catch(Exception $e){
-                throw new Exception('une erreur'); 
+                throw new Exception($e->getMessage()); 
             }
 
         }
 
-        if ($response->code = 200) {
+        if ($response->code == 200) {
             $rowSet = json_decode($response->body, true ); 
         }
 
@@ -831,19 +832,19 @@ class WEBAPI implements casAuthentication
     public function Search_User_By_Email($mail)
     {
         global $CONFIG;
-        $api = getApi("Search_User_By_Email");
+        $api = $this->getApi("Search_User_By_Email");
 
         if (!is_null($api))
         {
          try{
-                $response = executeRequest($api, array("login,nom,prenom", $mail), $this->api_access_key, $this->secret_key);
+                $response = $this->executeRequest($api, array("login,nom,prenom", $mail), $this->api_access_key, $this->api_secret_key);
             }
             catch(Exception $e){
-                throw new Exception('une erreur'); 
+                throw new Exception($e->getMessage()); 
             }
 
         }
-        if ($response->code = 200) {
+        if ($response->code == 200) {
             $r = json_decode($response->body, true ); 
         }
 
@@ -855,19 +856,19 @@ class WEBAPI implements casAuthentication
 
     public function Search_Agent_By_InsEmail($mail){
         global $CONFIG;
-        $api = getApi("Search_Agent_By_Instmail"); // search agent by academic email
+        $api = $this->getApi("Search_Agent_By_Instmail"); // search agent by academic emaiil
 
         if (!is_null($api))
         {
          try{
-                $response = executeRequest($api, array("login,nom,prenom", $mail, "true"), $this->api_access_key, $this->secret_key);
+                $response =$this->executeRequest($api, array("login,nom,prenom", $mail, "true"), $this->api_access_key, $this->api_secret_key);
             }
             catch(Exception $e){
-                throw new Exception('une erreur'); 
+                throw new Exception($e->getMessage()); 
             }
 
         }
-         if ($response->code = 200) {
+         if ($response->code == 200) {
             $r = json_decode($response->body, true ); 
         }
 
@@ -879,18 +880,18 @@ class WEBAPI implements casAuthentication
     public function Search_Parent_By_Name_EleveSconetId($nom, $prenom, $eleveid)
     {
         global $CONFIG; 
-        $api = getApi("Search_Parent_By_Name_EleveSconetId");
+        $api = $this->getApi("Search_Parent_By_Name_EleveSconetId");
         if (!is_null($api))
         {
          try{
-                $response = executeRequest($api, array($nom, $prenom, $eleveid), $this->api_access_key, $this->secret_key);
+                $response =$this->executeRequest($api, array($nom, $prenom, $eleveid), $this->api_access_key, $this->api_secret_key);
             }
             catch(Exception $e){
-                throw new Exception('une erreur'); 
+                throw new Exception($e->getMessage()); 
             }
 
         }
-         if ($response->code = 200) {
+         if ($response->code == 200) {
             $r = json_decode($response->body, true ); 
         }
 
@@ -901,18 +902,18 @@ class WEBAPI implements casAuthentication
 
     public function Search_Eleve_By_Name_SconetId($nom, $prenom, $eleveid){
         global $CONFIG; 
-        $api = getApi("Search_Eleve_By_Name_SconetId");
+        $api = $this->getApi("Search_Eleve_By_Name_SconetId");
         if (!is_null($api))
         {
          try{
-                $response = executeRequest($api, array("login,nom,prenom,date_naissance,code_postal", $nom, $prenom, $eleveid), $this->api_access_key, $this->secret_key);
+                $response = $this->executeRequest($api, array("login,nom,prenom,date_naissance,code_postal", $nom, $prenom, $eleveid), $this->api_access_key, $this->api_secret_key);
             }
             catch(Exception $e){
-                throw new Exception('une erreur'); 
+                throw new Exception($e->getMessage()); 
             }
 
         }
-         if ($response->code = 200) {
+         if ($response->code == 200) {
             $r = json_decode($response->body, true ); 
         }
 
