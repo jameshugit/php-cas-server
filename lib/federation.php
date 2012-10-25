@@ -136,6 +136,8 @@ function extractEmail($attributes) {
             $attr['email'] = $attributes['ctemail'][0];
             // i dont know if i had to  extract the name and the first name
         }
+    }else{
+      throw new Exception("l\'academie n\'pas envoyé d\'information");
     }
     return $attr;
 }
@@ -159,6 +161,10 @@ function extractGoogleInfo($attributes) {
                 $info['nom'] = $value[0];
         }
     }
+    else{
+         throw new Exception("l\'academie n\'pas envoyé d\'information");
+       }
+
     return $info;
 }
 
@@ -346,8 +352,13 @@ function login($attributes) {
 //agent login handles the different cases of profile agent/prof 
 function agentLogin($attributes) {
   global $CONFIG;
+  $log = new KLogger($CONFIG['DEBUG_FILE'], $CONFIG['DEBUG_LEVEL']);
+  $log->LogInfo("Login profile agent is called");
+  $log->LogDebug("recieved attributes from the academie".print_r($attributes,true));
+
   try{
     $email = extractEmail($attributes);
+    $log->LogDebug("recieved email".print_r($email,true));
     //print_r($email);
     if (empty($email)) {
        throw new Exception("le vecteur d\'identité est vide");
@@ -385,8 +396,13 @@ function agentLogin($attributes) {
 
 function googlelogin($attributes) {
   global $CONFIG;
+  $log = new KLogger($CONFIG['DEBUG_FILE'], $CONFIG['DEBUG_LEVEL']);
+  $log->LogInfo("Login with google id  is called");
+  $log->LogDebug("recieved attributes from the academie".print_r($attributes,true));
+
   try {
     $info = extractGoogleInfo($attributes);
+    $log->LogDebug("recieved information from google ".print_r($info,true));
     if (empty($info)) {
       throw new Exception("le vecteur d\'identité est vide");
     } else {
