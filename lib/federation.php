@@ -13,8 +13,8 @@ require_once('../config.inc.php');
 //require_once('/var/www/sso/lib/backend.db.oracle.php'); 
 //include_once('../../../sso/index.php');
 require_once(CAS_PATH . '/lib/ticket.php');
-//require_once(CAS_PATH . '/views/error.php');
-//require_once(CAS_PATH . '/views/login.php');
+require_once(CAS_PATH . '/views/error.php');
+require_once(CAS_PATH . '/views/header.php');
 //require_once(CAS_PATH . '/views/logout.php');
 //require_once(CAS_PATH . '/views/auth_failure.php');
 require_once(CAS_PATH . '/lib/backend.db.oracle.php');
@@ -108,19 +108,19 @@ function extractVector($attributes) {
                 }
                 else
                 {
-                  throw new Exception("le vecteur d\'identite est vide");
+                  throw new Exception("le vecteur d'identite est vide");
                 }
               }
             }
             else
             {
-              throw new Exception("le vecteur d\'identite est vide");
+              throw new Exception("le vecteur d'identite est vide");
             }
         }
     }
     else
     {
-      throw new Exception("la response de l/'academie est vide");
+      throw new Exception("la response de l'academie est vide");
     }
 
     return $attr;
@@ -137,7 +137,7 @@ function extractEmail($attributes) {
             // i dont know if i had to  extract the name and the first name
         }
     }else{
-      throw new Exception("l\'academie n\'pas envoyé d\'information");
+      throw new Exception("l'academie n'pas envoyé d'information");
     }
     return $attr;
 }
@@ -162,7 +162,7 @@ function extractGoogleInfo($attributes) {
         }
     }
     else{
-         throw new Exception("l\'academie n\'pas envoyé d\'information");
+         throw new Exception("l'academie n'pas envoyé d'information");
        }
 
     return $info;
@@ -264,11 +264,11 @@ function login($attributes) {
                     if (count($casattributes) == 0) {  // 'no matching is found'
                         if ($attr[0]["profile"] == 3 || $attr[0]["profile"] == 4) { // profile eleve·
                             // echo '<br> you dont have an account on the laclasse.com, you will be redirected to inscription page <br/>';
-                            throw new Exception ("Vous n\'avez pas de compte sur le laclasse.com");
+                            throw new Exception ("Vous n'avez pas de compte sur le laclasse.com");
                         }
                         if ($attr[0]["profile"] == 1 || $attr[0]["profile"] == 2) { // profile parent
                           // echo '<br> you dont have an account on the laclasse.com, you will be redirected to inscription page <br/>';
-                          throw new Exception ("Vous n\'avez pas de compte sur le laclasse.com");
+                          throw new Exception ("Vous n'avez pas de compte sur le laclasse.com");
                         }
                     } else { //'more than one record are found ! '
                         //sand an email to the administrator and then login in with the most recent id
@@ -314,7 +314,7 @@ function login($attributes) {
                     if (count($casattributes) == 0) {  // 'no matching is found ! '
                         // session_start();
                       // $_SESSION["noresult"]= $attr;
-                      throw new Exception ("Vous n\'avez pas de compte sur le laclasse.com");
+                      throw new Exception ("Vous n'avez pas de compte sur le laclasse.com");
                     } else { //multiple corresponding records are found in the database! '
                         // session_start() ;
                         // $_SESSION["Result"]= $casattributes;
@@ -338,7 +338,7 @@ function login($attributes) {
                 }
             }
         } else {
-            throw new Exception ("Aucun vecteur d\'identité est reçu de l'academie");
+            throw new Exception ("Aucun vecteur d'identité est reçu de l'academie");
         }
       }
     }//try
@@ -361,7 +361,7 @@ function agentLogin($attributes) {
     $log->LogDebug("recieved email".print_r($email,true));
     //print_r($email);
     if (empty($email)) {
-       throw new Exception("le vecteur d\'identité est vide");
+       throw new Exception("le vecteur d'identité est vide");
     } else {
         // create database connection
         $factoryInstance = new DBFactory();
@@ -370,7 +370,7 @@ function agentLogin($attributes) {
         $search = $db->Search_Agent_By_InsEmail($email['email']);
         if (empty($search)) {
           // echo 'the user does not exist in the database';
-          throw new Exception("Vous n\'avez pas un compte sur le laclasse.com");
+          throw new Exception("Vous n'avez pas un compte sur le laclasse.com");
         } else {
             if (count($search) == 1) {
                 //echo '' . $search[0]['login'];
@@ -404,16 +404,16 @@ function googlelogin($attributes) {
     $info = extractGoogleInfo($attributes);
     $log->LogDebug("recieved information from google ".print_r($info,true));
     if (empty($info)) {
-      throw new Exception("le vecteur d\'identité est vide");
+      throw new Exception("le vecteur d'identité est vide");
     } else {
       if (!array_key_exists('email', $info)) {
-          throw new Exception("votre email n\'est pas valide");
+          throw new Exception("votre email n'est pas valide");
         } else {
             $factoryInstance = new DBFactory();
             $db = $factoryInstance->createDB($CONFIG['DATABASE'], BACKEND_DBUSER, BACKEND_DBPASS, BACKEND_DBNAME);
             $search = $db->Search_user_by_email($info['email']);
             if (empty($search)) {
-              throw new Exception("Vous n\'avez pas un compte sur le laclasse.com");
+              throw new Exception("Vous n'avez pas un compte sur le laclasse.com");
             } else {
                 if (count($search) == 1) {
                     //echo '' . $search[0]['login'];·
@@ -437,29 +437,47 @@ function googlelogin($attributes) {
 function logoutAcademie($message = "erreur")
 {
   global $CONFIG;
-  echo '<html> <head>
-    <script>
-      function logout(){
-      //IE8 or lower
-      if (document.all && !document.addEventListener) {
-      //document//La deconnexion des services académique ne marche pas avec des iframes
-        //des//On est donc obligé d\'ouvrir une fenêtre...
-        window.open("https://services.ac-lyon.fr/login/ct_logout.jsp", "Deconnexion");
-       //window.open("?logout", "Deconnexion");
-      }
-  }
-  </script></head>';
-  echo '<body>
-    <h3>une erreur est survenue, les donn&eacute;es envoy&eacute;es par l\'academie ne permetent pas de vous identifier</h3>
-    <p> Message d\'erreur: '.$message.'</p>
-    <ul> 
-    <li> <a href="'.INSCRIPTION_URL.'" onclick="logout();">cre&eacute;z un compte sur laclasse.com </a></li>
-    <li> <a href="'.ENT_SERVER.'" onclick = "logout();"> ou connectez-vous avec un compte laclasse.com </a></li>
-    <li><A HREF="mailto:support@laclasse.com" onclick="logout();" >Envoyer le message d\'erreur au support</a></li>
-    </ul>
-    <iframe id="myIFrame"   style="display:none" src="https://services.ac-lyon.fr/login/ct_logout.jsp" ></iframe>
-    <iframe id="myIFrame"   style="display:none" src="?logout" ></iframe>
-    </body>';
+  header("Content-type: text/html");
+  echo '
+        <!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+          <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+             <head>
+              <title>'._('Service d\'Authentification Central de laclasse.com').'</title>
+              <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+              <style type="text/css" media="screen">@import \'../css/cas-laclasse.css\'/**/;</style>
+                <!--[if gte IE 6]><style type="text/css" media="screen">@import \'../css/ie_cas.css\';</style><![endif]-->
+              <script type="text/javascript">
+                   function logout(){
+                       //IE8 or lower
+                       if (document.all && !document.addEventListener) {
+                          //document//La deconnexion des services académique ne marche pas avec des iframes
+                           //des//On est donc obligé d\'ouvrir une fenêtre...
+                       window.open("https://services.ac-lyon.fr/login/ct_logout.jsp", "Deconnexion");
+                       //window.open("?logout", "Deconnexion");
+                      }
+                    }
+               </script></head>';
+echo '<body id="cas" >
+      <div id="page">
+      <h1 id="app-name">'._('Service d\'Authentification Central de laclasse.com').'</h1>
+      <div id="mire">
+         <div id="status" class="errors" style="height:300px;">
+            <h3>une erreur est survenue, les donn&eacute;es envoy&eacute;es par l\'academie ne permettent pas de vous identifier. </h3>
+            <p> Message d\'erreur: '.$message.'.</p>
+            <ul>
+             <li><a href="'.INSCRIPTION_URL.'" onclick="logout();">cre&eacute;z un compte sur laclasse.com </a></li>
+             <li> <a href="'.ENT_SERVER.'" onclick = "logout();"> Connectez-vous avec un compte laclasse.com </a></li>
+             <li><A HREF="mailto:support@laclasse.com" onclick="logout();" > Envoyer le message d\'erreur au support</a></li>
+           
+            <iframe id="myIFrame"   style="display:none" src="https://services.ac-lyon.fr/login/ct_logout.jsp" ></iframe>
+            <iframe id="myIFrame"   style="display:none" src="?logout" ></iframe>
+          </div>
+      </div>
+      <div id="footer">
+          <img src="../images/erasme.png" align="top" />
+      </div>
+      </body>
+    </html>';
 
 }
 
