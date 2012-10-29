@@ -399,5 +399,16 @@ function generatePassword($ch=3, $let=3) {
     $password .= $postfix;
     return $password;
 }
+/**
+function to merge keys array with values array 
+@param $a array of keys
+@param $b array of values
+@returns associative array of keys and values
+          null if cannot merge
+*/
+function array_real_combine($a, $b)
+{
+    return is_array($a) && is_array($b) && sizeof($a)== sizeof($b) ? array_combine($a, $b) : null ;
+}
 
 ?>

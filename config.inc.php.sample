@@ -184,6 +184,9 @@ define('Search_Parent_By_Name_EleveId', 'select parent having a certain name and
 //*** search eleve by sconet id and name in the database**/ 
 define('Search_student_By_Name_SconetId', '');
 
+define('accss_id',"1044"); 
+define('secret_key',"secret"); 
+
 //------------------------------------------------------------------------------
 // Services autoris�s � s'authentifier avec le service CAS.
 //------------------------------------------------------------------------------
@@ -272,5 +275,90 @@ $CONFIG['AUTHORIZED_SITES'] = array(
 		'authneticationMethod' => 'LDAP',
 		'attributesProvider' => MY_LDAP_REQUEST_STRING)
 );
+
+/**
+definir les parametres pour les apis utiliser
+**/
+
+$CONFIG['APIS'] = array(
+  array( 
+    'url' => 'http://localhost:9292/user',
+    'method' => 'get',
+    'headers' => null,
+    'body_params' => null, //post or put 
+    'path_param' => null,   //example user/(id) 
+    'url_params' => array("login", "password"), // user?login=&password=
+    'name' => "verify_user_password"; 
+    ),
+
+  array(
+    'url' => 'http://localhost:9292/user/sso_attributes/', 
+    'method' => 'get',
+    'headers' => null, 
+    'body_params' => null,
+    'path_param' => "login",
+    'url_params' => null, // user?login=&password=
+    'name' => "sso_attributes";  
+    ),
+
+  array( 
+    'url' => 'http://localhost:9292/user',
+    'method' => 'post',
+    'headers' => array("Content-Type"  => "application/x-www-form-urlencoded"),
+    'body_params' => array("login","password"), //post or put 
+    'path_param' => null,   //example user/(id)  only one parameter 
+    'url_params' => null, // user?login=&password=
+    'name' => "verify_user_password_post",
+    ),
+
+  array( 
+    'url' => 'http://localhost:9292/user/query/users',
+    'method' => 'get',
+    'headers' => null,
+    'body_params' => null, //post or put 
+    'path_param' => null,   //example user/(id)  only one parameter 
+    'url_params' => ("columns", "where[email.adresse]"), // user?login=&password=
+    'name' => "Search_User_By_Email",
+    ),
+
+  array( 
+    'url' => 'http://localhost:9292/user/query/users',
+    'method' => 'get',
+    'headers' => null,
+    'body_params' => null, //post or put 
+    'path_param' => null,   //example user/(id)  only one parameter 
+    'url_params' => ("columns", "where[email.adresse]", "where[email.academique]"), //columns = "nom, prenom, login"
+    'name' => "Search_Agent_By_Instmail",
+    ),
+  array( 
+    'url' => 'http://localhost:9292/user/parent/eleve',
+    'method' => 'get',
+    'headers' => null,
+    'body_params' => null, //post or put 
+    'path_param' => null,   //example user/(id)  only one parameter 
+    'url_params' => array("nom", "prenom","sconet_id"), // nom and prenom are optionals, sconet_id is mandatory 
+    'name' => "Search_Parent_By_Name_EleveSconetId",
+    ), 
+  array(
+    'url' => 'http://localhost:9292/user/query/users',
+    'method' => 'get',
+    'headers' => null,
+    'body_params' => null, //post or put 
+    'path_param' => null,   //example user/(id)  only one parameter 
+    'url_params' => ("columns", "nom", "prenom", "where[id_sconet]"), //columns = "nom, prenom, login, date_naissance, code_postal" id_sconet
+    'name' => "Search_Eleve_By_Name_SconetId",
+    ), 
+  array( 
+    'url' => 'http://localhost:9292/user/info',
+    'method' => 'get',
+    'headers' => null,
+    'body_params' => null, //post or put 
+    'path_param' => "login",   //example user/(id)  only one parameter 
+    'url_params' => null, // user?login=&password=
+    'name' => "info",
+    ),
+
+); 
+
 ?>
 

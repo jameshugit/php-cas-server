@@ -138,9 +138,9 @@ if ($_GET['test'] == "token") {
 		echo "<li>service = ".$_POST['psite']."</li></ul>";
 		echo "<li>the index of this service is ".getServiceIndex($_POST['psite'])."</li></ul>";
 		echo "<pre>";
-		echo htmlentities($db->getServiceValidate($_POST['plogin'], $_POST['psite']));
+		echo htmlentities($db->getServiceValidate($_POST['plogin'], $_POST['psite'],""));
 		echo "</pre>";
-		echo "<textarea name='ptoken' cols='100' rows='20'>".$db->getServiceValidate($_POST['plogin'], $_POST['psite'])."</textarea>";
+		echo "<textarea name='ptoken' cols='100' rows='20'>".$db->getServiceValidate($_POST['plogin'], $_POST['psite'],"")."</textarea>";
 	
 	}
 }
