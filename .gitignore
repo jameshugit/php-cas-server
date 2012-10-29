@@ -15,4 +15,5 @@ Icon?
 # Thumbnails
 ._*
 config.inc.php
+backup
 nbproject/*
