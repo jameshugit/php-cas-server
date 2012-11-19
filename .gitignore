@@ -10,7 +10,7 @@ tramp
 *~
 *.mo
 *.sw[a-p]
-.DS_Store?
+.DS_Store
 Icon?
 # Thumbnails
 ._*
