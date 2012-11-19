@@ -110,11 +110,11 @@ if ($_GET['test'] == "token") {
 	<tr><td>Login : </td><td><input type='text' id='plogin' name='plogin' value='".(isset($_POST['plogin'])? $_POST['plogin'] : "")."'/></td></tr>
 	<tr><td>Service : </td><td>";
 	//<input type='text' id='psite' name='psite' size='40' value='".(isset($_POST['psite'])? $_POST['psite'] : "http://")."'/>
-	
+  
 	echo "<select id='psite' name='psite'>\n";
 	foreach($CONFIG["AUTHORIZED_SITES"] as $col => $val) {
 		$selected = "";
-    if ($val === $_POST['psite']) $selected = " selected";
+    if ($val["url"] == $_POST['psite']) $selected = " selected='selected'";
     if(is_array($val["url"])){
       foreach($val["url"] as $url){
       echo "<option value='".$url."'".$selected.">". $val["sitename"] ." : " . $url. "</option>\n";
