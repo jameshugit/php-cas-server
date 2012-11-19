@@ -11,7 +11,8 @@
 define('T', "\t");
 
 function view_ent_manuels_numeriques($t) {
-	$jeton = _addCasAttr("user", $t['user'], 1);
+	$jeton = viewAuthHeader()."\n";
+	$jeton .= _addCasAttr("user", $t['user'], 1);
 	$jeton .= T."<cas:UserAttributes>\n";
 	$jeton .= _addCasAttr("UAI", $t['UAI'], 2);
 	$jeton .= _addCasAttr("Profil", $t['Profil'], 2);
@@ -19,6 +20,7 @@ function view_ent_manuels_numeriques($t) {
 	if ($t['Profil'] == 'National_1') $jeton .= _Eleve($t);
 	if ($t['Profil'] == 'National_3') $jeton .= _Enseignant($t);
 	$jeton .= T."</cas:UserAttributes>\n";
+	$jeton .= viewAuthFooter()."\n";
 	return $jeton;
 }
 
@@ -109,5 +111,6 @@ function _addCasMultiValAttr($groupName, $n, $t, $tab){
 		$att .=  _addCasAttr($n, str_replace('"','', $v), $tab+1);
 	}
 	$att .= $tabs."</cas:".$groupName.">\n";
-	return viewAuthHeader() . $tabs . $att . viewAuthFooter ();
+//	return viewAuthHeader() . $tabs . $att . viewAuthFooter ();
+	return $tabs . $att;
 }
