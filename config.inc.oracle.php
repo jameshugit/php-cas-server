@@ -79,7 +79,8 @@ scolaires numériques */
 
 define('SQL_FOR_ATTRIBUTES_MEN',
     '/* ELEVES */
-    select  distinct u.uid_ldap "user",
+    select  distinct 
+         u.uid_ldap "user",
          e.code_rne "UAI",
          p.lib_men "Profil",
          null "CodeNivFormation",
@@ -88,6 +89,7 @@ define('SQL_FOR_ATTRIBUTES_MEN',
          null "Filiere",
          null "Specialite",
          null "Enseignement",
+         null "MatiereEnseignEtab",
          comptes.formate_nivclasse_for_cas(c.nom) "Classe",
          groupes_eleves.get_liste_grp_elv(ui.id) "Groupe"
    from   utilisateurs u,
@@ -105,10 +107,12 @@ define('SQL_FOR_ATTRIBUTES_MEN',
       and ui.prof_id = p.id
   UNION
   /* PROFS */
-  select  distinct u.uid_ldap "user",
+  select  distinct 
+         u.uid_ldap "user",
          e.code_rne "UAI",
          p.lib_men "Profil",
          null "CodeNivFormation",
+         null "NivFormation",
          null "NivFormationDiplome",
          null "Filiere",
          null "Specialite",
