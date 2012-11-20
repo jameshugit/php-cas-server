@@ -93,7 +93,7 @@ function _addCasAttr($n,$v,$tab){
 	This function build a multivalued attribute like this :
 	Classes is the groupname and Classe is the name.
 		<cas:Classes>
-				<cas:Classe> 101</cas:Classe>
+				<cas:Classe>101</cas:Classe>
 				<cas:Classe>101</cas:Classe>
 				<cas:Classe>102</cas:Classe>
 				<cas:Classe>103</cas:Classe>
@@ -111,6 +111,5 @@ function _addCasMultiValAttr($groupName, $n, $t, $tab){
 		$att .=  _addCasAttr($n, str_replace('"','', $v), $tab+1);
 	}
 	$att .= $tabs."</cas:".$groupName.">\n";
-//	return viewAuthHeader() . $tabs . $att . viewAuthFooter ();
 	return $tabs . $att;
 }
