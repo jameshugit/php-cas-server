@@ -5,8 +5,6 @@
  * Interface that must be implemented by authenticators
  */
 
-//include_once('/var/www/sso/config.inc.php'); 
-//include_once('../config.inc.php'); 
 
 include_once(CAS_PATH.'/lib/functions.php');
 require_once(CAS_PATH.'/lib/rest_request.php'); 
@@ -930,6 +928,336 @@ class WEBAPI implements casAuthentication
     }
 }
 
+// Class ORACLEAPI 
+class ORACLEAPI implements casAuthentication
+{
+    var $api_access_key;
+    var $api_secret_key; 
+    var $api_url; 
+
+    function __construct($BACKEND_API_ACCESS, $BACKEND_API_SECRET , $BACKEND_API_URL) {
+        $this->api_access_key = $BACKEND_API_ACCESS; 
+        $this->api_secret_key = $BACKEND_API_SECRET;
+        $this->api_url = $BACKEND_API_URL;
+    }
+    // @getApi  finds an api parameters with a specific name
+    //@param $api_name  
+    //@return array of parameters or null if not found
+    private function getApi($api_name)
+    {
+      global $CONFIG;
+      foreach ($CONFIG['APIS'] as $api)
+      {
+             if (array_search($api_name, $api))
+             {
+                 return $api;
+             }
+      }
+      return null;
+
+    }
+
+    private function build_request($api,$params_values)
+    {
+        $params = array_real_combine($api["url_params"], $params_values);
+        
+        $url =$this->api_url;
+        $headers = $api['headers']; 
+        $method = "get"; 
+        return new HttpRequest($url, $headers, $method, $params); 
+    }
+
+    // for the moment this supports only body parameters
+    // builds a put or  post requests
+    private function build_post_request($api,$body_params)
+    {
+        $params = array_real_combine($api["body_params"], $body_params);
+        if(is_null($params)){
+            return null;  
+        }
+        $url = $this->api_url.$api['url']; 
+        $headers = $api['headers'];
+        $method = $api['method']; 
+        $parameters = $params; 
+        return new HttpRequest($url, $headers, $method, $parameters);
+    }
+
+    private function executeRequest($api,$params_values, $secret_key)
+    {
+        if ($api["method"] == "get") 
+        {
+            $request = $this->build_request($api, $params_values);
+
+        } 
+        elseif ($api["method"] == "post" || "put") 
+        {
+           $request = $this->build_post_request($api, $params_values);
+        }
+         $rest_request = new SimpleRestRequest($request);
+         $response = $rest_request->execute($secret_key); 
+         return $response; 
+    }
+
+
+    public function verifyLoginPasswordCredential($login, $password)
+    {
+        global $CONFIG; 
+        $api = $this->getApi("oracle_login_service"); 
+        if (is_null($api))
+            return "" ; 
+        else
+        {
+            try{
+                $pass = md5($password); 
+                $response = $this->executeRequest($api, array($login, $pass,"service_user_login"),$this->api_secret_key); 
+            }
+            catch(Exception $e){
+                //echo $e->getMessage(); 
+                return ""; 
+            }
+
+        }
+        if ($response->code = 200) {
+             $json_array = json_decode($response->body, true ); 
+             return strtoupper($json_array['login']);
+        }
+        return "";
+
+    }
+
+    public function getServiceValidate($login, $service, $pgtIou)
+    {
+        global $CONFIG;
+        // index of the global array containing the list of autorized sites.
+        $idxOfAutorizedSiteArray = getServiceIndex($service);
+        $myAttributesProvider = isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['attributesProvider']) ? 
+                                $CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['attributesProvider'] : SQL_FOR_ATTRIBUTES;
+
+        $myTokenView = isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['tokenModele']) ? 
+                       $CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['tokenModele'] : 'Default';
+
+        // An array with the needed attributes for this service.
+        $neededAttr = explode(",", str_replace(" ", "", strtoupper(isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['allowedAttributes']) ?
+                                        $CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['allowedAttributes'] :
+                                        'login,nom,prenom,date_naissance,code_postal,categories')));
+
+        $attributes = array(); // What to pass to the function that generate token
+        $attributes['user'] = $login;
+        $api = $this->getApi("oracle_service_user_attributes");
+       
+        if (!is_null($api))
+        {
+         try{
+              switch ($myAttributesProvider) 
+                {
+                    case SQL_FOR_ATTRIBUTES:
+                        $response = $this->executeRequest($api, array($login, $pass,"service_user_attributes"), $this->api_secret_key);
+                        break;           
+                    case SQL_FOR_ATTRIBUTES_MEN:
+                        $response = $this->executeRequest($api, array($login, $pass,"service_user_attributes"), $this->api_secret_key);
+                        break;
+                    case  SQL_FOR_PRONOTE:
+                        $response = $this->executeRequest($api, array($login, $pass,"service_attrs_pronote"), $this->api_secret_key);
+                        break;
+                    case  SQL_FOR_GRR:
+                        $response = $this->executeRequest($api, array($login, $pass,"service_attrs_grr"), $this->api_secret_key);
+                        break; 
+                }
+               
+            }
+            catch(Exception $e){
+                throw new Exception($e->getMessage()); 
+            }
+
+        }
+
+        if ($response->code == 200) {
+            $rowSet = json_decode($response->body, true ); 
+        }
+
+        if (isset($rowSet)) {
+            // For all attributes returned
+            foreach($rowSet as $idx => $val) {
+                if (in_array(strtoupper($idx), $neededAttr)) {
+                    $attributes[$idx] = $val;
+                }
+            }
+        }
+        
+        print_r($attributes);
+        // call the token model with the default view or custom view
+        return viewAuthSuccess($myTokenView, $attributes, $pgtIou); 
+    }
+
+    public function getSamlAttributes($login, $service)
+    {
+        
+        global $CONFIG;
+        // index of the global array containing the list of autorized sites.
+        $idxOfAutorizedSiteArray = getServiceIndex($service);
+        $myAttributesProvider = isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['attributesProvider']) ? 
+                                $CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['attributesProvider'] : SQL_FOR_ATTRIBUTES;
+
+        $myTokenView = isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['tokenModele']) ? 
+                       $CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['tokenModele'] : 'Default';
+
+        // An array with the needed attributes for this service.
+        $neededAttr = explode(",", str_replace(" ", "", strtoupper(isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['allowedAttributes']) ?
+                                        $CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['allowedAttributes'] :
+                                        'login,nom,prenom,date_naissance,code_postal,categories')));
+
+        $attributes = array(); // What to pass to the function that generate token
+        $attributes['user'] = $login;
+        $api = $this->getApi("oracle_service_user_attributes");
+       
+        if (!is_null($api))
+        {
+         try{
+              switch ($myAttributesProvider) 
+                {
+                    case SQL_FOR_ATTRIBUTES:
+                        $response = $this->executeRequest($api, array($login, $pass,"service_user_attributes"), $this->api_secret_key);
+                        break;           
+                    case SQL_FOR_ATTRIBUTES_MEN:
+                        $response = $this->executeRequest($api, array($login, $pass,"service_user_attributes"), $this->api_secret_key);
+                        break;
+                    case  SQL_FOR_PRONOTE:
+                        $response = $this->executeRequest($api, array($login, $pass,"service_attrs_pronote"), $this->api_secret_key);
+                        break;
+                    case  SQL_FOR_GRR:
+                        $response = $this->executeRequest($api, array($login, $pass,"service_attrs_grr"), $this->api_secret_key);
+                        break; 
+                }
+               
+            }
+            catch(Exception $e){
+                throw new Exception($e->getMessage()); 
+            }
+
+        }
+
+        if ($response->code == 200) {
+            $rowSet = json_decode($response->body, true ); 
+        }
+
+        if (isset($rowSet)) {
+            // For all attributes returned
+            foreach($rowSet as $idx => $val) {
+                if (in_array(strtoupper($idx), $neededAttr)) {
+                    $attributes[$idx] = $val;
+                }
+            }
+        }
+    
+        // call the token model with the default view or custom view
+        return $attributes; 
+
+    }
+    
+    public function getValidate($login, $service)
+    {
+        return 0; 
+    }
+
+    public function Search_User_By_Email($mail)
+    {
+        global $CONFIG;
+        $api = $this->getApi("oracle_service_user_agent_mail");
+
+        if (!is_null($api))
+        {
+         try{
+                $response = $this->executeRequest($api, array($mail, "service_user_mail"), $this->api_secret_key);
+            }
+            catch(Exception $e){
+                throw new Exception($e->getMessage()); 
+            }
+
+        }
+        if ($response->code == 200) {
+            $r = json_decode($response->body, true ); 
+        }
+
+    
+        return $r[0];  
+
+
+    }
+
+    public function Search_Agent_By_InsEmail($mail){
+        global $CONFIG;
+        $api = $this->getApi("oracle_service_user_agent_mail"); // search agent by academic emaiil
+
+        if (!is_null($api))
+        {
+         try{
+                $response =$this->executeRequest($api, array($mail, "service_user_agent_mail"), $this->api_secret_key);
+            }
+            catch(Exception $e){
+                throw new Exception($e->getMessage()); 
+            }
+
+        }
+         if ($response->code == 200) {
+            $r = json_decode($response->body, true ); 
+        }
+
+        return $r[0];   
+
+    }
+
+    public function Search_Parent_By_Name_EleveSconetId($nom, $prenom, $eleveid)
+    {
+        global $CONFIG; 
+        $api = $this->getApi("oracle_service_parent_eleve");
+        if (!is_null($api))
+        {
+         try{
+                $response =$this->executeRequest($api, array($eleveid, "service_user_parent_eleve"), $this->api_secret_key);
+            }
+            catch(Exception $e){
+                throw new Exception($e->getMessage()); 
+            }
+
+        }
+         if ($response->code == 200) {
+            $r = json_decode($response->body, true ); 
+        }
+
+    
+        return $r[0]; 
+    }
+
+
+    public function Search_Eleve_By_Name_SconetId($nom, $prenom, $eleveid){
+        global $CONFIG; 
+        $api = $this->getApi("oracle_service_user_eleve");
+        if (!is_null($api))
+        {
+         try{
+                $response = $this->executeRequest($api, array("$eleveid", "service_user_eleve"), $this->api_secret_key);
+            }
+            catch(Exception $e){
+                throw new Exception($e->getMessage()); 
+            }
+
+        }
+         if ($response->code == 200) {
+            $r = json_decode($response->body, true ); 
+        }
+
+    
+        return $r[0];     
+    }
+
+    public function has_default_password($login){
+        return 0; 
+    }
+
+    public function update_password($login,$pwd){
+        return 0; 
+    }
+}
 
 
 
@@ -946,5 +1274,4 @@ class DBFactory{
      return new $db($user,$password,$database);
    }
 }
-
 ?>

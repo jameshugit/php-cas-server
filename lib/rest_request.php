@@ -13,6 +13,21 @@ As its name implies HttpRequest Class defines a an http request that needs to be
 The Signature is generated using HMAC  algorithm  @ref = http://en.wikipedia.org/wiki/HMAC
 signature is inspired from https://github.com/mgomes/api_auth gem for rails
 */ 
+
+function build_string($a, $separator)
+{
+    $QueryString = "";
+    $first_round = true; 
+    foreach ($a as $Key => $Value)
+        if ($first_round){
+            $QueryString .= $Key ."=". $Value;
+            $first_round= false;
+        }
+        else 
+            $QueryString .= $separator.$Key ."=". $Value;
+    return $QueryString; 
+}
+
 class HttpRequest
 {
     var $url; 
@@ -75,6 +90,27 @@ class HttpRequest
         //var_dump($Content_md5);
         return $Content_md5;
     }
+    public function calculate_signature($secret_key)
+    {
+        ksort($this->params); 
+        $params_string = build_string($this->params,',');
+        
+        //$timestamp = date("YmdHi");
+        //print_r($timestamp); 
+        
+        //$key = "3ea76a5365d479ce414d7138bf1d2d6d365cc9b8"; 
+        $secret = array("key" => $secret_key); 
+        $secret_string = build_string($secret,',');
+        $canonical_string = $params_string.','.$secret_string; 
+        
+        
+        //echo $canonical_string; 
+        $signature = sha1($params_string.','.$secret_string);
+        
+        $this->params['signature']= $signature;
+        $this->url = $this->url.'?'.http_build_query($this->params); 
+    }
+    
     
     // populate headers in case if not specified on instantiation
     private function populate_headers()
@@ -94,7 +130,7 @@ class HttpRequest
         {
             $content_md5 = $this->headers['Content-MD5']; 
         }
-        //var_dump($content_md5);
+        //var_dump($content_md5);$this->url.
         $head['Content-MD5'] = $content_md5; 
         
         $timestamp = isset($this->headers['Date']) ? $this->headers['Date'] :  gmdate("D, d M Y H:i:s T");
@@ -130,7 +166,6 @@ class HttpRequest
         return $canonical_string; 
 
     }
-    
     //hmac signature 
     private function hmac_signature($secret_key)
     {  
@@ -141,7 +176,7 @@ class HttpRequest
         return $signature;
     }
 
-   
+ 
     private function  auth_header($access_id , $secret_key)
     {
         return "APIAuth ".$access_id.":".$this->hmac_signature($secret_key); 
@@ -155,10 +190,7 @@ class HttpRequest
         $this->signed_headers['Content-MD5']= $this -> headers["Content-MD5"];
         return $this->signed_headers;
     }
-    
-    
-       
-    
+      
 }
 
 // RestRequest encapsulates the httpful functions for (post, get, put and delete)
@@ -190,39 +222,23 @@ class RestRequest{
     }
 }
 
-
-    // Tests
-    
-    /*
-    $params = array("id" => 5);
-    $headers = array('Content-Type' => "application/x-www-form-urlencoded"); 
-    $url = "http://localhost:9292/api/authsession";
-    $method = "post"; 
-    $access_id; 
-    $secret_key; 
-    
-    $request = new HttpRequest($url,$headers, $method, $params); 
-
-    //var_dump($request->build_canonical_string()); 
-    //var_dump($request->auth_header("1044", "secret"));
-    //var_dump($request->getSigned_headers("1044", "secret"));
-    //var_dump($request->url); 
-    //$r = \Httpful\Request::post($request->url, $request->params)->expectsJson()->sendIt();
-
-    //print_r($r); 
-    //$session_key = $r->body->key;
-    //
-    //
-    $spr = new SignedPR($request); 
-    $response =  $spr->execute("1044", "secret");
-    if ($response->code == 201){
-        $json_object = json_decode($response->body); 
-        echo"key: " . $key = $json_object->key; 
+class SimpleRestRequest{
+    var $request; 
+    function __construct($request){
+       $this->request = $request; 
     }
-    else
+    function execute($secret_key)
     {
-        var_dump( json_decode($response->body)); 
+        switch ($this->request->method){
+            case "get": { 
+               $this->request->calculate_signature($secret_key);
+               $r = \Httpful\Request::get($this->request->url)->autoParse(false)->expectsJson()->sendIt();
+            }
+            break; 
+        }
+        return $r;
     }
-    */
     
+}
+
 ?>
