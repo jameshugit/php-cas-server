@@ -88,7 +88,7 @@ require_once(CAS_PATH . '/views/saml_pronote_token.php');
 function login() {
     global $CONFIG;
     $log = new KLogger($CONFIG['DEBUG_FILE'], $CONFIG['DEBUG_LEVEL']);
-    $log->LogInfo("Login Function is called");
+    $log->LogDebug("Login Function is called");
 
     $selfurl = str_replace('index.php/', 'login', $_SERVER['PHP_SELF']);
     $service = isset($_REQUEST['service']) ? $_REQUEST['service'] : false;
@@ -121,7 +121,7 @@ function login() {
               => redirect to login
              */
             // create database provider
-            $log->LogInfo('user has no TGC but is trying to post credentials');
+            $log->LogDebug('user has no TGC but is trying to post credentials');
             $factoryInstance = new DBFactory();
             $db = $factoryInstance->createDB($CONFIG['DATABASE'], BACKEND_DBUSER, BACKEND_DBPASS, BACKEND_DBNAME);
 
@@ -144,24 +144,24 @@ function login() {
 
             if ((strtoupper($db->verifyLoginPasswordCredential($_POST['username'], $_POST['password'])) == strtoupper($_POST['username']))) {
                 /* credentials ok */
-                $log->LogInfo('credentials are valid, generate a TGC');
+                $log->LogDebug('credentials are valid, generate a TGC');
                 $ticket = new TicketGrantingTicket();
                 $ticket->create($_POST['username']);
                 $var = $ticket->key();
-                $log->LogDebug("ticket: $var");
+                $log->LogDebug("Generated ticket: $var");
 
                 /* send TGC */
                 setcookie("CASTGC", $ticket->key(), 0);
-                $log->LogDebug("CASTGC cookie is set succesfully");
-                $log->LogInfo('redirect to login');
+                $log->LogDebug("CASTGC cookie is set succesfully: $ticket->key()");
+                $log->LogDebug('redirect to login');
 
                 /* Redirect to /login */
                 header("Location: " . url($selfurl) . "service=" . urlencode($service) . "");
             } else {
                 /* credentials failed */
-                // verify if we need a new login ticket
-                $log->LogInfo('Credentials faild');
-                $log->LogInfo('Try Again');
+              // verify if we need a new login ticket
+                $user = $_POST['username'] ; 
+                $log->LogError('Credentials faild for $user, try again');
                 $newloginTicket = $loginTicketPosted;
                 $lt = new LoginTicket();
                 if (!$lt->find($loginTicketPosted)) {
@@ -211,7 +211,7 @@ function login() {
         }
         if ($service) {
             if (!isServiceAutorized($service)) {
-                $log->LogError("Oops:Service is not authorized");
+                $log->LogError("Oops:Service: $service is not authorized");
                 showError(_("Cette application n'est pas autoris&eacute;e &agrave; s'authentifier sur le serveur CAS."));
                 die();
             }
@@ -225,7 +225,7 @@ function login() {
             header("Location: " . url($service) . "ticket=" . $st->key() . "");
         } else {
             // xNo service, user just wanted to login to SSO
-            $log->LogInfo("no Service");
+            $log->LogDebug("no Service was required");
             viewLoginSuccess();
         }
     }
@@ -239,14 +239,15 @@ function login() {
 function logout() {
     global $CONFIG;
     $log = new KLogger($CONFIG['DEBUG_FILE'], $CONFIG['DEBUG_LEVEL']);
-    $log->LogInfo("Logout function is called");
+    $log->LogDebug("Logout function is called");
 
     if (array_key_exists('CASTGC', $_COOKIE)) {
         /* Remove TGT */
         $tgt = new TicketGrantingTicket();
         $tgt->find($_COOKIE["CASTGC"]);
-        writeLog("LOGOUT_SUCCESS", $tgt->username());
         $tgt->delete();
+
+        $log->LogDebug("LOGOUT_SUCCES".$tgt->username()."");
 
         /* Remove cookie from client */
         setcookie("CASTGC", FALSE, 0);
@@ -254,7 +255,7 @@ function logout() {
         $log->LogDebug("CASTGT is removed...");
     } else {
         $log->LogDebug("TGC_NOT_FOUND");
-        writeLog("LOGOUT_FAILURE", "TGC_NOT_FOUND");
+       // writeLog("LOGOUT_FAILURE", "TGC_NOT_FOUND");
     }
 
 
@@ -276,13 +277,13 @@ function logout() {
 function serviceValidate() {
     global $CONFIG;
     $log = new KLogger($CONFIG['DEBUG_FILE'], $CONFIG['DEBUG_LEVEL']);
-    $log->LogInfo("Service Validate is called ...");
+    $log->LogDebug("Service Validate is called ...");
 
     $ticket = isset($_GET['ticket']) ? $_GET['ticket'] : "";
     $service = urldecode(isset($_GET['service']) ? $_GET['service'] : "");
     $renew = isset($_GET['renew']) ? $_GET['renew'] : "";
 
-    $log->LogInfo("Request parameters .....");
+    $log->LogDebug("Request parameters .....");
     $log->LogDebug("Service Ticket :$ticket");
     $log->LogDebug("Service: $service");
     $log->logDebug("renew:$renew");
@@ -314,7 +315,7 @@ function serviceValidate() {
     $pgtIou = null;
     //The web application asks for  a proxy ticket by sending pgtUrl(callback to storing proxy tickets)
     if (isset($_GET['pgtUrl'])) {
-        $log->LogInfo("The service asks for a proxy ticket to a proxied service");
+        $log->LogDebug("The service asks for a proxy ticket to a proxied service");
         $pgtUrl = urldecode($_GET['pgtUrl']);
         $log->LogDebug("Proxied Service:  $pgtUrl ");
         // creating pgtIou ticket to be used in PGT 
@@ -347,7 +348,7 @@ function serviceValidate() {
     $factoryInstance = new DBFactory();
     $db = $factoryInstance->createDB($CONFIG['DATABASE'], BACKEND_DBUSER, BACKEND_DBPASS, BACKEND_DBNAME);
     $token = $db->getServiceValidate($st->username(), $service, $pgtIou);
-    $log->LogInfo("call getServiceValidate");
+    $log->LogDebug("call getServiceValidate");
 
     // 4. destroy ST ticket because this is a one shot ticket.
     $st->delete();
@@ -359,7 +360,7 @@ function serviceValidate() {
     header("Content-type: text/xml");
 
     echo $token;
-    $log->LogInfo("End of ServiceValidate ...");
+    $log->LogDebug("End of ServiceValidate ...");
 }
 
 /**
@@ -376,8 +377,8 @@ function proxy() {
 
     // prepare loggin parameters
     $log = new KLogger($CONFIG['DEBUG_FILE'], $CONFIG['DEBUG_LEVEL']);
-    $log->LogInfo("/Proxy is called ...");
-    $log->LogInfo("request parameters");
+    $log->LogDebug("/Proxy is called ...");
+    $log->LogDebug("request parameters");
 
     $PGT = isset($_GET['pgt']) ? $_GET['pgt'] : "";
     $targetService = urldecode(isset($_GET['targetService']) ? $_GET['targetService'] : "");
@@ -416,7 +417,7 @@ function proxy() {
     header("Content-type: text/xml");
 
     echo $token;
-    $log->LogInfo("/proxy call ended..");
+    $log->LogDebug("/proxy call ended..");
 }
 
 /**
@@ -433,8 +434,8 @@ function proxyValidate() {
 
     //logging 
     $log = new KLogger($CONFIG['DEBUG_FILE'], $CONFIG['DEBUG_LEVEL']);
-    $log->LogInfo("/Proxy Validate is called ...");
-    $log->LogInfo("request parameters");
+    $log->LogDebug("/Proxy Validate is called ...");
+    $log->LogDebug("request parameters");
 
     $proxyticket = isset($_GET['ticket']) ? $_GET['ticket'] : "";
     $service = urldecode(isset($_GET['service']) ? $_GET['service'] : "");
@@ -468,7 +469,7 @@ function proxyValidate() {
     header("Content-type: text/xml");
 
     echo $token;
-    $log->LogInfo("Proxy Validate Ended ...");
+    $log->LogDebug("Proxy Validate Ended ...");
 }
 
 /**
@@ -483,7 +484,7 @@ function proxyValidate() {
 function samlValidate() {
     global $CONFIG;
     $log = new KLogger($CONFIG['DEBUG_FILE'], $CONFIG['DEBUG_LEVEL']);
-    $log->LogInfo("Saml Validate is called ...");
+    $log->LogDebug("Saml Validate is called ...");
     try {
 
         //  1-   get the soap message()  
@@ -495,7 +496,7 @@ function samlValidate() {
         $log->LogDebug("Service: $service");
         //************ verifiying the service 
         if (!isset($service)) {
-            $log->LogError("No authorized service was found !");
+            $log->LogError($service."is not an authorized service  !");
             throw new Exception('No authorized service was found ! ');
         }
 
@@ -519,7 +520,7 @@ function samlValidate() {
         //echo $ticket;   
         //  6- validate the ticket
         if (!isset($ticket) || $ticket == '') {
-            $log->LogError("No valid ticket !");
+            $log->LogError($ticket."is not a  valid ticket !");
             throw new Exception('No valid ticket');
             // add some code to view saml error message.
         }
@@ -554,7 +555,7 @@ function samlValidate() {
 
         //genterate  a failure saml reponse
         $samlFailure = PronoteTokenBuilder(8, null, null, $e->getMessage());
-        $log->LogDebug("Response: $samlFailure");
+        $log->LogError("Error". $e->getMessage());
         soapReponse($samlFailure);
     }
 }
@@ -604,6 +605,10 @@ function validateSchema($samlRequest, $samlSchema) {
 
 function validateTicket($ticket, $service) {
     global $CONFIG;
+    $log = new KLogger($CONFIG['DEBUG_FILE'], $CONFIG['DEBUG_LEVEL']);
+    $log->LogDebug("Validate ticket  is called ...");
+
+    global $CONFIG;
     $attributes = array();
     $st = new ServiceTicket();
     if (!$st->find($ticket)) {
@@ -628,7 +633,7 @@ function validateTicket($ticket, $service) {
     //***********test attributes
     //****delete tcket 
     $st->delete();
-
+    $log->LogDebug("attributes were found");
     return $attributes;
 }
 
