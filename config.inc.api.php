@@ -121,7 +121,7 @@ $CONFIG['APIS'] = array(
      'headers' => null,
      'body_params' => null, 
      'path_param' => null,   
-     'url_params' => array("id_sconet", "servicename"), // 
+     'url_params' => array("nom", "prenom", "id_sconet", "servicename"), // 
      'name' => "oracle_service_user_parent_eleve",      
     ),
     array(
@@ -130,10 +130,32 @@ $CONFIG['APIS'] = array(
      'headers' => null,
      'body_params' => null, 
      'path_param' => null,   
-     'url_params' => array("id_sconet", "servicename"), // 
+     'url_params' => array("nom","prenom", "id_sconet", "servicename"), // 
      'name' => "oracle_service_user_eleve",      
     ),
+    array(
+     'url' => 'http://www.dev.laclasse.com/pls/public/!ajax_server.service?', 
+     'method' => 'get', 
+     'headers' => null,
+     'body_params' => null, 
+     'path_param' => null,   
+     'url_params' => array("login", "servicename"), // 
+     'name' => "oracle_service_is_default_password",      
+    ),
+    array(
+     'url' => 'http://www.dev.laclasse.com/pls/public/!ajax_server.service?', 
+     'method' => 'get', 
+     'headers' => null,
+     'body_params' => null, 
+     'path_param' => null,   
+     'url_params' => array("login", "servicename"), // 
+     'name' => "oracle_service_update_password",      
+    ),
+    
     
 ); 
+
+
+   
 
 ?>

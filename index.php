@@ -264,7 +264,7 @@ function logout() {
     if (array_key_exists('url', $_GET))
         viewLogoutSuccess(array('url' => $_GET['url']));
     else
-        viewLogoutSuccess(array('url' => ''));
+        viewLogoutSuccess(array('url' => SERVICE));
     return;
 }
 

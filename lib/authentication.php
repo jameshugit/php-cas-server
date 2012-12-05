@@ -5,7 +5,6 @@
  * Interface that must be implemented by authenticators
  */
 
-
 include_once(CAS_PATH.'/lib/functions.php');
 require_once(CAS_PATH.'/lib/rest_request.php'); 
 require_once(CAS_PATH.'/views/auth_success.php');
@@ -987,6 +986,7 @@ class ORACLEAPI implements casAuthentication
         if ($api["method"] == "get") 
         {
             $request = $this->build_request($api, $params_values);
+            //print_r($request); 
 
         } 
         elseif ($api["method"] == "post" || "put") 
@@ -1051,16 +1051,21 @@ class ORACLEAPI implements casAuthentication
               switch ($myAttributesProvider) 
                 {
                     case SQL_FOR_ATTRIBUTES:
-                        $response = $this->executeRequest($api, array($login, $pass,"service_user_attributes"), $this->api_secret_key);
+                        //echo "sql for attributes \n"; 
+                        $response = $this->executeRequest($api, array($login,"service_user_attributes"), $this->api_secret_key);
                         break;           
                     case SQL_FOR_ATTRIBUTES_MEN:
-                        $response = $this->executeRequest($api, array($login, $pass,"service_user_attributes"), $this->api_secret_key);
+                        //il n'est pas encore developp
+                        //echo "sql for attributes men \n"; 
+                        $response = $this->executeRequest($api, array($login,"service_user_attributes"), $this->api_secret_key);
                         break;
                     case  SQL_FOR_PRONOTE:
-                        $response = $this->executeRequest($api, array($login, $pass,"service_attrs_pronote"), $this->api_secret_key);
+                        //echo "sql for pronote \n"; 
+                        $response = $this->executeRequest($api, array($login,"service_user_attrs_pronote"), $this->api_secret_key);
                         break;
                     case  SQL_FOR_GRR:
-                        $response = $this->executeRequest($api, array($login, $pass,"service_attrs_grr"), $this->api_secret_key);
+                        //echo "sql for Grr \n"; 
+                        $response = $this->executeRequest($api, array($login,"service_user_attrs_grr"), $this->api_secret_key);
                         break; 
                 }
                
@@ -1075,16 +1080,15 @@ class ORACLEAPI implements casAuthentication
             $rowSet = json_decode($response->body, true ); 
         }
 
-        if (isset($rowSet)) {
+        if (isset($rowSet[0])) {
             // For all attributes returned
-            foreach($rowSet as $idx => $val) {
+            foreach($rowSet[0] as $idx => $val) {
                 if (in_array(strtoupper($idx), $neededAttr)) {
                     $attributes[$idx] = $val;
                 }
             }
         }
         
-        print_r($attributes);
         // call the token model with the default view or custom view
         return viewAuthSuccess($myTokenView, $attributes, $pgtIou); 
     }
@@ -1116,16 +1120,21 @@ class ORACLEAPI implements casAuthentication
               switch ($myAttributesProvider) 
                 {
                     case SQL_FOR_ATTRIBUTES:
-                        $response = $this->executeRequest($api, array($login, $pass,"service_user_attributes"), $this->api_secret_key);
+                        //echo "sql for attributes \n"; 
+                        $response = $this->executeRequest($api, array($login,"service_user_attributes"), $this->api_secret_key);
                         break;           
                     case SQL_FOR_ATTRIBUTES_MEN:
-                        $response = $this->executeRequest($api, array($login, $pass,"service_user_attributes"), $this->api_secret_key);
+                        //il n'est pas encore developp
+                        //echo "sql for attributes men \n"; 
+                        $response = $this->executeRequest($api, array($login,"service_user_attributes"), $this->api_secret_key);
                         break;
                     case  SQL_FOR_PRONOTE:
-                        $response = $this->executeRequest($api, array($login, $pass,"service_attrs_pronote"), $this->api_secret_key);
+                        //echo "sql for pronote \n"; 
+                        $response = $this->executeRequest($api, array($login,"service_user_attrs_pronote"), $this->api_secret_key);
                         break;
                     case  SQL_FOR_GRR:
-                        $response = $this->executeRequest($api, array($login, $pass,"service_attrs_grr"), $this->api_secret_key);
+                        //echo "sql for Grr \n"; 
+                        $response = $this->executeRequest($api, array($login,"service_user_attrs_grr"), $this->api_secret_key);
                         break; 
                 }
                
@@ -1137,12 +1146,13 @@ class ORACLEAPI implements casAuthentication
         }
 
         if ($response->code == 200) {
-            $rowSet = json_decode($response->body, true ); 
+            $rowSet = json_decode($response->body, true );
+            
         }
 
-        if (isset($rowSet)) {
+        if (isset($rowSet[0])) {
             // For all attributes returned
-            foreach($rowSet as $idx => $val) {
+            foreach($rowSet[0] as $idx => $val) {
                 if (in_array(strtoupper($idx), $neededAttr)) {
                     $attributes[$idx] = $val;
                 }
@@ -1179,7 +1189,7 @@ class ORACLEAPI implements casAuthentication
         }
 
     
-        return $r[0];  
+        return $r;  
 
 
     }
@@ -1202,18 +1212,19 @@ class ORACLEAPI implements casAuthentication
             $r = json_decode($response->body, true ); 
         }
 
-        return $r[0];   
+        return $r;   
 
     }
 
     public function Search_Parent_By_Name_EleveSconetId($nom, $prenom, $eleveid)
     {
         global $CONFIG; 
-        $api = $this->getApi("oracle_service_parent_eleve");
+        $api = $this->getApi("oracle_service_user_parent_eleve");
+        
         if (!is_null($api))
         {
          try{
-                $response =$this->executeRequest($api, array($eleveid, "service_user_parent_eleve"), $this->api_secret_key);
+                $response = $this->executeRequest($api, array($nom, $prenom, $eleveid, "service_user_parent_eleve"), $this->api_secret_key);
             }
             catch(Exception $e){
                 throw new Exception($e->getMessage()); 
@@ -1225,7 +1236,7 @@ class ORACLEAPI implements casAuthentication
         }
 
     
-        return $r[0]; 
+        return $r; 
     }
 
 
@@ -1235,7 +1246,7 @@ class ORACLEAPI implements casAuthentication
         if (!is_null($api))
         {
          try{
-                $response = $this->executeRequest($api, array("$eleveid", "service_user_eleve"), $this->api_secret_key);
+                $response = $this->executeRequest($api, array($nom, $prenom, $eleveid, "service_user_eleve"), $this->api_secret_key);
             }
             catch(Exception $e){
                 throw new Exception($e->getMessage()); 
@@ -1247,15 +1258,47 @@ class ORACLEAPI implements casAuthentication
         }
 
     
-        return $r[0];     
+        return $r;     
     }
 
     public function has_default_password($login){
-        return 0; 
+        global $CONFIG; 
+        $api = $this->getApi("oracle_service_is_default_password");
+        if (!is_null($api))
+        {
+         try{
+                $response = $this->executeRequest($api, array($login, "service_is_default_password"), $this->api_secret_key);
+            }
+            catch(Exception $e){
+                throw new Exception($e->getMessage()); 
+            }
+
+        }
+         if ($response->code == 200) {
+            $r = json_decode($response->body, true ); 
+        }
+
+        return $r["is_default_password"]== "1" ? 1 : 0;
     }
 
     public function update_password($login,$pwd){
-        return 0; 
+        global $CONFIG; 
+        $api = $this->getApi("oracle_service_update_password");
+        if (!is_null($api))
+        {
+         try{
+               // $response = $this->executeRequest($api, array($login, "service_update_password"), $this->api_secret_key);
+            }
+            catch(Exception $e){
+                throw new Exception($e->getMessage()); 
+            }
+
+        }
+         if ($response->code == 200) {
+            $r = json_decode($response->body, true ); 
+        }
+
+        return $r;
     }
 }
 
@@ -1268,10 +1311,11 @@ class ORACLEAPI implements casAuthentication
 class DBFactory{
    // create database class instance
    public function createDB($db,$user='',$password='',$database='db.sqlite'){
-     if($db!='MYSQL'&&$db!='ORACLE'&&$db!='WEBAPI'){
+     if($db!='MYSQL'&&$db!='ORACLE'&&$db!='WEBAPI'&&$db!='ORACLEAPI'){
        throw new Exception('Invalid type of database class');
      }
      return new $db($user,$password,$database);
    }
 }
+
 ?>
