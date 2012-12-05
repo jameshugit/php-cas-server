@@ -1287,7 +1287,7 @@ class ORACLEAPI implements casAuthentication
         if (!is_null($api))
         {
          try{
-               // $response = $this->executeRequest($api, array($login, "service_update_password"), $this->api_secret_key);
+               $response = $this->executeRequest($api, array($login, "service_update_password"), $this->api_secret_key);
             }
             catch(Exception $e){
                 throw new Exception($e->getMessage()); 
