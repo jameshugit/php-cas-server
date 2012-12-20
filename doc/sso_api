@@ -1,0 +1,145 @@
+################################################
+#documentation apis of needed by the SSO server#
+################################################  
+
+desc "Renvois le profil utilisateur si on passe le bon login/password"
+  
+  params{
+    requires :login, type: String
+    requires :password, type: String
+    }
+  end
+  
+  get "/user" 
+  
+  output {
+   user Json object if user is found 
+   or error 404 if not
+  } 
+
+##**************************************##
+ 
+ 
+desc "Service spécifique au SSO retourne un jeton  sso_attributes_men"
+  params {
+    requires :login , type: String   
+  }
+
+  get "/user/sso_attributes_men/:login" 
+    
+  output {
+    an array that contains a hash of (attributes) if user exists 
+      attributes = {
+        "user" => user.id,
+        "UAI" => ,
+        "ENTPersonProfils" => ,
+        "CodeNivFormation" => ,
+        "NivFormation" => ,
+        "NivFormationDiplome" => ,
+        "Filiere" =>,
+        "Specialite" => ,
+        "Enseignement" => ,
+        "Classe" => ,
+        "Groupe" => ,
+        "MatiereEnseignEtab" =>, 
+      }
+
+    or empty array if user does not exist
+    ex. [{:user => user.id, :UAI => user.UAI, :ENTPersonProfils => user.ENTPersonProfils, .....}]
+  }
+
+
+
+##*****************************************##
+
+desc "Service spécifique au SSO retourne sso_attributes "
+  params {
+    requires :login , type: String   
+  }
+
+  get "/user/sso_attributes/:login"
+
+  output {
+    an array that contains a hash of (attributes) if user exists
+    attributes = {
+      "login" => u.login,
+      "pass" => u.password,
+      "ENT_id" => u.id,
+      "uid" => u.id,
+      "LaclasseNom" => u.nom,
+      "LaclassePrenom" => u.prenom,
+      "LaclasseDateNais" => u.date_naissance,
+      "LaclasseSexe" => u.sexe,
+      "LaclasseAdresse" => u.adresse,
+      "LaclasseCivilite" => u.civilite,
+      "ENTPersonStructRattach" => profil_user.etablissement.code_uai,
+      "ENTPersonStructRattachRNE" => profil_user.etablissement.code_uai,
+      "ENTPersonProfils" => profil_user.profil.code_national,
+      "LaclasseEmail" => u.email_principal,
+      "LaclasseEmailAca" => u.email_academique
+    }
+  empty array if user does not exist
+  ex. [{:login => u.login, :pass => u.password,.....}]
+}
+
+
+##******************************************##
+
+desc "Search parents of a student who has a specific sconet_id"
+  params {
+    requires :id_sconet, type: Integer 
+    optional :nom, type: String
+    optional :prenom, type: String
+  }
+  # returns empty array if parent(s) is(are) not found
+  get "/user/parent/eleve/:id_sconet" 
+
+  output {
+    returns array of parent(s) if parents exists 
+    or empty array if parent(s) is(are) not found
+    ex. [{:user => user.login, :login => user.login, :nom => user.nom , :prenom: user.prenom, :category => user.category}, { }] 
+  }
+
+##*******************************************##
+desc "Search a student (eleve) who has a specific sconet_id"
+  params {
+    requires :id_sconet, type: Integer 
+    optional :nom, type: String
+    optional :prenom, type: String
+  }
+  # returns array if user is found
+  get "/user/eleve/:id_sconet"  
+  
+  output{ 
+    an array if (eleve) exists or empty array if not
+    ex. [{:user => user.login, :login => user.login, :nom => user.nom , :prenom: user.prenom, :category => user.category}]  
+ }
+
+##******************************************##
+
+desc "search an agent by instmail"
+params {
+     requires :email_academic, type: String
+}
+get "/user/agent/:email_academic"
+
+output{
+ an array if user(s) exists or empty array if not
+ ex. [{:user => user.login, :login => user.login, :nom => user.nom , :prenom: user.prenom, :category => user.category}]  
+}
+
+##*****************************************##
+desc "search a user by mail" (for google login)
+params{
+   requires :email, type: String
+}
+get "/user/:email"
+
+output {
+ an array if user(s) exists or empty array if not
+ ex. [{:user => user.login, :login => user.login, :nom => user.nom , :prenom: user.prenom, :category => user.category}] 
+}
+##********************************************##
+
+
+

@@ -223,14 +223,16 @@ function sendalert($attributes) {
 function login($attributes) {
     global $CONFIG;
     $log = new KLogger($CONFIG['DEBUG_FILE'], $CONFIG['DEBUG_LEVEL']);
-    $log->LogInfo("Login profile parent/eleve is called");
+    $log->LogDebug("Login profile parent/eleve is called");
     try {
       if (empty($attributes)) { // no attributes sent by the idp 
+        $log->LogError("Recieved identity vector :".print_r($attributes,true));
         throw new Exception("le serveur de la f&eacute;deration n\'a pas envoy&eacute; des attributs");
       } else {
         $attr = extractVector($attributes);
         $log->LogDebug("Recieved identity vector :".print_r($attributes,true));
         $log->LogDebug("extracted attributes:".print_r($attr,true));
+
         // print_r($attr) ;
         if (count($attr) > 0) {      // identity vector is successfully extracted
             if (count($attr) == 1) {  // case of one identity vector
@@ -245,6 +247,8 @@ function login($attributes) {
                     $factoryInstance = new DBFactory();
                     $db = $factoryInstance->createDB($CONFIG['DATABASE'], BACKEND_DBUSER, BACKEND_DBPASS, BACKEND_DBNAME);
                     $casattributes = $db->Search_Eleve_By_Name_SconetId($nom, $prenom, $eleveid);
+                    $log->LogDebug("eleve attributes in database:".print_r($casattributes,true));
+
                 }
                 // profil parent 
                 if ($profil == 1 || $profil == 2) {
@@ -253,6 +257,7 @@ function login($attributes) {
                     $casattributes = $db->Search_Parent_By_Name_EleveSconetId($nom, $prenom, $eleveid);
                 }
                 $log->LogDebug("casattributes".print_r($casattributes,true));
+                $log->LogError("attributes in database:".print_r($casattributes,true));
                 if (count($casattributes) == 1) { // one corresponding record is found in the database
                     $var = $casattributes[0]['login'];
                     //user has a default password that need to be changed
@@ -263,15 +268,18 @@ function login($attributes) {
                 } else {
                     if (count($casattributes) == 0) {  // 'no matching is found'
                         if ($attr[0]["profile"] == 3 || $attr[0]["profile"] == 4) { // profile eleve·
-                            // echo '<br> you dont have an account on the laclasse.com, you will be redirected to inscription page <br/>';
+                          // echo '<br> you dont have an account on the laclasse.com, you will be redirected to inscription page <br/>';
+                            $log->LogError("retrieved cas attr :".print_r($casattributes,true));
                             throw new Exception ("Vous n'avez pas de compte sur le laclasse.com");
                         }
                         if ($attr[0]["profile"] == 1 || $attr[0]["profile"] == 2) { // profile parent
                           // echo '<br> you dont have an account on the laclasse.com, you will be redirected to inscription page <br/>';
+                          $log->LogError("retrieved cas attr :".print_r($casattributes,true));
                           throw new Exception ("Vous n'avez pas de compte sur le laclasse.com");
                         }
                     } else { //'more than one record are found ! '
-                        //sand an email to the administrator and then login in with the most recent id
+                      //sand an email to the administrator and then login in with the most recent idi
+                        $log->LogError("multi accounts were found :".print_r($casattributes,true));
                         sendalert($casattributes);
                         if ($db->has_default_password($casattributes[0]['login']))
                             $db->update_password($casattributes[0]['login'], generatePassword(3,3));
@@ -303,6 +311,8 @@ function login($attributes) {
                 }
                 // echo '<br>account founded <br/>'; 
                 // print_r($casattributes); 
+                $log->LogError("CAS attributes in database:".print_r($casattributes,true));
+                $log->LogDebug("eleve attributes in database:".print_r($casattributes,true));
 
                 if (count($casattributes) == 1) { // one corresponding record is found in the database
                     $var = $casattributes[0]['login'];
@@ -314,6 +324,7 @@ function login($attributes) {
                     if (count($casattributes) == 0) {  // 'no matching is found ! '
                         // session_start();
                       // $_SESSION["noresult"]= $attr;
+                      $log->LogError("retrieved cas attr :".print_r($casattributes,true));
                       throw new Exception ("Vous n'avez pas de compte sur le laclasse.com");
                     } else { //multiple corresponding records are found in the database! '
                         // session_start() ;
@@ -344,6 +355,9 @@ function login($attributes) {
     }//try
     catch(Exception $e)
     {
+      $log->LogError("Error: ".$e->getMessage());
+      $log->LogError("Recieved identity vector :".print_r($attributes,true));
+
       logoutAcademie($e->getMessage());
       exit();
     }
@@ -353,7 +367,7 @@ function login($attributes) {
 function agentLogin($attributes) {
   global $CONFIG;
   $log = new KLogger($CONFIG['DEBUG_FILE'], $CONFIG['DEBUG_LEVEL']);
-  $log->LogInfo("Login profile agent is called");
+  $log->LogDebug("Login profile agent is called");
   $log->LogDebug("recieved attributes from the academie".print_r($attributes,true));
 
   try{
@@ -361,6 +375,7 @@ function agentLogin($attributes) {
     $log->LogDebug("recieved email".print_r($email,true));
     //print_r($email);
     if (empty($email)) {
+      $log->LogError("recieved attributes from the academie :".print_r($attributes,true));
        throw new Exception("le vecteur d'identité est vide");
     } else {
         // create database connection
@@ -370,6 +385,7 @@ function agentLogin($attributes) {
         $search = $db->Search_Agent_By_InsEmail($email['email']);
         if (empty($search)) {
           // echo 'the user does not exist in the database';
+          $log->LogError("retrieved cas attr :".print_r($search,true));
           throw new Exception("Vous n'avez pas un compte sur le laclasse.com");
         } else {
             if (count($search) == 1) {
@@ -378,7 +394,8 @@ function agentLogin($attributes) {
                     $db->update_password($search[0]['login'],  generatePassword(3,3)); 
                 CASlogin($search[0]['login'], 'FIM');
             } else {
-                //person with multiple accounts
+              //person with multiple accounts
+                $log->LogError("retrieved cas attr :".print_r($search,true));
                 sendalert($search);
                 if ($db->has_default_password($search[0]['login']))
                     $db->update_password($search[0]['login'],  generatePassword(3,3)); 
@@ -389,6 +406,8 @@ function agentLogin($attributes) {
   }
   catch(Exception $e)
   {
+    $log->LogError("Error: ".$e.getMessage);
+    $log->LogError("recieved attributes from the acadmie".$attributes);
     logoutAcademie($e->getMessage());
     exit();
   }
