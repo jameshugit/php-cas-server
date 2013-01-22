@@ -17,5 +17,5 @@ Icon?
 config.inc.php
 backup
 backup.php
-config.inc.sites.php
+config.inc.*.php
 nbproject/*
