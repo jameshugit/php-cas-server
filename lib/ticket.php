@@ -84,7 +84,7 @@ final class TicketStorage {
         $options = array('servers' => array());
 
         foreach ($CONFIG['REDIS_SERVERS'] as $srvary) {
-            error_log("Added server " . $srvary[0]);
+        //    error_log("Added server " . $srvary[0]);
 
             array_push($options['servers'], array('host' => $srvary[0], 'port' => $srvary[1]));
 
