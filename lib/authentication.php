@@ -758,7 +758,7 @@ class WEBAPI implements casAuthentication
             }
         }
         
-        print_r($attributes);
+        // print_r($attributes);
         // call the token model with the default view or custom view
         return viewAuthSuccess($myTokenView, $attributes, $pgtIou); 
     }
