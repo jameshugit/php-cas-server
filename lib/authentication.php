@@ -1017,7 +1017,7 @@ class ORACLEAPI implements casAuthentication
             }
 
         }
-        print_r($response);
+        //print_r($response);
         if ($response->code = 200) {
              $json_array = json_decode(utf8_encode($response->body), true ); 
              return strtoupper($json_array['login']);
