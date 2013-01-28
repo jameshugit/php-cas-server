@@ -69,9 +69,9 @@ require_once('config.inc.php');
 require_once(CAS_PATH . '/lib/functions.php');
 require_once(CAS_PATH . '/lib/ticket.php');
 require_once(CAS_PATH . '/lib/Utilities.php');
-require_once (CAS_PATH . '/lib/saml/binding/HttpSoap.php');
-require_once (CAS_PATH . '/lib/KLogger.php');
-require_once (CAS_PATH . '/lib/Mobile_Detect.php');
+require_once(CAS_PATH . '/lib/saml/binding/HttpSoap.php');
+require_once(CAS_PATH . '/lib/KLogger.php');
+require_once(CAS_PATH . '/lib/Mobile_Detect.php');
 
 require_once(CAS_PATH . '/views/error.php');
 require_once(CAS_PATH . '/views/login.php');
@@ -220,7 +220,7 @@ function login() {
             $st = new ServiceTicket();
             $st->create($tgt->key(), $service, $tgt->username());
             $log->LogDebug("Service Ticket :" . $st->key() . "");
-            $log->LogDebug("Redirect to :" . url($service) . " &ticket:" . $st->key() . "");
+            $log->LogDebug("Redirect to :" . url($service) . "&ticket=" . $st->key() . "");
             // Redirecting for futher client request for serviceValidate
             header("Location: " . url($service) . "ticket=" . $st->key() . "");
         } else {
@@ -361,6 +361,62 @@ function serviceValidate() {
 
     echo $token;
     $log->LogDebug("End of ServiceValidate ...");
+}
+
+/**
+  * serviceTicket sends a ticket directly to a destination site
+  *
+*/
+
+function serviceTicket(){
+      global $CONFIG; 
+      //start debugging
+      $log = new KLogger($CONFIG['DEBUG_FILE'], $CONFIG['DEBUG_LEVEL']);
+      $log->LogInfo("Service Ticket Function is called");
+      $log->LogDebug("sent cookies:".print_r($_COOKIE,true));
+      $log->LogDebug("sent Request:".print_r($_REQUEST,true));
+      $service = isset($_REQUEST['service']) ? $_REQUEST['service'] : false;
+      $login = isset($_REQUEST['login'])?$REQUEST['login']: false; 
+      $key =  isset($_REQUEST['key'])?$REQUEST['key']: false;
+      if($service && $login && $key){
+        //verify signature
+        $string_to_sign = "login=".$login.",service=".$service.",key=secret";
+        $signature = sha1($string_to_sign);
+        $log->LogDebug("signature= $signature");
+      }
+      if (!array_key_exists('CASTGC', $_COOKIE)) { 
+        /*     * * user has no TGC ** */
+        // redirect to login page
+        /* user has no TGC 
+        *=> notnecessary in this case 
+        => create a service ticket depending on the sourceservice
+        => redirect desinedservice url with service ticket  encoded in the url
+        header("Location: " . url($destinedservice) . "serviceticket=" . ticket. ""); 
+               */
+      } else { /*** user has TGC ***/
+        $tgt = new TicketGrantingTicket();
+        /// @todo Well, do something meaningful...
+        if (!$tgt->find($_COOKIE["CASTGC"])) {
+        $log->LogError("Oops:Ticket Granting Ticket is not found");
+        viewError("le cookie n est pas valide");
+        die();
+        }else
+        { 
+          if($service){ 
+            //create a service ticket depending on the sourceservice
+            // => redirect desinedservice url with service ticket  encoded in the url
+            $st = new ServiceTicket();
+            $st->create($tgt->key(), $service, $tgt->username());
+            $log->LogDebug("Service Ticket :" . $st->key() . "");
+            $log->LogDebug("Redirect to :" . url($service) . "ticket=" . $st->key() . "");
+            header("Location: " . url($service) . "ticket=" .$st->key(). ""); 
+         }
+          else{
+            $log->LogDebug("le service nest pas valid");
+            //no service is found
+          }
+        }
+      }
 }
 
 /**
@@ -702,7 +758,9 @@ switch (strtolower($action)) {
     case 'proxy':
         proxy();
         break;
-
+    case 'serviceticket':
+        serviceTicket();
+        break;
     default :
         showError(_("Action inconnue."));
 }
