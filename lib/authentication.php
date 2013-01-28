@@ -437,7 +437,7 @@ class MYSQL implements casAuthentication
     	$myAttributesProvider = isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['MysqlattributesProvider']) ? 
     							$CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['MysqlattributesProvider'] : MySQL_FOR_ATTRIBUTES;
 
-    	$myTokenView = isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['tokenModele']) ? 
+      $myTokenView = isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['tokenModele']) ? 
     				   $CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['tokenModele'] : 'Default';
     	// If service index is null, service is not allow to connect to our sso.
     	//if ($idxOfAutorizedSiteArray == "")
@@ -758,7 +758,7 @@ class WEBAPI implements casAuthentication
             }
         }
         
-        print_r($attributes);
+        // print_r($attributes);
         // call the token model with the default view or custom view
         return viewAuthSuccess($myTokenView, $attributes, $pgtIou); 
     }
@@ -1017,8 +1017,9 @@ class ORACLEAPI implements casAuthentication
             }
 
         }
+        print_r($response);
         if ($response->code = 200) {
-             $json_array = json_decode($response->body, true ); 
+             $json_array = json_decode(utf8_encode($response->body), true ); 
              return strtoupper($json_array['login']);
         }
         return "";
@@ -1076,9 +1077,15 @@ class ORACLEAPI implements casAuthentication
 
         }
 
+       
+      
+
         if ($response->code == 200) {
-            $rowSet = json_decode($response->body, true ); 
+            $rowSet = json_decode(utf8_encode($response->body), true ); 
         }
+    
+
+     
 
         if (isset($rowSet[0])) {
             // For all attributes returned
@@ -1088,7 +1095,7 @@ class ORACLEAPI implements casAuthentication
                 }
             }
         }
-        
+        //print_r($rowSet); 
         // call the token model with the default view or custom view
         return viewAuthSuccess($myTokenView, $attributes, $pgtIou); 
     }
@@ -1146,7 +1153,7 @@ class ORACLEAPI implements casAuthentication
         }
 
         if ($response->code == 200) {
-            $rowSet = json_decode($response->body, true );
+            $rowSet = json_decode(utf8_encode($response->body), true );
             
         }
 
@@ -1185,7 +1192,7 @@ class ORACLEAPI implements casAuthentication
 
         }
         if ($response->code == 200) {
-            $r = json_decode($response->body, true ); 
+            $r = json_decode(utf8_encode($response->body), true ); 
         }
 
     
@@ -1209,7 +1216,7 @@ class ORACLEAPI implements casAuthentication
 
         }
          if ($response->code == 200) {
-            $r = json_decode($response->body, true ); 
+            $r = json_decode(utf8_encode($response->body), true ); 
         }
 
         return $r;   
@@ -1232,7 +1239,7 @@ class ORACLEAPI implements casAuthentication
 
         }
          if ($response->code == 200) {
-            $r = json_decode($response->body, true ); 
+            $r = json_decode(utf8_encode($response->body), true ); 
         }
 
     
@@ -1254,7 +1261,7 @@ class ORACLEAPI implements casAuthentication
 
         }
          if ($response->code == 200) {
-            $r = json_decode($response->body, true ); 
+            $r = json_decode(utf8_encode($response->body), true ); 
         }
 
     
@@ -1275,7 +1282,7 @@ class ORACLEAPI implements casAuthentication
 
         }
          if ($response->code == 200) {
-            $r = json_decode($response->body, true ); 
+            $r = json_decode(utf8_encode($response->body), true ); 
         }
 
         return $r["is_default_password"]== "1" ? 1 : 0;
@@ -1295,7 +1302,7 @@ class ORACLEAPI implements casAuthentication
 
         }
          if ($response->code == 200) {
-            $r = json_decode($response->body, true ); 
+            $r = json_decode(utf8_encode($response->body), true ); 
         }
 
         return $r;
