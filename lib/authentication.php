@@ -1008,7 +1008,7 @@ class ORACLEAPI implements casAuthentication
         else
         {
             try{
-                $pass = md5($password); 
+                $pass = md5(utf8_decode($password)); 
                 $response = $this->executeRequest($api, array($login, $pass,"service_user_login"),$this->api_secret_key); 
             }
             catch(Exception $e){
@@ -1017,7 +1017,7 @@ class ORACLEAPI implements casAuthentication
             }
 
         }
-       // print_r($response);
+      // print_r($response);
         if ($response->code = 200) {
              $json_array = json_decode(utf8_encode($response->body), true ); 
              return strtoupper($json_array['login']);
