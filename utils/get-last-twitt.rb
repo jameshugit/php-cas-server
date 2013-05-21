@@ -1,6 +1,12 @@
 #!/usr/bin/env ruby
 # encoding: utf-8
 
+require 'net/http'
+require 'logger'
+require 'json'
+require 'json_builder'
+require 'redis'
+require 'optparse'
 #
 ##
 # 
@@ -29,12 +35,6 @@
 # SHELL=/bin/bash
 # */30 * * * * source "$HOME/.rvm/scripts/rvm" && /some/path/get-last-twitt.rb /configfile/path
 #
-
-require 'twitter'
-require 'logger'
-require 'json_builder'
-require 'redis'
-require 'optparse'
 
 $logger = Logger.new(STDERR)
 $logger.level = Logger::ERROR
@@ -134,17 +134,26 @@ log_and_exit "Error : hashtag must be prefixed with '#'" unless (hashtag.gsub('^
 user.gsub!('@','')
 
 # we build the twitter API query
-query = "from:#{user} #{hashtag}"
+q = "from:#{user} #{hashtag}"
 
 # log it, if someone is interested
-$logger.info "query : #{query}"
+$logger.info "query : #{q}"
 
-# and then search
-begin
-  twitt = Twitter.search(query, :rpp => 1).first
-rescue Exception => e
-  $logger.error e.message
-#  $logger.error e.backtrace.join("\n")
+params = { :q => q,
+           :rpp => 1,
+           :include_entities => true,
+           :result_type => "recent" }
+
+uri = URI("http://search.twitter.com/search.json")
+
+uri.query = URI.encode_www_form(params)
+
+res = Net::HTTP.get_response(uri)
+
+if res.is_a?(Net::HTTPSuccess)
+  twitt = JSON.parse(res.body)
+else
+  $logger.error "Error : %s %s %s" % [res.code, res.message, res.class.name]
   exit
 end
 
@@ -155,8 +164,10 @@ if twitt.nil?
   exit
 end
 
+twitt = twitt['results'].first
+text = twitt['text']
 # some information for the caring developper
-$logger.info "Found twitt : #{twitt.text}"
+$logger.info "Found twitt : #{text}"
 
 # well, this is prolly useless
 # it comes from an epic battle with memcached
@@ -164,16 +175,14 @@ $logger.info "Found twitt : #{twitt.text}"
 # which is something that never happened.
 # Memcached won't, but was kicked out in favor of redis
 # something that was going to happen anyway
-twitt.text.encode!('ISO-8859-1')
-text = twitt.text
+text.encode!('ISO-8859-1')
 
-date = "#{twitt.created_at.day}/#{twitt.created_at.month}/#{twitt.created_at.year}"
+(day, month, year) = twitt['created_at'].split(' ')[1..3]
 
-# ha yeah, this vvvvv was the memcached stuff, see how that sucked
-# dc = Dalli::Client.new('127.0.0.1:11211', :expires_in => 15*86400)
-# well, it's not obvious but IT REALLY SUCKED and ruined my day
+month = [ 'Jan', 'Feb', 'Mar','Apr','May','Jun','Jul','Aug','Sep','Nov','Dec' ].index(month) + 1
 
-# and now, Redis, see how that rules
+date = "#{day}/#{month}/#{year}"
+
 dc = Redis.new(:host => redis_server, :port => redis_port)
 
 dc.set "#{keyroot}text", text.to_json
