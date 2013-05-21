@@ -2,7 +2,7 @@
 
 $CONFIG['APIS'] = array(
   array( 
-    'url' => '/user',
+    'url' => '/sso',
     'method' => 'get',
     'headers' => null,
     'body_params' => null, 
@@ -12,7 +12,7 @@ $CONFIG['APIS'] = array(
     ),
 
   array(
-    'url' => '/user/sso_attributes/', 
+    'url' => '/sso/sso_attributes/', 
     'method' => 'get',
     'headers' => null, 
     'body_params' => null,
@@ -22,7 +22,7 @@ $CONFIG['APIS'] = array(
     ),
 
   array( 
-    'url' => '/user',
+    'url' => '/sso',
     'method' => 'post',
     'headers' => array("Content-Type"  => "application/x-www-form-urlencoded"),
     'body_params' => array("login","password"), //post or put 
@@ -32,7 +32,7 @@ $CONFIG['APIS'] = array(
     ),
 
   array( 
-    'url' => '/user/query/users',
+    'url' => '/sso/query/users',
     'method' => 'get',
     'headers' => null,
     'body_params' => null, // only post or put 
@@ -41,7 +41,7 @@ $CONFIG['APIS'] = array(
     ),
 
   array(
-    'url' => '/user/sso_attributes_men/',
+    'url' => '/sso/sso_attributes_men/',
     'method' => 'get',
     'headers' => null,
     'body_params' => null,
@@ -86,6 +86,7 @@ $CONFIG['APIS'] = array(
     'url_params' => null, // 
     'name' => "info",
     ),
+    
     /// oracle api 
   array(
      'url' => 'http://www.dev.laclasse.com/pls/public/!ajax_server.service?', 

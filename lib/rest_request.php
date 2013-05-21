@@ -232,7 +232,7 @@ class SimpleRestRequest{
         switch ($this->request->method){
             case "get": { 
                $this->request->calculate_signature($secret_key);
-               //echo $this->request->url; 
+               //print_r($this->request); 
                $r = \Httpful\Request::get($this->request->url)->autoParse(false)->expectsJson()->sendIt();
             }
             break; 
@@ -240,98 +240,27 @@ class SimpleRestRequest{
         return $r;
     }
     
+} 
+
+class MysqlRestRequest{
+  var $request;
+  function __construct($request){
+    $this->request = $request;
+  }
+  function execute($secret_key)
+  {
+       switch ($this->request->method){
+           case "get": {
+              //$this->request->calculate_signature($secret_key);
+              //print_r($this->request);
+              $this->request->headers['session_key']=$secret_key; 
+              $r = \Httpful\Request::get($this->request->url)->autoParse(false)->addHeaders($this->request->headers)->expectsJson()->sendIt();
+              }
+              break;
+        }
+       return $r;
+  }
 }
 
-//-----------------------------------TESTS of orcale api responses on  developpement server ---------------------------------//
-/*
-     $url= 'http://www.dev.laclasse.com/pls/public/!ajax_server.service'; 
-     $method = 'get'; 
-     $headers = null;
-     $secret_key = "1234567";  // this is not a secret key .
-     
-     //test verify login
-     $servicename = "service_user_login";    
-     $params = array("login" => "bsaleh", "password"=> md5("6333033azerty"), "servicename" => $servicename); 
-     $request = new HttpRequest($url, $headers, $method, $params);
-     $srr = new SimpleRestRequest($request); 
-     $response = $srr->execute($secret_key);
-     $arr = json_decode($response->body, true ); 
-     if ($arr["login"]== "BSALEH") echo " 1 - verify login test passed"; 
-     
-     //test user attributes 
-     $servicename = "service_user_attributes";    
-     $params = array("login" => "bsaleh", "servicename" => $servicename); 
-     $request = new HttpRequest($url, $headers, $method, $params);
-     $srr = new SimpleRestRequest($request); 
-     $response = $srr->execute($secret_key);
-     $arr = json_decode($response->body, true );
-     //print_r($arr); 
-     if ($arr["ENT_id"] == "178195") echo " 2 - verify Sso attributes test passed"; 
-     
-     //test user agent mail 
-     $servicename = "service_user_agent_mail";    
-     $params = array("email" => "agent.ent-test@ac-lyon.fr", "servicename" => $servicename); 
-     $request = new HttpRequest($url, $headers, $method, $params);
-     $srr = new SimpleRestRequest($request); 
-     $response = $srr->execute($secret_key);
-     //print_r($response); 
-     $arr = json_decode($response->body, true );
-     //print_r($arr[0]); 
-     if ($arr[0]["login"]== "BSALEH") echo " 3 - verify email agent passed"; 
-     
-     //test user mail
-     $servicename = "service_user_mail";    
-     $params = array("email" => "bsaleh@laclasse.com", "servicename" => $servicename); 
-     $request = new HttpRequest($url, $headers, $method, $params);
-     $srr = new SimpleRestRequest($request); 
-     $response = $srr->execute($secret_key);
-     //print_r($response); 
-     $arr = json_decode($response->body, true );
-     //print_r ($arr);
-      if ($arr[0]["login"]== "BSALEH") echo " 3 - verify email user passed"; 
-     
-     //test user atrrs pronote
-     $servicename = "service_user_attrs_pronote";    
-     $params = array("login" => "bsaleh", "servicename" => $servicename); 
-     $request = new HttpRequest($url, $headers, $method, $params);
-     $srr = new SimpleRestRequest($request); 
-     $response = $srr->execute($secret_key);
-     //print_r($response); 
-     $arr = json_decode($response->body, true );
-     if ($arr[0]["login"]== "BSALEH") echo " 4 - pronote  passed"; 
-     //print_r ($arr);
-     
-     //test user attr grr
-     $servicename = "service_user_attrs_grr";    
-     $params = array("login" => "bsaleh", "servicename" => $servicename); 
-     $request = new HttpRequest($url, $headers, $method, $params);
-     $srr = new SimpleRestRequest($request); 
-     $response = $srr->execute($secret_key);
-     // print_r($response); 
-     $arr = json_decode($response->body, true );
-     //print_r($arr);
-     if ($arr[0]["login"]== "bsaleh") echo " 5 - grr attributes passed";
-     
-     // test user eleve 
-     $servicename = "service_user_eleve";    
-     $params = array("nom" =>"Simonet", "prenom"=>"Mylene", "id_sconet" => "498605", "servicename" => $servicename); 
-     $request = new HttpRequest($url, $headers, $method, $params);
-     $srr = new SimpleRestRequest($request); 
-     $response = $srr->execute($secret_key);
-     // print_r($response); 
-     $arr = json_decode($response->body, true );
-     if (count($arr[0])>0) echo "6-eleve search passed"; 
-
-     // test user parent_eleve
-     $servicename = "service_user_parent_eleve";    
-     $params = array("nom" => "Simonet", "prenom" =>"luc", "id_sconet" => "498605", "servicename" => $servicename); 
-     $request = new HttpRequest($url, $headers, $method, $params);
-     $srr = new SimpleRestRequest($request); 
-     $response = $srr->execute($secret_key);
-     // print_r($response); 
-     $arr = json_decode($response->body, true );
-     //print_r($arr); 
-     if (count($arr[0])>0) echo " 7 - parent search passed"
-    */
 
 ?>

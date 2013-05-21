@@ -84,7 +84,6 @@ class ORACLE implements casAuthentication
         $conn = oci_connect($BACKEND_DBUSER, $BACKEND_DBPASS, $BACKEND_DBNAME);
         if (!$conn) {
             $e = oci_error();
-            //trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
             throw new Exception($e['message']);
         }
         return $conn;
@@ -112,7 +111,6 @@ class ORACLE implements casAuthentication
         }
 
         // Exécution de la logique de la requête
-        //print_r ($stid);
         $b = oci_execute($stid);
         if (!$b) {
             $e = oci_error($stid);
@@ -404,8 +402,6 @@ class MYSQL implements casAuthentication
         $sqlParam = array('LOGIN' => $login, 'PWD' => $password);
         $query = MySQL_AUTH;
         $r = $this->ExecuteQuery($query, $sqlParam);
-        //print_r($r); 
-        //mysqldisconnect($db);
         // If no record returned, credential is not valid.	
         if (!$r)
             return "";
@@ -439,10 +435,6 @@ class MYSQL implements casAuthentication
 
       $myTokenView = isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['tokenModele']) ? 
     				   $CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['tokenModele'] : 'Default';
-    	// If service index is null, service is not allow to connect to our sso.
-    	//if ($idxOfAutorizedSiteArray == "")
-    	//	return viewAuthFailure(array('code'=> '', 
-    	//								 'message'=> _('This application is not allowed to authenticate on this server')));
     	
     	// An array with the needed attributes for this service.
     	$neededAttr = explode(	",", 
@@ -450,9 +442,7 @@ class MYSQL implements casAuthentication
     							strtoupper($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['allowedAttributes']))
     						);
     	$attributes = array(); // What to pass to the function that generate token
-    	
-    	/// @note : no need for the moment... $CASversion = $CONFIG['CAS_VERSION'];
-    	
+    	    	
     	// Adding data to the array for displaying.
     	// user attribute is requiered in any way.
     	// this is requiered in CAS 1.0 for phpCAS Client.
@@ -461,8 +451,6 @@ class MYSQL implements casAuthentication
     	// executing second SQL Statment for other attributes.
        
         $r= $this->ExecuteQuery($myAttributesProvider, array(':LOGIN'=>$login)); 
-    	//$r = _dbExecuteSQL($db, $myAttributesProvider, array('LOGIN'=>$login));
-            //print_r($r);
     	
     	// Should have only one row returned.
     	$rowSet = $r[0];
@@ -494,27 +482,18 @@ class MYSQL implements casAuthentication
 
         $myTokenView = isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['tokenModele']) ?
                 $CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['tokenModele'] : 'Default';
-        // If service index is null, service is not allow to connect to our sso.
-        //if ($idxOfAutorizedSiteArray == "")
-        //	return viewAuthFailure(array('code'=> '', 
-        //								 'message'=> _('This application is not allowed to authenticate on this server')));
         // An array with the needed attributes for this service.
         $neededAttr = explode(",", str_replace(" ", "", strtoupper(isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['allowedAttributes']) ?
                                         $CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['allowedAttributes'] :
                                         'login,nom,prenom,dateNaissance,codePostal,categories'))
         );
 
-//                                                foreach ($neededAttr as $value) {
-//                                                    echo "$value \n"; 
-//                                                    
-//                                                }
         $attributes = array(); // What to pass to the function that generate token
         /// @note : no need for the moment... $CASversion = $CONFIG['CAS_VERSION'];
         // Adding data to the array for displaying.
         // user attribute is requiered in any way.
         // this is requiered in CAS 1.0 for phpCAS Client.
         $attributes['user'] = $login;
-        //echo $myAttributesProvider; 
         // executing second SQL Statment for other attributes.
        
         $r = $this->ExecuteQuery($myAttributesProvider, array(':LOGIN' => $login));
@@ -630,12 +609,13 @@ class WEBAPI implements casAuthentication
                return null;
             else 
             { 
-                $query_string = is_null($path_param)? $query_string : ($query_string."/".urlencode ($path_param))   ; 
+                //$query_string = is_null($path_param)? $query_string : ($query_string."/".urlencode ($path_param));
+                $query_string = is_null($path_param)? $query_string : ($query_string."".urlencode ($path_param))   ; 
             }
         }
         else 
         {
-            $query_string = is_null($path_param)? $query_string : ($query_string."/".urlencode ($path_param))   ; 
+            $query_string = is_null($path_param)? $query_string : ($query_string."".urlencode ($path_param))   ; 
         }
 
         $query_string = is_null($api["url_params"]) ?  $query_string : $query_string."?".http_build_query($params, '','&');
@@ -672,8 +652,8 @@ class WEBAPI implements casAuthentication
         {
            $request = $this->build_post_request($api, $params_values);
         }
-         $restrequest = new RestRequest($request); 
-         $reponse = $restrequest->execute($access_id, $secret_key);
+         $restrequest = new MysqlRestRequest($request); 
+         $reponse = $restrequest->execute($secret_key);
 
          return $reponse; 
     }
@@ -695,7 +675,7 @@ class WEBAPI implements casAuthentication
             }
 
         }
-        if ($response->code = 200) {
+        if ($response->code == 200) {
              $json_array = json_decode($response->body, true ); 
              return strtoupper($json_array['login']);
         }
@@ -746,7 +726,8 @@ class WEBAPI implements casAuthentication
         }
 
         if ($response->code == 200) {
-            $rowSet = json_decode($response->body, true ); 
+           $rowSet = json_decode($response->body, true );
+           print_r($rowSet); 
         }
 
         if (isset($rowSet)) {
@@ -1017,7 +998,6 @@ class ORACLEAPI implements casAuthentication
             }
 
         }
-      // print_r($response);
         if ($response->code = 200) {
              $json_array = json_decode(utf8_encode($response->body), true ); 
              return strtoupper($json_array['login']);
