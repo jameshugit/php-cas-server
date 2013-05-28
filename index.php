@@ -261,8 +261,13 @@ function logout() {
 
     /* If url param is in the GET request, we send it to the view
       so a link can be displayed */
-    if (array_key_exists('url', $_GET))
-        viewLogoutSuccess(array('url' => $_GET['url']));
+    if (array_key_exists('url', $_GET)||array_key_exists('destination', $_GET))
+	{
+	 if (array_key_exists('url', $_GET))
+            viewLogoutSuccess(array('url' => $_GET['url'])); 
+	else 
+	    header("Location:".url($_GET['destination']));
+	}
     else
         viewLogoutSuccess(array('url' => SERVICE));
     return;
