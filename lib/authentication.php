@@ -1025,6 +1025,7 @@ class ORACLEAPI implements casAuthentication
         $attributes = array(); // What to pass to the function that generate token
         $attributes['user'] = $login;
         $api = $this->getApi("oracle_service_user_attributes");
+
        
         if (!is_null($api))
         {
