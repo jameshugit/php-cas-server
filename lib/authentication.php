@@ -609,12 +609,13 @@ class WEBAPI implements casAuthentication
                return null;
             else 
             { 
-                $query_string = is_null($path_param)? $query_string : ($query_string."/".urlencode ($path_param))   ; 
+                //$query_string = is_null($path_param)? $query_string : ($query_string."/".urlencode ($path_param));
+                $query_string = is_null($path_param)? $query_string : ($query_string."".urlencode ($path_param))   ; 
             }
         }
         else 
         {
-            $query_string = is_null($path_param)? $query_string : ($query_string."/".urlencode ($path_param))   ; 
+            $query_string = is_null($path_param)? $query_string : ($query_string."".urlencode ($path_param))   ; 
         }
 
         $query_string = is_null($api["url_params"]) ?  $query_string : $query_string."?".http_build_query($params, '','&');
@@ -651,8 +652,8 @@ class WEBAPI implements casAuthentication
         {
            $request = $this->build_post_request($api, $params_values);
         }
-         $restrequest = new RestRequest($request); 
-         $reponse = $restrequest->execute($access_id, $secret_key);
+         $restrequest = new MysqlRestRequest($request); 
+         $reponse = $restrequest->execute($secret_key);
 
          return $reponse; 
     }
@@ -674,7 +675,7 @@ class WEBAPI implements casAuthentication
             }
 
         }
-        if ($response->code = 200) {
+        if ($response->code == 200) {
              $json_array = json_decode($response->body, true ); 
              return strtoupper($json_array['login']);
         }
@@ -725,7 +726,8 @@ class WEBAPI implements casAuthentication
         }
 
         if ($response->code == 200) {
-            $rowSet = json_decode($response->body, true ); 
+           $rowSet = json_decode($response->body, true );
+           print_r($rowSet); 
         }
 
         if (isset($rowSet)) {
@@ -1023,6 +1025,7 @@ class ORACLEAPI implements casAuthentication
         $attributes = array(); // What to pass to the function that generate token
         $attributes['user'] = $login;
         $api = $this->getApi("oracle_service_user_attributes");
+
        
         if (!is_null($api))
         {
@@ -1036,7 +1039,7 @@ class ORACLEAPI implements casAuthentication
                     case SQL_FOR_ATTRIBUTES_MEN:
                         //il n'est pas encore developp
                         //echo "sql for attributes men \n"; 
-                        $response = $this->executeRequest($api, array($login,"service_user_attributes"), $this->api_secret_key);
+                        $response = $this->executeRequest($api, array($login,"service_user_attributes_MEN"), $this->api_secret_key);
                         break;
                     case  SQL_FOR_PRONOTE:
                         //echo "sql for pronote \n"; 
