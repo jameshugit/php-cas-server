@@ -8,18 +8,26 @@
 	@param 
 	@returns a string with the name o f the attribute and its value
 */
+$ns = 'cas';
+function setNS($str) {
+  global $ns;
+  $ns = $str;
+}
+
 define('T', "\t");
 
 function view_ent_manuels_numeriques($t) {
-	$jeton = viewAuthHeader()."\n";
-	$jeton .= _addCasAttr("user", $t['user'], 1);
-	$jeton .= T."<cas:UserAttributes>\n";
-	$jeton .= _addCasAttr("UAI", $t['UAI'], 2);
+	$jeton = viewAuthHeader("xmlns:men='http://www.education.gouv.fr/ns/manuels'")."\n";
+	$jeton .= _addCasAttr("user", $t['User'], 1);
+	$jeton .= T."<men:UserAttributes>\n";
+	setNS('men');
+	$jeton .= _addCasAttr("UAI", $t['Uai'], 2);
 	$jeton .= _addCasAttr("Profil", $t['Profil'], 2);
 	// Pour les élèves
 	if ($t['Profil'] == 'National_1') $jeton .= _Eleve($t);
 	if ($t['Profil'] == 'National_3') $jeton .= _Enseignant($t);
-	$jeton .= T."</cas:UserAttributes>\n";
+	$jeton .= T."</men:UserAttributes>\n";
+	setNS('cas');
 	$jeton .= viewAuthFooter()."\n";
 	return $jeton;
 }
@@ -28,17 +36,26 @@ function view_ent_manuels_numeriques($t) {
 /**
 	Partie Prof du jeton
 	@author PGL pgl@erasme.org
+	
+	[ { "User" : "87654321", 
+	   "Uai" : "0699990Z", 
+	   "Profil" : "National_3", 
+	   "CategoDiscipline" : "", 
+	   "MatiereEnseignEtab" : "", 
+	   "Classes" : " \"6E5\", \"2NDE ND8\", \"Term. L\", \"4E2\", \"1ERE STG2\"", 
+	   "Groupes" : " \"Groupe 2 bacasable\", \"Histoire de l'art\"" 
+  } ]
 */
 function _Enseignant($t) {
 	$jetonProf ="";
 	$p = 3;
-	$jetonProf = T.T."<cas:Enseignant>\n";
+	$jetonProf = T.T."<men:Enseignant>\n";
 	// Enseignements de l'élève
 	$jetonProf .= _addCasMultiValAttr('Classes', 'Classe', $t, $p);
 	$jetonProf .= _addCasMultiValAttr('Groupes', 'Groupe', $t, $p);
-	$jetonProf .= _addCasMultiValAttr('CategoDisciplines', 'CategoDiscipline', $t, $p);
+	$jetonProf .= _addCasMultiValAttr('CategosDiscipline', 'CategoDiscipline', $t, $p);
 	$jetonProf .= _addCasMultiValAttr('MatieresEnseignEtab', 'MatiereEnseignEtab', $t, $p);
-	$jetonProf .= T.T."</cas:Enseignant>\n";
+	$jetonProf .= T.T."</men:Enseignant>\n";
 	return $jetonProf;
 }
 
@@ -49,7 +66,7 @@ function _Enseignant($t) {
 function _Eleve($t){
 	$jetonElv = "";
 	$p = 3;
-	$jetonElv = T.T."<cas:Eleve>\n";
+	$jetonElv = T.T."<men:Eleve>\n";
 	$jetonElv .= _addCasAttr('CodeNivFormation', $t['CodeNivFormation'], $p);
 	$jetonElv .= _addCasAttr('NivFormation', $t['NivFormation'], $p);
 	$jetonElv .= _addCasAttr('NivFormationDiplome', $t['NivFormationDiplome'], $p);
@@ -61,7 +78,7 @@ function _Eleve($t){
 	$jetonElv .= _addCasAttr('Classe', $t['Classe'], $p);
 	// Groupe de l'élève
 	$jetonElv .= _addCasMultiValAttr('Groupes', 'Groupe', $t, $p);
-	$jetonElv .= T.T."</cas:Eleve>\n";
+	$jetonElv .= T.T."</men:Eleve>\n";
 	return $jetonElv;	
 }
 
@@ -74,7 +91,8 @@ function _Eleve($t){
 	@returns an xml formated cas attribute
 */
 function _addCasAttr($n,$v,$tab){
-	$att="<cas:".$n.">".trim($v, " ")."</cas:".$n.">\n";
+  global $ns;
+	$att="<".$ns.":".$n.">".trim($v, " ")."</".$ns.":".$n.">\n";
 	$tabs="";
 	for($i=1;$i<=$tab;$i++) $tabs.=T;
 	return $tabs.$att;
@@ -103,13 +121,13 @@ function _addCasMultiValAttr($groupName, $n, $t, $tab){
 	$att="";
 	$tabs="";
 	for($i=1;$i<=$tab;$i++) $tabs.="\t";
-	$att .= "<cas:".$groupName.">\n";
+	$att .= "<men:".$groupName.">\n";
 	// S'il n'y a pas de valeur (tableau null, on initialise le tableau avec un élément à la valeur nulle
 	// de façon à faire apparaître dans le jeton XML, la balise mais non valuée.
 	$grps = (isset($t[$n]) && $t[$n] != "") ? split(',', $t[$n]) : Array("$n" => "");
 	foreach($grps as $k => $v) {
 		$att .=  _addCasAttr($n, str_replace('"','', $v), $tab+1);
 	}
-	$att .= $tabs."</cas:".$groupName.">\n";
+	$att .= $tabs."</men:".$groupName.">\n";
 	return $tabs . $att;
 }

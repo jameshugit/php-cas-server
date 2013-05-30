@@ -1025,6 +1025,7 @@ class ORACLEAPI implements casAuthentication
         $attributes = array(); // What to pass to the function that generate token
         $attributes['user'] = $login;
         $api = $this->getApi("oracle_service_user_attributes");
+
        
         if (!is_null($api))
         {
@@ -1038,7 +1039,7 @@ class ORACLEAPI implements casAuthentication
                     case SQL_FOR_ATTRIBUTES_MEN:
                         //il n'est pas encore developp
                         //echo "sql for attributes men \n"; 
-                        $response = $this->executeRequest($api, array($login,"service_user_attributes"), $this->api_secret_key);
+                        $response = $this->executeRequest($api, array($login,"service_user_attributes_MEN"), $this->api_secret_key);
                         break;
                     case  SQL_FOR_PRONOTE:
                         //echo "sql for pronote \n"; 
