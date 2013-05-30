@@ -165,6 +165,12 @@ if twitt.nil?
 end
 
 twitt = twitt['results'].first
+
+if twitt.nil?
+  $logger.warn "No twitt found in results"
+  exit
+end
+
 text = twitt['text']
 # some information for the caring developper
 $logger.info "Found twitt : #{text}"
