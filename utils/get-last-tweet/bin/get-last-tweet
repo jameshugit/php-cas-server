@@ -62,6 +62,10 @@ optparse = OptionParser.new do |opts|
     options[:redis_port] = p
   end
 
+  opts.on('-v', '--verbose', 'Run in verbose mode') do |m|
+    $logger.level = Logger::DEBUG
+  end
+
   opts.on_tail('-h', '--help', 'Show help') do
     puts opts
     exit
@@ -161,7 +165,13 @@ Twitter.configure do |config|
   config.oauth_token_secret = options[:oauth_token_secret]
 end
 
-tweet = Twitter.search("from:#{options[:user]} #{options[:hashtag]}", :count => 1, :result_type => "recent").results.first
+begin
+  tweet = Twitter.search("from:#{options[:user]} #{options[:hashtag]}", :count => 1, :result_type => "recent").results.first
+rescue Twitter::Error::Unauthorized => e
+  $logger.error "Error: Twitter refused our credentials"
+  exit 1
+end
+
 
 if tweet.nil?
   $logger.warn "No twitt found in results"
