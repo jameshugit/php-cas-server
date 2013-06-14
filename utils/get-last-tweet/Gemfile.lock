@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    get-last-tweet (0.0.0)
+    get-last-tweet (3.3.6)
       redis
       twitter
 
@@ -10,11 +10,12 @@ GEM
   specs:
     faraday (0.8.7)
       multipart-post (~> 1.1)
-    multi_json (1.7.7)
+    multi_json (1.7.6)
     multipart-post (1.2.0)
+    rake (10.0.4)
     redis (3.0.4)
     simple_oauth (0.2.0)
-    twitter (4.8.1)
+    twitter (4.8.0)
       faraday (~> 0.8, < 0.10)
       multi_json (~> 1.0)
       simple_oauth (~> 0.2)
@@ -24,3 +25,4 @@ PLATFORMS
 
 DEPENDENCIES
   get-last-tweet!
+  rake
