@@ -178,7 +178,8 @@ if tweet.nil?
   exit
 end
 
-text = tweet.text
+# Removes hashtags
+text = tweet.text.gsub(/\s?#\w+/, '').lstrip
 
 # some information for the caring developper
 $logger.info "Found tweet : #{text}"
