@@ -106,6 +106,10 @@ $CONFIG['REDIS_ROOT'] = 'org.example.sso.tickets.';
 $CONFIG['DISPLAY_NEWS'] = true;
 $CONFIG['TWITTER_ACCOUNT'] = '@laclasse';
 $CONFIG['TWITTER_HASHTAG'] = '#sys';
+$CONFIG['TWITTER_CONSUMER_KEY'] = 'consumer_key';
+$CONFIG['TWITTER_CONSUMER_SECRET'] ='consumer_key_secret';
+$CONFIG['TWITTER_OAUTH_TOKEN'] ='oauth_token';
+$CONFIG['TWITTER_OAUTH_SECRET'] = 'oauth_secret';
 $CONFIG['REDIS_NEWS_ROOT'] = 'org.example.sso.last_message.';
 
 /**
