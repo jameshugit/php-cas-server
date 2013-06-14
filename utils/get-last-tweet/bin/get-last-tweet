@@ -181,8 +181,6 @@ end
 # Removes hashtags
 text = tweet.text.gsub(/\s?#\w+/, '').lstrip
 
-# some information for the caring developper
-$logger.info "Found tweet : #{text}"
 
 # well, this is prolly useless
 # it comes from an epic battle with memcached
@@ -192,6 +190,9 @@ $logger.info "Found tweet : #{text}"
 # something that was going to happen anyway
 text.encode!('ISO-8859-1')
 date = tweet.created_at.strftime("%d/%m/%Y")
+
+# some information for the caring developper
+$logger.info "Found tweet : #{text}"
 
 begin
   dc = Redis.new(:host => options[:redis_server], :port => options[:redis_port])
