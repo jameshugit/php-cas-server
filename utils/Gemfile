@@ -1,5 +1,0 @@
-source :rubygems
-
-gem 'json_builder'
-gem 'redis'
-gem 'i18n'
