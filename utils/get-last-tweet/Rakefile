@@ -1,0 +1,18 @@
+require 'rake'
+require 'rspec/core/rake_task'
+require 'rubygems/package_task'
+
+GEMSPEC = Gem::Specification::load(
+    File.expand_path('../get-last-tweet.gemspec', __FILE__)
+)
+
+desc 'Default: run specs.'
+task :default => "gem:gem"
+
+namespace :gem do
+  Gem::PackageTask.new(GEMSPEC) do |pkg|
+    pkg.need_zip = false
+    pkg.need_tar = false
+  end
+end
+
