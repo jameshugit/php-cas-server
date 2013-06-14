@@ -200,9 +200,9 @@ rescue Redis::CannotConnectError => e
   exit 1
 end
 
-dc.set "#{options[:keyroot]}text", text.to_json
-dc.set "#{options[:keyroot]}date", date
-dc.expire("#{options[:keyroot]}text", 15*86400)
-dc.expire("#{options[:keyroot]}date", 15*86400)
+dc.set "#{options[:keyroot]}.text", text.to_json
+dc.set "#{options[:keyroot]}.date", date
+dc.expire("#{options[:keyroot]}.text", 15*86400)
+dc.expire("#{options[:keyroot]}.date", 15*86400)
 
 
