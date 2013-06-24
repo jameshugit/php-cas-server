@@ -151,7 +151,8 @@ function login() {
                 $log->LogDebug("Generated ticket: $var");
 
                 /* send TGC */
-                setcookie("CASTGC", $ticket->key(), 0);
+                //setcookie("CASTGC", $ticket->key(), 0);
+		setcookie("CASTGC", $ticket->key(), 0, "/", "www.dev.laclasse.com", 0);
                 $log->LogDebug("CASTGC cookie is set succesfully: $ticket->key()");
                 $log->LogDebug('redirect to login');
 
@@ -185,8 +186,8 @@ function login() {
             $tgt->find($_COOKIE["CASTGC"]);
             $tgt->delete();
 
-            // Sendign cookie to the client
-            setcookie("CASTGC", FALSE, 0);
+            // delete cookie
+            setcookie("CASTGC", FALSE, 0,"/", "www.dev.laclasse.com", 0);
 
             // Choosing redirection
             if ($service)
@@ -250,7 +251,7 @@ function logout() {
         $log->LogDebug("LOGOUT_SUCCES".$tgt->username()."");
 
         /* Remove cookie from client */
-        setcookie("CASTGC", FALSE, 0);
+        setcookie("CASTGC", FALSE, 0, "/");
         $log->LogDebug("TGT is deleted...");
         $log->LogDebug("CASTGT is removed...");
     } else {
