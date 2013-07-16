@@ -727,7 +727,7 @@ class WEBAPI implements casAuthentication
 
         if ($response->code == 200) {
            $rowSet = json_decode($response->body, true );
-           print_r($rowSet); 
+          //print_r($rowSet); 
         }
 
         if (isset($rowSet)) {
