@@ -187,7 +187,7 @@ function login() {
             $tgt->delete();
 
             // delete cookie
-            setcookie("CASTGC", FALSE, 0,"/");
+            setcookie("CASTGC", FALSE, 0, "/");
 
             // Choosing redirection
             if ($service)
@@ -210,7 +210,6 @@ function login() {
             
             unset($_COOKIE['CASTGC']);
             setcookie('CASTGC', "", -1, '/');
-            //setcookie("CASTGC", FALSE, 0);
             
             viewError("La session de cette page a expir&eacute;. r&eacute;-essayez en rafra&icirc;chissant votre page.");
             die();                                
