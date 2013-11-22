@@ -45,7 +45,7 @@ function CASLogin($nom, $idp) {
         $ticket->create($nom);
 
         /* send TGC */
-        setcookie("CASTGC", $ticket->key(), 0, "/sso/");
+        setcookie("CASTGC", $ticket->key(), 0, "/");
         // setcookie("info", $nom, 0);
 
         /* Redirect to /login */
@@ -67,7 +67,7 @@ function CASLogin($nom, $idp) {
             $ticket->create($nom);
 
             /* send TGC */
-            setcookie("CASTGC", $ticket->key(), 0, "/sso/");
+            setcookie("CASTGC", $ticket->key(), 0, "/");
             /* Redirect to /login */
             header("Location: " . url($Casurl) . "service=" . urlencode($service) . "");
         } else {

@@ -151,7 +151,8 @@ function login() {
                 $log->LogDebug("Generated ticket: $var");
 
                 /* send TGC */
-                setcookie("CASTGC", $ticket->key(), 0);
+                //setcookie("CASTGC", $ticket->key(), 0);
+		setcookie("CASTGC", $ticket->key(), 0, "/");
                 $log->LogDebug("CASTGC cookie is set succesfully: $ticket->key()");
                 $log->LogDebug('redirect to login');
 
@@ -209,7 +210,6 @@ function login() {
             
             unset($_COOKIE['CASTGC']);
             setcookie('CASTGC', "", -1, '/');
-            //setcookie("CASTGC", FALSE, 0);
             
             viewError("La session de cette page a expir&eacute;. r&eacute;-essayez en rafra&icirc;chissant votre page.");
             die();                                
@@ -255,7 +255,7 @@ function logout() {
         $log->LogDebug("LOGOUT_SUCCES".$tgt->username()."");
 
         /* Remove cookie from client */
-        setcookie("CASTGC", FALSE, 0);
+        setcookie("CASTGC", FALSE, 0, "/");
         $log->LogDebug("TGT is deleted...");
         $log->LogDebug("CASTGT is removed...");
     } else {

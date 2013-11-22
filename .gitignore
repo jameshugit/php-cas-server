@@ -19,3 +19,4 @@ backup
 backup.php
 config.inc.*.php
 nbproject/*
+utils/get-last-tweet/pkg/
