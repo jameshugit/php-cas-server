@@ -186,8 +186,8 @@ function login() {
             $tgt->find($_COOKIE["CASTGC"]);
             $tgt->delete();
 
-            // delete cookie
-            setcookie("CASTGC", FALSE, 0, "/");
+            // Sending cookie to the client
+            setcookie("CASTGC", FALSE, 0);
 
             // Choosing redirection
             if ($service)
@@ -207,12 +207,12 @@ function login() {
         if (!$tgt->find($_COOKIE["CASTGC"])) {
             // The TGC was nt found in storageTicket (perhaps it does not exist in Redis?)
             $log->LogError("Oops:Ticket Granting Ticket is not found");
-            
+
             unset($_COOKIE['CASTGC']);
             setcookie('CASTGC', "", -1, '/');
-            
+
             viewError("La session de cette page a expir&eacute;. r&eacute;-essayez en rafra&icirc;chissant votre page.");
-            die();                                
+            die(); 
         }
         if ($service) {
             if (!isServiceAutorized($service)) {
