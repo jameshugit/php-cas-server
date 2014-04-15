@@ -174,8 +174,8 @@ function login() {
             $tgt->find($_COOKIE["CASTGC"]);
             $tgt->delete();
 
-            // Sending cookie to the client
-            setcookie("CASTGC", FALSE, 0);
+            // delete cookie
+            setcookie("CASTGC", FALSE, 0, "/");
 
             // Choosing redirection
             if ($service)
