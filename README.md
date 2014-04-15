@@ -15,7 +15,7 @@ Ubuntu 10.10 Quick Install
 
 apt-get install php5-memcached libapache2-mod-php5 php5-dev libaio1
 wget -np -qc http://oss.oracle.com/el4/RPM-GPG-KEY-oracle -O - | apt-key add -
-# download basic and SKD packages from http://www.oracle.com/technology/tech/oci/instantclient/instantclient.html if you need Oracle backend
+ - download basic and SKD packages from http://www.oracle.com/technology/tech/oci/instantclient/instantclient.html if you need Oracle backend
 mkdir -p /opt/oracle/
 cd /opt/oracle/
 unzip instantclient-basic-linux-x86-64-11.2.0.2.0.zip
@@ -27,11 +27,11 @@ cd instantclient
 ln -s libclntsh.so.11.1 libclntsh.so
 ln -s libocci.so.11.1 libocci.so
 pecl install oci8
-# for lib path use instantclient,/opt/oracle/instantclient
+ - for lib path use instantclient,/opt/oracle/instantclient
 echo 'extension=oci8.so' > /etc/php5/apache2/conf.d/oci8.ini
 /etc/init.d/apache2 restart
 echo '<?phpinfo();?>' > /var/www/phpinfo.php
-# point browser to http://server/phpinfo.php and check that oci8 extension is loaded
+ - point browser to http://server/phpinfo.php and check that oci8 extension is loaded
 
 Federation and proxy install
 ===========================
