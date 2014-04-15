@@ -37,13 +37,13 @@ function get_Saml_message($Soapmessage)
       {    
         //printf("balise : %s\n", $tag);
         //print_r($item);
-    
+
        foreach($item->children("urn:oasis:names:tc:SAML:1.0:protocol") as $key => $value)
        {
            if ($key=='Request')
            {
              printf("balise : %s\n", $key);
-             
+
              $Request= $value;
              return $Request;
              //print_r($value);
@@ -60,7 +60,7 @@ function get_saml_ticket($samlmessage)
     foreach ($samlmessage->children("urn:oasis:names:tc:SAML:1.0:protocol") as $tag => $item)
   {
       //printf("balise : %s\n", $tag);
-      
+
        //print_r($item);
        if ($tag=='AssertionArtifact')
        {
@@ -175,22 +175,22 @@ function getPrefLanguageArray() {
   for ($i=0; $i<$nblang; $i++) {
     for ($j=0; $j<count($langs); $j++) {
       $lang = trim($langs[$j]);
-      
+
       if (!strstr($lang, ';') && $qcandidat != 1) {
         $candidat = $lang;
         $qcandidat = 1;
         $indicecandidat = $j;
       } else {
-        $q = ereg_replace('.*;q=(.*)', '\\1', $lang);
+        $q = preg_replace('/.*;q=(.*)/', '$1', $lang);
 				
         if ($q > $qcandidat) {
-          $candidat = ereg_replace('(.*);.*', '\\1', $lang); ;
+          $candidat = preg_replace('/(.*);.*/', '$1', $lang); ;
           $qcandidat = $q;
           $indicecandidat = $j;     
         }
       }
     }
-    
+
     $resultat[$i] = $candidat;
 		
     $qcandidat=0;
@@ -226,8 +226,6 @@ function setLanguage() {
 	
 	$lang='fr_FR';
 	
-	putenv("LANG=$lang"); // On modifie la variable d'environnement
-	putenv("LC_ALL=$lang"); // On modifie la variable d'environnement
 	setlocale(LC_ALL, $lang); // On modifie les informations de localisation en fonction de la langue
 	setlocale(LC_MESSAGES, $lang.".utf8"); 
 	
