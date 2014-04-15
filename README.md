@@ -3,17 +3,12 @@ php-cas-server
 
 Pure PHP server that partially implements CAS 2.0, SAML 2.x. If tomcat gives you headaches, this might be for you.
 
-About
-=====
-This UFO is a pure PHP server that partially implements CAS 2.0
-If tomcat gives you headaches, this might be for you.
-
 Prereqs
 =======
 
 - PHP 5.2+
 - memcached
-- OCI for Oracle auth
+- OCI for Oracle auth if you need Oracle backend
 
 Ubuntu 10.10 Quick Install
 ==========================
