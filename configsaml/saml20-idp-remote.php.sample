@@ -1,0 +1,255 @@
+<?php
+/**
+ * SAML 2.0 remote IdP metadata for simpleSAMLphp.
+ *
+ * Remember to remove the IdPs you don't use from this file.
+ *
+ */
+
+$metadata['urn:fi:ac-lyon:AA:1.0'] = array (
+  'entityid' => 'urn:fi:ac-lyon:AA:1.0',
+  'name' => 
+  array (
+    'en-us' => 'Académie de Lyon',
+  ),
+  'description' => 
+  array (
+    'en-us' => 'Academie Lyon',
+  ),
+  'OrganizationName' => 
+  array (
+    'en-us' => 'Academie Lyon',
+  ),
+  'OrganizationDisplayName' => 
+  array (
+    'en-us' => 'Académie de Lyon',
+  ),
+  'url' => 
+  array (
+    'en-us' => 'http://www.ac-lyon.fr/',
+  ),
+  'OrganizationURL' => 
+  array (
+    'en-us' => 'http://www.ac-lyon.fr/',
+  ),
+  'contacts' => 
+  array (
+    0 => 
+    array (
+      'contactType' => 'technical',
+      'company' => 'Académie de  Lyon',
+      'givenName' => 'xxx',
+      'surName' => 'xxx',
+      'emailAddress' => 
+      array (
+        0 => 'me@me.com',
+      ),
+      'telephoneNumber' => 
+      array (
+        0 => 'xxxxxxxx',
+      ),
+    ),
+  ),
+  'metadata-set' => 'saml20-idp-remote',
+  'SingleSignOnService' => 
+  array (
+    0 => 
+    array (
+      'Binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
+      'Location' => 'https://portail.ac-lyon.fr/sso/SSO',
+    ),
+    1 => 
+    array (
+      'Binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
+      'Location' => 'https://portail.ac-lyon.fr/sso/SSO',
+    ),
+    2 => 
+    array (
+      'Binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact',
+      'Location' => 'https://portail.ac-lyon.fr/sso/SSO',
+    ),
+    3 => 
+    array (
+      'Binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:SOAP',
+      'Location' => 'https://portail.ac-lyon.fr/soap/services/SAMLMessageProcessor/AP',
+    ),
+  ),
+  'SingleLogoutService' => 
+  array (
+    0 => 
+    array (
+      'Binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
+      'Location' => 'https://portail.ac-lyon.fr/slo/request/AP',
+      'ResponseLocation' => 'https://portail.ac-lyon.fr/slo/response/AP',
+    ),
+    1 => 
+    array (
+      'Binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
+      'Location' => 'https://portail.ac-lyon.fr/slo/request/AP',
+      'ResponseLocation' => 'https://portail.ac-lyon.fr/slo/response/AP',
+    ),
+    2 => 
+    array (
+      'Binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact',
+      'Location' => 'https://portail.ac-lyon.fr/slo/request/AP',
+      'ResponseLocation' => 'https://portail.ac-lyon.fr/slo/response/AP',
+    ),
+    3 => 
+    array (
+      'Binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:SOAP',
+      'Location' => 'https://portail.ac-lyon.fr/soap/services/SAMLMessageProcessor/AP',
+    ),
+  ),
+  'ArtifactResolutionService' => 
+  array (
+    0 => 
+    array (
+      'Binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:SOAP',
+      'Location' => 'https://portail.ac-lyon.fr/soap/services/SAMLMessageProcessor/AP',
+      'index' => 0,
+      'isDefault' => true,
+    ),
+  ),
+  'keys' => 
+  array (
+    0 => 
+    array (
+      'encryption' => true,
+      'signing' => false,
+      'type' => 'X509Certificate',
+      'X509Certificate' => 'Your Certificate',
+    ),
+    1 => 
+    array (
+      'encryption' => false,
+      'signing' => true,
+      'type' => 'X509Certificate',
+      'X509Certificate' => 'Your certificate',
+    ),
+  ),
+);
+
+
+$metadata['urn:fi:ac-lyon:ts:1.0'] = array (
+  'entityid' => 'urn:fi:ac-lyon:ts:1.0',
+  'name' => 
+  array (
+    'en-us' => 'Académie de Lyon profile Eleve/Parent',
+  ),
+  'description' => 
+  array (
+    'en-us' => 'Académie Lyon',
+  ),
+  'OrganizationName' => 
+  array (
+    'en-us' => 'Académie Lyon',
+  ),
+  'OrganizationDisplayName' => 
+  array (
+    'en-us' => 'Académie Lyon',
+  ),
+  'url' => 
+  array (
+    'en-us' => 'http://www.ac-lyon.fr',
+  ),
+  'OrganizationURL' => 
+  array (
+    'en-us' => 'http://www.ac-lyon.fr',
+  ),
+  'contacts' => 
+  array (
+    0 => 
+    array (
+      'contactType' => 'technical',
+      'company' => 'Académie Lyon',
+      'givenName' => 'xxx',
+      'surName' => 'xxx',
+      'emailAddress' => 
+      array (
+        0 => 'me@me.com',
+      ),
+      'telephoneNumber' => 
+      array (
+        0 => 'xxxxxxx',
+      ),
+    ),
+  ),
+  'metadata-set' => 'saml20-idp-remote',
+  'SingleSignOnService' => 
+  array (
+    0 => 
+    array (
+      'Binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
+      'Location' => 'https://services.ac-lyon.fr/sso/SSO',
+    ),
+    1 => 
+    array (
+      'Binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
+      'Location' => 'https://services.ac-lyon.fr/sso/SSO',
+    ),
+    2 => 
+    array (
+      'Binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact',
+      'Location' => 'https://services.ac-lyon.fr/sso/SSO',
+    ),
+    3 => 
+    array (
+      'Binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:SOAP',
+      'Location' => 'https://services.ac-lyon.fr/soap/services/SAMLMessageProcessor/AP',
+    ),
+  ),
+  'SingleLogoutService' => 
+  array (
+    0 => 
+    array (
+      'Binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
+      'Location' => 'https://services.ac-lyon.fr/slo/request/AP',
+      'ResponseLocation' => 'https://services.ac-lyon.fr/slo/response/AP',
+    ),
+    1 => 
+    array (
+      'Binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
+      'Location' => 'https://services.ac-lyon.fr/slo/request/AP',
+      'ResponseLocation' => 'https://services.ac-lyon.fr/slo/response/AP',
+    ),
+    2 => 
+    array (
+      'Binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact',
+      'Location' => 'https://services.ac-lyon.fr/ts',
+      'ResponseLocation' => 'https://services.ac-lyon.fr/slo/response/AP',
+    ),
+    3 => 
+    array (
+      'Binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:SOAP',
+      'Location' => 'https://services.ac-lyon.fr/soap/services/SAMLMessageProcessor/AP',
+    ),
+  ),
+  'ArtifactResolutionService' => 
+  array (
+    0 => 
+    array (
+      'Binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:SOAP',
+      'Location' => 'https://services.ac-lyon.fr/soap/services/SAMLMessageProcessor/AP',
+      'index' => 0,
+      'isDefault' => true,
+    ),
+  ),
+  'keys' => 
+  array (
+    0 => 
+    array (
+      'encryption' => true,
+      'signing' => false,
+      'type' => 'X509Certificate',
+      'X509Certificate' => 'Your certificate',
+    ),
+    1 => 
+    array (
+      'encryption' => false,
+      'signing' => true,
+      'type' => 'X509Certificate',
+      'X509Certificate' => 'Your certificate',
+    ),
+  ),
+);
+

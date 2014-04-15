@@ -18,5 +18,7 @@ config.inc.php
 backup
 backup.php
 config.inc.*.php
+configsaml/saml*.php
+configsaml/authsources.php
 nbproject/*
 utils/get-last-tweet/pkg/

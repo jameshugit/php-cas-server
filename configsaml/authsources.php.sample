@@ -214,8 +214,8 @@ $config = array(
 	
 	'facebook' => array(
 		'authfacebook:Facebook',
-		'api_key' => '113015542170801',
-		'secret' => 'd44a86abe122d2650e560efa56b16cf9',
+		'api_key' => 'xxxxxxxxxxxxxxxxx',
+		'secret' => 'xxxxxxxxxxxxxxxxx',
 	),
 	
 
