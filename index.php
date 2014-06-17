@@ -78,7 +78,11 @@ function login() {
     $log = new KLogger($CONFIG['DEBUG_FILE'], $CONFIG['DEBUG_LEVEL']);
     $log->LogDebug("Login Function is called");
 
-    $selfurl = str_replace('index.php/', 'login', $_SERVER['PHP_SELF']);
+    $selfurl = str_replace('index.php', 'login', $_SERVER['PHP_SELF']);
+    // Correct selfurl with virtual path if necessary
+    if ( strpos($selfurl, CAS_URL ) === false ) {
+      $selfurl = CAS_URL . $selfurl;
+    }   
     $service = isset($_REQUEST['service']) ? $_REQUEST['service'] : false;
     $loginTicketPosted = isset($_REQUEST['loginTicket']) ? $_REQUEST['loginTicket'] : false;
 
