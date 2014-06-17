@@ -24,7 +24,7 @@ require_once (CAS_PATH . '/lib/KLogger.php');
 function CASLogin($nom, $idp) {
     global $CONFIG;
 
-    $Casurl = CASUrl . '/login';
+    $Casurl = CAS_URL . '/login';
     if ($idp == 'FIM')
     // I ADDED LoggedFromExternalFim = Y  parameter to assure that the authentification is issued by  the academie.
         $service = SERVICE . '?LoggedFromExternalFim=Y';
