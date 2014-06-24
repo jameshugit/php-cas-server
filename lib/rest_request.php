@@ -243,23 +243,23 @@ class SimpleRestRequest{
 } 
 
 class MysqlRestRequest{
-  var $request;
-  function __construct($request){
-    $this->request = $request;
-  }
-  function execute($secret_key)
-  {
-       switch ($this->request->method){
-           case "get": {
+    var $request;
+    function __construct($request){
+        $this->request = $request;
+    }
+    function execute($secret_key)
+    {
+        switch ($this->request->method){
+            case "get": {
               //$this->request->calculate_signature($secret_key);
               //print_r($this->request);
-              $this->request->headers['api_key']=$secret_key; 
+              $this->request->headers['api-key']=$secret_key;
               $r = \Httpful\Request::get($this->request->url)->autoParse(false)->addHeaders($this->request->headers)->expectsJson()->sendIt();
               }
               break;
         }
        return $r;
-  }
+    }
 }
 
 
