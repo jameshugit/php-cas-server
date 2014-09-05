@@ -31,6 +31,16 @@ $CONFIG['APIS'] = array(
     'name' => "verify_user_password_post"
     ),
 
+  array(
+    'url' => '/sso/pronote',
+    'method' => 'get',
+    'headers' => null,
+    'body_params' => null, //post or put
+    'path_param' => "login",   //example user/(id)  only one parameter
+    'url_params' => null, // user?login=&password=
+    'name' => "sso_attributes_pronote"
+    ),
+
   array( 
     'url' => '/sso/query/users',
     'method' => 'get',
