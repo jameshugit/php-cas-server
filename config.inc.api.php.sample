@@ -32,7 +32,7 @@ $CONFIG['APIS'] = array(
     ),
 
   array(
-    'url' => '/sso/pronote',
+    'url' => '/sso/pronote/',
     'method' => 'get',
     'headers' => null,
     'body_params' => null, //post or put

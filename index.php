@@ -581,7 +581,7 @@ function samlValidate() {
 
         // verifying if ST ticket is valid and return the attributes.
         $attr = validateTicket($ticket, $service);
-        $log->LogDebug("Validate the ticket");
+        $log->LogDebug("Validate the ticket". $attr);
 
         $time = time() + 60 * 60;
         $validity = $time + 600;
