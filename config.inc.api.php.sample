@@ -2,7 +2,7 @@
 
 $CONFIG['APIS'] = array(
   array( 
-    'url' => '/sso',
+    'url' => '/api/sso',
     'method' => 'get',
     'headers' => null,
     'body_params' => null, 
@@ -12,7 +12,7 @@ $CONFIG['APIS'] = array(
     ),
 
   array(
-    'url' => '/sso/sso_attributes/', 
+    'url' => '/api/sso/sso_attributes/', 
     'method' => 'get',
     'headers' => null, 
     'body_params' => null,
@@ -22,7 +22,7 @@ $CONFIG['APIS'] = array(
     ),
 
   array( 
-    'url' => '/sso',
+    'url' => '/api/sso',
     'method' => 'post',
     'headers' => array("Content-Type"  => "application/x-www-form-urlencoded"),
     'body_params' => array("login","password"), //post or put 
@@ -32,7 +32,7 @@ $CONFIG['APIS'] = array(
     ),
 
   array(
-    'url' => '/sso/pronote/',
+    'url' => '/api/sso/pronote/',
     'method' => 'get',
     'headers' => null,
     'body_params' => null, //post or put
@@ -42,7 +42,7 @@ $CONFIG['APIS'] = array(
     ),
 
   array( 
-    'url' => '/sso/query/users',
+    'url' => '/api/sso/query/users',
     'method' => 'get',
     'headers' => null,
     'body_params' => null, // only post or put 
@@ -51,7 +51,7 @@ $CONFIG['APIS'] = array(
     ),
 
   array(
-    'url' => '/sso/sso_attributes_men/',
+    'url' => '/api/sso/sso_attributes_men/',
     'method' => 'get',
     'headers' => null,
     'body_params' => null,
@@ -61,7 +61,7 @@ $CONFIG['APIS'] = array(
   ),
 
   array( 
-    'url' => '/user/query/users',
+    'url' => '/api/user/query/users',
     'method' => 'get',
     'headers' => null,
     'body_params' => null, //only post or put 
@@ -70,7 +70,7 @@ $CONFIG['APIS'] = array(
     'name' => "Search_Agent_By_Instmail",
     ),
   array( 
-    'url' => '/user/parent/eleve',
+    'url' => '/api/user/parent/eleve',
     'method' => 'get',
     'headers' => null,
     'body_params' => null, //only post or put 
@@ -79,7 +79,7 @@ $CONFIG['APIS'] = array(
     'name' => "Search_Parent_By_Name_EleveSconetId",
     ), 
   array(
-    'url' => '/user/query/users',
+    'url' => '/api/user/query/users',
     'method' => 'get',
     'headers' => null,
     'body_params' => null,
@@ -88,7 +88,7 @@ $CONFIG['APIS'] = array(
     'name' => "Search_Eleve_By_Name_SconetId",
     ), 
   array( 
-    'url' => '/user/info',
+    'url' => '/api/user/info',
     'method' => 'get',
     'headers' => null,
     'body_params' => null, 
