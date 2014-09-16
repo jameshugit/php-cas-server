@@ -15,10 +15,6 @@ define('CAS_PATH', '/path/to/cas');
 define('SimpleSamlPATH', '/path/to/simplesamlphp/lib');
 define('ENT_SERVER', 'https://www.dev.laclasse.com');
 
-define('CASUrl', 'https://www.dev.laclasse.com/sso');
-define('SERVICE', ENT_SERVER . '/pls/education/!page.laclasse');
-define('INSCRIPTION_URL', ENT_SERVER . '/pls/public/!page.laclasse?contexte=INSCRIPTION&rubrique=0');
-
 define('ENT_SERVER', 'URL of the ENT server'); //https://www.dev.laclasse.com
 define('CAS_URL', 'URL of CAS server'); // http://..../sso
 define('SERVICE', ENT_SERVER . '/pls/education/!page.laclasse');
