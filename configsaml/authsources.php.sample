@@ -6,7 +6,6 @@ $config = array(
 	'admin' => array(
 		// The default is to use core:AdminPassword, but it can be replaced with
 		// any authentication source.
-   
 		'core:AdminPassword',
     ),
 
@@ -17,7 +16,7 @@ $config = array(
         'discoURL' => NULL,
     ),
 
-    //profile parent Eleve authentication source
+    // profile parent Eleve authentication source
     'simpleexample' => array(
         'saml:SP',
         // The entity ID of this SP.
@@ -39,7 +38,7 @@ $config = array(
         'name' => array('en-us' => 'ENT Attribute Set',),
         'attributes.NameFormat' => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic',
         'ProtocolBinding' =>'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
-        ),
+    ),
 
     // profile Agent authentication source
     'Agentportal' => array(
@@ -68,29 +67,27 @@ $config = array(
         'ProtocolBinding' =>'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
     ),
 
-
-
     /*
-      'aten' => array (
+    'aten' => array (
         'saml:SP',
         'entityID' => 'https://viesco.ac-lyon.fr/sso/SSO',
         'pritavekey' => 'saml.pem',
         'certificate' => 'saml.crt',
         'redirect.sign' => TRUE,
         'redirect.validate' => TRUE,
-      ),
+    ),
 
-      'rnb' => array (
+    'rnb' => array (
         'saml:SP',
         'entityID' => 'https://services.ac-lyon.fr/sso/SSO',
         'privatekey' => 'saml.pem',
         'certificate' => 'saml.crt',
         'redirect.sign' => TRUE,
         'redirect.validate' => TRUE,
-      ),
-     */
-    	// An authentication source which can authenticate against both SAML 2.0
-    	// and Shibboleth 1.3 IdPs.
+    ),
+    */
+    // An authentication source which can authenticate against both SAML 2.0
+    // and Shibboleth 1.3 IdPs.
     //	'default-sp' => array(
     //		'saml:SP',
 
@@ -178,30 +175,52 @@ $config = array(
         'openid:OpenIDConsumer',
         // Googles OpenID endpoint.
         'target' => 'https://www.google.com/accounts/o8/id',
-          // Custom realm
-         // 'realm' => 'http://*.example.org',
+        // Custom realm
+        // 'realm' => 'http://*.example.org',
         // Attributes that google can supply.
         'attributes.ax_required' => array(
         'http://axschema.org/namePerson/first',
         'http://axschema.org/namePerson/last',
         'http://axschema.org/contact/email',
         //'http://axschema.org/contact/country/home',
-       //'http://axschema.org/pref/language',
+        //'http://axschema.org/pref/language',
         ),
         // custom extension arguments
         'extension.args' => array(
         //'http://specs.openid.net/extensions/ui/1.0' => array(
-       //array'mode' => 'popup',
-       //popup'icon' => 'true',
+        //array'mode' => 'popup',
+        //popup'icon' => 'true',
         //),
-            ),
         ),
+    ),
 
 	/*
 	'papi' => array(
 		'authpapi:PAPI',
 	),
 	*/
+    'CAS_Server' => array(
+        'cas:CAS',
+        'cas' => array(
+            'login' => 'https://www.dev.laclasse.com/sso-mysql/login',
+            'serviceValidate' => 'https://www.dev.laclasse.com/sso-mysql/servicevalidate',
+            'logout' => 'https://www.dev.laclasse.com/sso-mysql/logout',
+            'attributes' => array(
+                'uid' => '/cas:serviceResponse/cas:authenticationSuccess/cas:uid',
+                'uai' => '/cas:serviceResponse/cas:authenticationSuccess/cas:ENTPersonStructRattachRNE',
+                'idEnt' => '/cas:serviceResponse/cas:authenticationSuccess/cas:idEnt'
+            ),
+        ),
+        'ldap' => array(
+              //'servers' => 'ldaps://ldaps.example.be:636/',
+              'enable_tls' => true,
+              'searchbase' => 'ou=people,dc=org,dc=com',
+              //'searchattributes' => 'uid',
+              //'attributes' => array('uid','cn'),
+              //'priv_user_dn' => 'cn=simplesamlphp,ou=applications,dc=org,dc=com',
+              //'priv_user_pw' => 'password',
+      ),
+    ),
 
 
 	
