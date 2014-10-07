@@ -579,9 +579,11 @@ class WEBAPI implements casAuthentication
     var $api_url; 
 
     function __construct($BACKEND_API_ACCESS, $BACKEND_API_SECRET , $BACKEND_API_URL) {
+        global $CONFIG;
         $this->api_access_key = $BACKEND_API_ACCESS; 
         $this->api_secret_key = $BACKEND_API_SECRET;
         $this->api_url = $BACKEND_API_URL;
+        $this->log = new KLogger($CONFIG['DEBUG_FILE'], $CONFIG['DEBUG_LEVEL']);
     }
     // @getApi  finds an api parameters with a specific name
     //@param $api_name  
@@ -839,25 +841,28 @@ class WEBAPI implements casAuthentication
         if (!is_null($api))
         {
          try{
-                $response =$this->executeRequest($api, array("login,nom,prenom", $mail, "true"), $this->api_access_key, $this->api_secret_key);
+                $response =$this->executeRequest($api, array($mail), $this->api_access_key, $this->api_secret_key);
             }
             catch(Exception $e){
+                $this->log->LogError($e-getMessage());
                 throw new Exception($e->getMessage()); 
             }
 
         }
-         if ($response->code == 200) {
+        if ($response->code == 200) {
+            $this->log->LogDebug("Response from annuaire:".print_r($response->body, true));
             $r = json_decode($response->body, true ); 
         }
+        else{
+            $this->log->LogError("Response from annuaire:".print_r($response, true));
+        }
 
-    
-        return $r['Data'];   
-
+        return $r['Data'];
     }
 
     public function Search_Parent_By_Name_EleveSconetId($nom, $prenom, $eleveid)
     {
-        global $CONFIG; 
+        global $CONFIG;
         $api = $this->getApi("Search_Parent_By_Name_EleveSconetId");
         if (!is_null($api))
         {
@@ -865,16 +870,19 @@ class WEBAPI implements casAuthentication
                 $response =$this->executeRequest($api, array($nom, $prenom, $eleveid), $this->api_access_key, $this->api_secret_key);
             }
             catch(Exception $e){
+                $this->log->LogError($e-getMessage());
                 throw new Exception($e->getMessage()); 
             }
-
         }
-         if ($response->code == 200) {
-            $r = json_decode($response->body, true ); 
+        if ($response->code == 200) {
+            $this->log->LogDebug("Response from annuaire:".print_r($response->body, true));
+            $r = json_decode($response->body, true );
+        }
+        else{
+            $this->log->LogError("Response from annuaire:".print_r($response, true));
         }
 
-    
-        return $r['Data']; 
+        return $r['Data'];
     }
 
 
@@ -884,18 +892,20 @@ class WEBAPI implements casAuthentication
         if (!is_null($api))
         {
          try{
-                $response = $this->executeRequest($api, array("login,nom,prenom,date_naissance,code_postal", $nom, $prenom, $eleveid), $this->api_access_key, $this->api_secret_key);
+                $response = $this->executeRequest($api, array($nom, $prenom, $eleveid), $this->api_access_key, $this->api_secret_key);
             }
             catch(Exception $e){
+                $this->log->LogError($e-getMessage());
                 throw new Exception($e->getMessage()); 
             }
 
         }
-         if ($response->code == 200) {
-            $r = json_decode($response->body, true ); 
+        if ($response->code == 200) {
+            $this->log->LogDebug("Response from annuaire:".print_r($response->body, true));
+            $r = json_decode($response->body, true );
+        }else{
+            $this->log->LogError("Response from annuaire:".print_r($response, true));
         }
-
-    
         return $r['Data'];     
     }
 

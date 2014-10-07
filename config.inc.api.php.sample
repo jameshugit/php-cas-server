@@ -61,30 +61,32 @@ $CONFIG['APIS'] = array(
   ),
 
   array( 
-    'url' => '/api/user/query/users',
+    'url' => '/api/sso/agents',
     'method' => 'get',
     'headers' => null,
     'body_params' => null, //only post or put 
     'path_param' => null,   //example user/(id)  only one parameter 
-    'url_params' => array("columns", "where[email.adresse]", "where[email.academique]"), //columns = "nom, prenom, login"
+    'url_params' => array("email"), //columns = "nom, prenom, login"
     'name' => "Search_Agent_By_Instmail",
     ),
-  array( 
-    'url' => '/api/user/parent/eleve',
+
+  array(
+    'url' => 'api/sso/parents',
     'method' => 'get',
     'headers' => null,
-    'body_params' => null, //only post or put 
-    'path_param' => null,   //example user/(id)  only one parameter 
-    'url_params' => array("nom", "prenom","sconet_id"), // nom and prenom are optionals, sconet_id is mandatory 
+    'body_params' => null, //only post or put
+    'path_param' => null,   //example user/(id)  only one parameter
+    'url_params' => array("nom", "prenom","id_sconet"), // nom and prenom are optionals, sconet_id is mandatory
     'name' => "Search_Parent_By_Name_EleveSconetId",
-    ), 
+    ),
+
   array(
-    'url' => '/api/user/query/users',
+    'url' => '/api/sso/eleves',
     'method' => 'get',
     'headers' => null,
     'body_params' => null,
     'path_param' => null,   
-    'url_params' => array("columns", "nom", "prenom", "where[id_sconet]"), //columns = "nom, prenom, login, date_naissance, code_postal" id_sconet
+    'url_params' => array("nom", "prenom", "id_sconet"), //columns = "nom, prenom, login, date_naissance, code_postal" id_sconet
     'name' => "Search_Eleve_By_Name_SconetId",
     ), 
   array( 
