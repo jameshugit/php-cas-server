@@ -85,45 +85,56 @@ function CASLogin($nom, $idp) {
 //the array may contain multiple records depending on the number of sent vectors.
 
 function extractVector($attributes) {
-    $attr = array();
-    if (!empty($attributes)) {
-        if (array_key_exists('FrEduVecteur', $attributes)) {
-            if (count($attributes['FrEduVecteur']) >= 1) {
-              foreach ($attributes['FrEduVecteur']as $val) {
-                if(!empty($val)){
-                    $temp = explode("|", $val);
-                    foreach ($temp as $key => $value) {
-                        if ($key == 0)
-                            $att['profile'] = $value;
-                        if ($key == 1)
-                            $att['nom'] = $value;
-                        if ($key == 2)
-                            $att['prenom'] = $value;
-                        if ($key == 3)
-                            $att['eleveid'] = $value;
-                        if ($key == 4)
-                            $att['UaiEtab'] = $value;
-                    }
-                    array_push($attr, $att);
-                }
-                else
-                {
-                  throw new Exception("le vecteur d'identite est vide");
-                }
+  global $CONFIG;
+  $log = new KLogger($CONFIG['DEBUG_FILE'], $CONFIG['DEBUG_LEVEL']);
+  $log->LogDebug("Extracting Vector...");
+  $attr = array();
+  if (!empty($attributes)) {
+    if (array_key_exists('FrEduVecteur', $attributes)) {
+      if (count($attributes['FrEduVecteur']) >= 1) {
+        foreach ($attributes['FrEduVecteur']as $val) {
+          if (!empty($val)) {
+            $temp = explode("|", $val);
+            foreach ($temp as $key => $value) {
+              $msg = "";
+              if ($key == 0) {
+                $att['profile'] = $value;
+                $msg = "profile : ";
               }
+              if ($key == 1) {
+                $att['nom'] = $value;
+                $msg = "nom : ";
+              }
+              if ($key == 2) {
+                $att['prenom'] = $value;
+                $msg = "prenom : ";
+              }
+              if ($key == 3) {
+                $att['eleveid'] = $value;
+                $msg = "eleveid : ";
+              }
+              if ($key == 4) {
+                $att['UaiEtab'] = $value;
+                $msg = "UaiEtab : ";
+              }
+              $msg .= "'$value'";
+              $log->LogDebug($msg);
             }
-            else
-            {
-              throw new Exception("le vecteur d'identite est vide");
-            }
+            array_push($attr, $att);
+          } else {
+            $log->LogDebug("le vecteur d'identite est vide");
+            throw new Exception("le vecteur d'identite est vide");
+          }
         }
+      } else {
+        throw new Exception("le vecteur d'identite est vide");
+      }
     }
-    else
-    {
-      throw new Exception("la response de l'academie est vide");
-    }
-
-    return $attr;
+  } else {
+    throw new Exception("la response de l'academie est vide");
+  }
+  $log->LogDebug("Vector extracted.");
+  return $attr;
 }
 
 //extractEmail gets the email sent by the academie as an array
