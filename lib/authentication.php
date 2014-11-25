@@ -21,10 +21,6 @@ interface casAuthentication {
      * @param password User password
      * @return string containing the user login (credentials ok) or an empty string (authentication failed)
      */
-    //function dbConnect($BACKEND_DBUSER, $BACKEND_DBPASS, $BACKEND_DBNAME);
-    //function ExecuteQuery($conn, $sql, $param); 
-    //function dbDisconnect($conn); 
-
     public function verifyLoginPasswordCredential($login, $password);
 
     /**
@@ -106,7 +102,6 @@ class ORACLE implements casAuthentication
 
         if (!$stid) {
             $e = oci_error($this->conn);
-            //trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
             throw new Exception($e['message']);
         }
 
@@ -114,7 +109,6 @@ class ORACLE implements casAuthentication
         $b = oci_execute($stid);
         if (!$b) {
             $e = oci_error($stid);
-            //trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
             throw new Exception($e['message']);
         }
 
@@ -123,8 +117,7 @@ class ORACLE implements casAuthentication
             $recordSet[$idx] = $row;
             $idx++;
         }
-
-        // Frre oci's mem
+        // Free oci's mem
         oci_free_statement($stid);
 
         // Returning dataset
@@ -174,18 +167,13 @@ class ORACLE implements casAuthentication
 
     	$myTokenView = isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['tokenModele']) ? 
     				   $CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['tokenModele'] : 'Default';
-    	// If service index is null, service is not allow to connect to our sso.
-    	//if ($idxOfAutorizedSiteArray == "")
-    	//	return viewAuthFailure(array('code'=> '', 
-    	//								 'message'=> _('This application is not allowed to authenticate on this server')));
-    	
+
     	// An array with the needed attributes for this service.
     	$neededAttr = explode(	",", 
     							str_replace(" ", "", 
     							strtoupper($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['allowedAttributes']))
                 );
 
-      //var_dump($myAttributesProvider);
     	$attributes = array(); // What to pass to the function that generate token
     	
     	/// @note : no need for the moment... $CASversion = $CONFIG['CAS_VERSION'];
@@ -196,8 +184,6 @@ class ORACLE implements casAuthentication
     	$attributes['user'] = $login;
     	
     	// executing second SQL Statment for other attributes.
-
-    	
     	$r = $this->ExecuteQuery($myAttributesProvider,array('LOGIN'=>$login)); 
             
     	// Should have only one row returned.
@@ -231,10 +217,6 @@ class ORACLE implements casAuthentication
 
     	$myTokenView = isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['tokenModele']) ? 
     				   $CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['tokenModele'] : 'Default';
-    	// If service index is null, service is not allow to connect to our sso.
-    	//if ($idxOfAutorizedSiteArray == "")
-    	//	return viewAuthFailure(array('code'=> '', 
-    	//								 'message'=> _('This application is not allowed to authenticate on this server')));
     	
     	// An array with the needed attributes for this service.
     	$neededAttr = explode(	",", 
@@ -251,7 +233,6 @@ class ORACLE implements casAuthentication
     	// user attribute is requiered in any way.
     	// this is requiered in CAS 1.0 for phpCAS Client.
     	$attributes['user'] = $login;
-            //echo $myAttributesProvider; 
     	
     	// executing second SQL Statment for other attributes.
 
@@ -268,8 +249,6 @@ class ORACLE implements casAuthentication
     			}
     		}
     	}
-            
-            //echo count($attributes); 
             return $attributes; 
     }
 
@@ -379,8 +358,6 @@ class MYSQL implements casAuthentication
             }
             
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                 
-                //print_r($row); 
                         $recordSet[$idx] = $row;
                         $idx++;
                 }
@@ -570,7 +547,8 @@ class MYSQL implements casAuthentication
 
 }
 
-
+//--------------------------------------------------------------------------------------//
+// WEBAPI IMPLEMENTAION 
 //--------------------------------------------------------------------------------------//
 class WEBAPI implements casAuthentication
 {
@@ -612,12 +590,12 @@ class WEBAPI implements casAuthentication
             else 
             { 
                 //$query_string = is_null($path_param)? $query_string : ($query_string."/".urlencode ($path_param));
-                $query_string = is_null($path_param)? $query_string : ($query_string."".urlencode ($path_param))   ; 
+                $query_string = is_null($path_param)? $query_string : ($query_string."".urlencode ($path_param)); 
             }
         }
         else 
         {
-            $query_string = is_null($path_param)? $query_string : ($query_string."".urlencode ($path_param))   ; 
+            $query_string = is_null($path_param)? $query_string : ($query_string."".urlencode ($path_param)); 
         }
 
         $query_string = is_null($api["url_params"]) ?  $query_string : $query_string."?".http_build_query($params, '','&');
@@ -729,7 +707,6 @@ class WEBAPI implements casAuthentication
 
         if ($response->code == 200) {
            $rowSet = json_decode($response->body, true );
-          //print_r($rowSet); 
         }
 
         if (isset($rowSet)) {
@@ -741,7 +718,6 @@ class WEBAPI implements casAuthentication
             }
         }
         
-        // print_r($attributes);
         // call the token model with the default view or custom view
         return viewAuthSuccess($myTokenView, $attributes, $pgtIou); 
     }
@@ -918,7 +894,9 @@ class WEBAPI implements casAuthentication
     }
 }
 
+//--------------------------------------------------------------------------------------//
 // Class ORACLEAPI 
+//--------------------------------------------------------------------------------------//
 class ORACLEAPI implements casAuthentication
 {
     var $api_access_key;
@@ -977,8 +955,6 @@ class ORACLEAPI implements casAuthentication
         if ($api["method"] == "get") 
         {
             $request = $this->build_request($api, $params_values);
-            //print_r($request); 
-
         } 
         elseif ($api["method"] == "post" || "put") 
         {
@@ -1068,15 +1044,9 @@ class ORACLEAPI implements casAuthentication
 
         }
 
-       
-      
-
         if ($response->code == 200) {
             $rowSet = json_decode(utf8_encode($response->body), true ); 
         }
-    
-
-     
 
         if (isset($rowSet[0])) {
             // For all attributes returned
@@ -1086,7 +1056,6 @@ class ORACLEAPI implements casAuthentication
                 }
             }
         }
-        //print_r($rowSet); 
         // call the token model with the default view or custom view
         return viewAuthSuccess($myTokenView, $attributes, $pgtIou); 
     }
@@ -1300,10 +1269,8 @@ class ORACLEAPI implements casAuthentication
     }
 }
 
-
-
+//--------------------------------------------------------------------------------------//
 //DBFactory Class to instansiate the suitable DATabase handler class (Oracle or mysql)
-
 //--------------------------------------------------------------------------------------//
 
 class DBFactory{
