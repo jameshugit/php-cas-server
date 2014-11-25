@@ -985,20 +985,16 @@ class ORACLEAPI implements casAuthentication {
       try {
         switch ($myAttributesProvider) {
           case SQL_FOR_ATTRIBUTES:
-            //echo "sql for attributes \n"; 
             $response = $this->executeRequest($api, array($login, "service_user_attributes"), $this->api_secret_key);
             break;
           case SQL_FOR_ATTRIBUTES_MEN:
-            //il n'est pas encore developp
-            //echo "sql for attributes men \n"; 
+            //il n'est pas encore developp 
             $response = $this->executeRequest($api, array($login, "service_user_attributes"), $this->api_secret_key);
             break;
           case SQL_FOR_PRONOTE:
-            //echo "sql for pronote \n"; 
             $response = $this->executeRequest($api, array($login, "service_user_attrs_pronote"), $this->api_secret_key);
             break;
           case SQL_FOR_GRR:
-            //echo "sql for Grr \n"; 
             $response = $this->executeRequest($api, array($login, "service_user_attrs_grr"), $this->api_secret_key);
             break;
         }
