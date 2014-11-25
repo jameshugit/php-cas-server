@@ -1,4 +1,4 @@
-<?
+<?php
 
 /** 
  * @file authentication.php
@@ -1315,5 +1315,3 @@ class DBFactory{
      return new $db($user,$password,$database);
    }
 }
-
-?>
