@@ -171,20 +171,20 @@ function viewLoginForm($t) {
 // Callback viewLoginSuccess
 //------------------------------------------------------------------------------
 function viewLoginSuccess() {
-  $device = ""; // By default the device is a true real pc browser (not a mobile one)
-  if ($_SESSION['isMobile']) {
-    $device = 'Mobile';
-  }
-
 	getHeader();
-	echo '
-	<div id="mire">
-		<div id="msg" class="success">
-			<h2>'._('Connexion r&eacute;ussie').'</h2>
-			<p>'._('Vous vous &ecirc;tes authentifi&eacute;(e) aupr&egrave;s du Service Central d\'Authentification.').'</p>
-			<p>'._('Pour des raisons de s&eacute;curit&eacute;, veuillez vous d&eacute;connecter et fermer votre navigateur lorsque vous avez fini d\'acc&eacute;der aux services authentifi&eacute;s.').'</p>
+	echo
+'		<div class="box" style="max-width: 400px; text-align: left">
+			<div style="font-size: 30px; text-align: center; margin-bottom: 10px; padding: 10px; color: white; background-color: #1aaacc;">
+				Authentification
+			</div>
+			<div style="margin-bottom: 20px;">
+				<div class="title">'._('Connexion r&eacute;ussie').'</div>
+				<div>
+					<p>'._('Vous vous &ecirc;tes authentifi&eacute;(e) aupr&egrave;s du Service Central d\'Authentification.').'</p>
+					<p>'._('Pour des raisons de s&eacute;curit&eacute;, veuillez vous d&eacute;connecter et fermer votre navigateur lorsque vous avez fini d\'acc&eacute;der aux services authentifi&eacute;s.').'</p>
+				</div>
+			</div>
 		</div>
-	</div>
 ';
 	getFooter();
 }
