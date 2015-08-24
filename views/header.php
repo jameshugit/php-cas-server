@@ -4,102 +4,116 @@
 //------------------------------------------------------------------------------
 function getHeader(){
 	header("Content-type: text/html");
-	echo '
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
-  <head>
-    <title>'._('Service d\'Authentification Central de laclasse.com').'</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-      <style type="text/css" media="screen">@import \'css/cas-laclasse.css\'/**/;</style>
-      <!--[if gte IE 6]><style type="text/css" media="screen">@import \'css/ie_cas.css\';</style><![endif]-->
-      <script type="text/javascript" src="js/common_rosters.js"></script>
-    </head>
-    
-    <body id="cas" onload="init();">
-      <div id="page">
-        <h1 id="app-name">'._('Service d\'Authentification Central de laclasse.com').'</h1>
-';
-}
-
-//------------------------------------------------------------------------------
-// Header formobile Device
-//------------------------------------------------------------------------------
-function getHeaderMobile(){
-	header("Content-type: text/html");
-	echo '
-<!DOCTYPE html>
+	echo '<!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>
-        </title>
-        <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/jquery.mobile/1.1.1/jquery.mobile-1.1.1.min.css" />
-        <link rel="stylesheet" href="css/mobile.css" />
-       
-        <style>
-            body {background-color:#ffffff;}
-            .errors {
-                  border: 1px dotted #D21033;
-                  color: #D21033;
-                  padding-bottom: 20px;
-              }
-              .info, .errors, .success {
-                  clear: both;
-                  font-size: 10px;
-                  line-height: 1.5;
-                  margin: 5px 0;
-                  padding: 10px 20px 10px 20px;
-                  
-              }
-        </style>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js">
-        </script>
-        <script src="https://ajax.aspnetcdn.com/ajax/jquery.mobile/1.1.1/jquery.mobile-1.1.1.min.js">
-        </script>
-        <script src="js/mobile.js">
-        </script>
-    </head>
-    <body>
-';
+	<head>
+		<title>'._('Service d\'Authentification Central de laclasse.com').'</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="mobile-web-app-capable" content="yes">
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<style>
+body {
+	color: white;
+	background-color: #1aaacc;
+    font-family: "Open Sans", sans-serif;
+	font-size: 20px;
 }
 
+a {
+	color: white;
+}
 
-function getHeader2()
-{
-  header("Content-type: text/html");
-echo '<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-              <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
-                   <head>
-                     <title>'._('Service d\'Authentification Central de laclasse.com').'</title>
-                    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-                    <style type="text/css" media="screen">@import \'../css/cas-laclasse.css\'/**/;</style>
-                     <!--[if gte IE 6]><style type="text/css" media="screen">@import \'css/ie_cas.css\';</style><![endif]-->
-                     <script type="text/javascript" src="js/common_rosters.js"></script>
-                     <script type="text/javascript" src="/var/www/sso/js/jquery.js"></script>
-                     <script type="text/javascript" src="/var/www/sso/js/jquery.lightbox_me.js"></script>
-                       <script language="JavaScript" type="text/javascript">
-                       $(function() {
-                          function launch() {
-                            $(\'#sign_up\').lightbox_me({centered: true, onLoad: function() { $(\'#sign_up\').find(\'input:first\').focus()}});
-                         }
-                               $(\'#try-1\').click(function(e) {
-                                      $(\'#sign_up\').lightbox_me({centered: true, onLoad: function() {
-                                    $(\'#sign_up\').find(\'input:first\').focus();
-                                     }});
-                                                e.preventDefault();
-                                           });
-                                               $(\'table tr:nth-child(even)\').addClass(\'stripe\');
-                                      });
-                        </script>
+.logo {
+	width: 55%;
+	opacity: 0.2;
+	position: absolute;
+	left: -5%;
+	top: -5%;
+	-webkit-user-select: none;
+}
 
-                  <link rel="stylesheet" href="../css/style.css" type="text/css" media="screen" title="no title" charset="utf-8">
-                         </head>
-                    <body id="cas" onload="init();">
-                    <div id="page">
-                     <h1 id="app-name">'._('Service d\'Authentification Central de laclasse.com').'</h1>'; 
+.footer {
+    position: fixed;
+    bottom: 1%;
+	right: 0px;
+	opacity: 0.3;
+	width: 75%;
+	height: 15%;
+}
 
+.footer center {
+	width: 33%;
+	height: 100%;
+	float: left;
+}
 
+.footer img {
+	width: 100%;
+	height: 100%;
+}
+
+.btn {
+	display: inline-block;
+	font-size: 16px;
+	text-transform: uppercase;
+	padding: 10px 20px;
+    border: 1px solid white;
+    border-radius: 0;
+	background-color: #5bc0de;
+	margin: 5px;
+	color: white;
+    white-space: nowrap;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.btn:hover {
+	background-color: rgba(91,192,222,0);
+}
+
+.box {
+	margin: 20px;
+	float: right;
+	background: rgba(255,255,255,0.2);
+	padding: 20px;
+}
+
+input[type=text], input[type=password] {
+	height: 30px;
+	border: 1px solid white;
+	background-color: rgba(255,255,255,0.3);
+	margin: 5px;
+	color: white;
+	font-size: 18px;
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+.title {
+	font-weight: bold;
+	margin-bottom: 20px;
+}
+		</style>
+	</head>
+	<body">
+		<img draggable="false" class="logo" src="images/logolaclasse.svg" alt="Logo ENT">
+		<div class="footer">
+			<center><img draggable="false" src="images/logo-rhone-blanc.svg" alt="Logo Département du Rhône" /></center>
+			<center><img draggable="false" src="images/grandlyon-logo-blanc.svg" alt="Logo Métropole du Grand Lyon" /></center>
+			<center><img draggable="false" src="images/logo-academie-blanc.svg" alt="Logo Académie de Lyon" /></center>
+		</div>
+		<div style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px;">
+		<center>
+		<div style="max-width: 1200px">
+		<div style="text-align: center; max-width: 400px; padding: 40px; padding-top: 150px; padding-bottom: 100px; float: left;">
+			<div style="font-weight: bold; font-size: 34px">Laclasse.com</div><br>
+			Espace Numérique de Travail<br>
+			des collèges et écoles de la Métropole de Lyon
+			et du Département du Rhône
+		</div>
+';
 }
 
 ?>

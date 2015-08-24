@@ -38,6 +38,59 @@ function getNewsList($t) {
 //------------------------------------------------------------------------------
 // Callback getFormLogin
 //------------------------------------------------------------------------------
+
+function getFormLogin($t, $msg="") {
+	$actionForm = $t["action"];
+	$service = urldecode($t["service"]);
+	$lt = $t["loginTicket"];
+
+	echo
+'		<div class="box" style="max-width: 400px; text-align: left">';
+
+	if ($msg != "") {
+		echo
+'			<div style="font-size: 30px; text-align: center; margin-bottom: 10px; padding: 10px; color: white; background-color: #eb5454;">
+				Erreur
+			</div>
+			<div style="margin-bottom: 20px; color: #eb5454">
+				<div>
+					'.$msg.'
+				</div>
+			</div>
+';
+	}
+
+	echo 
+'			<div style="font-size: 30px; text-align: center; margin-bottom: 10px; padding: 10px; color: white; background-color: #1aaacc;">
+				Authentification
+			</div>
+
+			<div style="margin-bottom: 20px;">
+				<div class="title">Connectez-vous avec votre compte Académique.</div>
+				<div>
+					<a class="btn" href="lib/parentPortalIdp.php?login">Parents/Elèves</a>
+					<a class="btn" href="lib/agentPortalIdp.php?login">Profs/Agents</a>
+				</div>
+			</div>
+			<div style="margin-bottom: 20px;">
+				<div class="title">Connectez-vous avec votre compte Laclasse.com.</div>
+				<form method="post" action="'.$actionForm.'">
+		            <input type="hidden" name="action" value="login">
+		            <input type="hidden" name="service" value="'.$service.'">
+		            <input type="hidden" name="loginTicket" value="'.$lt.'">
+					<div>Identifiant:</div>
+					<input name="username" type="text" style="width: 80%; margin-bottom: 10px;">
+					<div>Mot de passe:</div>
+					<input name="password" type="password" style="width: 80%; margin-bottom: 10px;">
+					<br>
+					<input class="btn" name="submit" type="submit" value="'._('SE CONNECTER').'">
+				</form>
+			</div>
+		</div>
+';
+}
+
+/*
 function getFormLogin($t, $msg="") {
 	$actionForm = $t["action"];
 	$service = urldecode($t["service"]);
@@ -98,59 +151,7 @@ function getFormLogin($t, $msg="") {
           </form>
         </div>
 ';          
-}
-
-//------------------------------------------------------------------------------
-// Callback getFormLogin for mobile device
-//------------------------------------------------------------------------------
-function getFormLoginMobile($t, $msg="") {
-	$actionForm = $t["action"];
-	$service = urldecode($t["service"]);
-	$lt = $t["loginTicket"];
-  echo '
-       <!-- Home -->
-        <div data-role="page" id="page1">
-            <div data-theme="a" data-role="header">
-                <h3>
-                    '._('Laclasse.com').'
-                </h3>
-            </div>
-            <div data-role="content" style="padding: 15px">
-                <div style=" text-align:center">
-                    <img src="http://www.laclasse.com/v25/images/logo-laclasse.gif" />
-                </div>';
-	if ($msg != "") echo '<div id="status" class="errors">'.$msg.'</div>';
-	echo '
-                <form action="'.$actionForm.'" method="post" data-ajax="false">
-                  <input type="hidden" name="action" value="login"/>
-                  <input type="hidden" name="service" value="'.$service.'"/>
-                  <input type="hidden" name="loginTicket" value="'.$lt.'"/>
-                  <input type="hidden" name="lt" value="" />
-                    <div data-role="fieldcontain">
-                        <fieldset data-role="controlgroup" data-mini="true">
-                            <label for="textinput1">
-                                Login
-                            </label>
-                            <input name="username" id="username" placeholder="" value="" type="text" />
-                        </fieldset>
-                    </div>
-                    <div data-role="fieldcontain">
-                        <fieldset data-role="controlgroup" data-mini="true">
-                            <label for="textinput2">
-                                Mot de passe
-                            </label>
-                            <input name="password" id="password" placeholder="" value="" type="password" />
-                        </fieldset>
-                    </div>
-                  <input data-theme="a" data-icon="arrow-r" data-iconpos="right" name= "_eventId" value="'._('SE CONNECTER').'" type="submit" />
-                </form>
-            </div>
-        </div>
-        <script>
-            //App custom javascript
-        </script>
-  ';
-}
+}*/
 
 //------------------------------------------------------------------------------
 // Callback viewLoginForm
@@ -160,15 +161,10 @@ function getFormLoginMobile($t, $msg="") {
 function viewLoginForm($t) {
 	global $CONFIG;
 	
-  $device = ""; // By default the device is a true real pc browser (not a mobile one)
-  if ($_SESSION['isMobile']) {
-    $device = 'Mobile';
-  }
-
-	call_user_func('getHeader'.$device);
-	if ($CONFIG['DISPLAY_NEWS']) getNewsList($t);
-	call_user_func('getFormLogin'.$device, $t);
-	call_user_func('getFooter'.$device);
+	getHeader();
+//	if ($CONFIG['DISPLAY_NEWS']) getNewsList($t);
+	getFormLogin($t);
+	getFooter();
 }
 
 //------------------------------------------------------------------------------
@@ -180,7 +176,7 @@ function viewLoginSuccess() {
     $device = 'Mobile';
   }
 
-	call_user_func('getHeader'.$device);
+	getHeader();
 	echo '
 	<div id="mire">
 		<div id="msg" class="success">
@@ -190,7 +186,7 @@ function viewLoginSuccess() {
 		</div>
 	</div>
 ';
-	call_user_func('getFooter'.$device);
+	getFooter();
 }
 
 //------------------------------------------------------------------------------
@@ -199,14 +195,9 @@ function viewLoginSuccess() {
 function viewLoginFailure($t) {
 	$msg = array_key_exists('errorMsg', $t)? $t['errorMsg'] : _("Les informations transmises n'ont pas permis de vous authentifier.");
 
-  $device = ""; // By default the device is a true real pc browser (not a mobile one)
-  if ($_SESSION['isMobile']) {
-    $device = 'Mobile';
-  }
-
-	call_user_func('getHeader'.$device);
-	call_user_func('getFormLogin'.$device, $t, $msg);
-	call_user_func('getFooter'.$device);
+	getHeader();
+	getFormLogin($t, $msg);
+	getFooter();
 }
 
 //------------------------------------------------------------------------------

@@ -3,20 +3,11 @@
 // Footer 
 //------------------------------------------------------------------------------
 function getFooter(){
-	echo '
-        <div id="footer">
-          <img src="images/erasme.png" align="top" />
-        </div>
-    </body>
+	echo'
+		</center>
+		</div>
+	</body>
 </html>';
 }
 
-//------------------------------------------------------------------------------
-// Footer for mobile device 
-//------------------------------------------------------------------------------
-function getFooterMobile(){
-	echo '
-    </body>
-</html>';
-}
 ?>
