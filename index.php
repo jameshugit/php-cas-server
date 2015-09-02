@@ -145,7 +145,7 @@ function login() {
                 /* send TGC */
                 //setcookie("CASTGC", $ticket->key(), 0);
 		setcookie("CASTGC", $ticket->key(), 0, "/");
-                $log->LogDebug("CASTGC cookie is set succesfully: $ticket->key()");
+                $log->LogDebug("CASTGC cookie is set succesfully: ".$ticket->key());
                 $log->LogDebug('redirect to login');
 
                 /* Redirect to /login */
