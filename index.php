@@ -255,6 +255,17 @@ function logout() {
        // writeLog("LOGOUT_FAILURE", "TGC_NOT_FOUND");
     }
 
+    // remove all cookies set for our domain
+    if (isset($_SERVER['HTTP_COOKIE'])) {
+        $cookies = explode(';', $_SERVER['HTTP_COOKIE']);
+        foreach($cookies as $cookie) {
+            $parts = explode('=', $cookie);
+            $name = trim($parts[0]);
+            setcookie($name, '', time()-1000);
+            setcookie($name, '', time()-1000, '/');
+        }
+    }
+
 
     /* If url param is in the GET request, we send it to the view
       so a link can be displayed */
