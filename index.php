@@ -144,7 +144,7 @@ function login() {
                 /* send TGC */
                 //setcookie("CASTGC", $ticket->key(), 0);
 		setcookie("CASTGC", $ticket->key(), 0, "/");
-                $log->LogDebug("CASTGC cookie is set succesfully: $ticket->key()");
+                $log->LogDebug("CASTGC cookie is set succesfully: ".$ticket->key());
                 $log->LogDebug('redirect to login');
 
                 /* Redirect to /login */
@@ -252,6 +252,17 @@ function logout() {
     } else {
         $log->LogDebug("TGC_NOT_FOUND");
        // writeLog("LOGOUT_FAILURE", "TGC_NOT_FOUND");
+    }
+
+    // remove all cookies set for our domain
+    if (isset($_SERVER['HTTP_COOKIE'])) {
+        $cookies = explode(';', $_SERVER['HTTP_COOKIE']);
+        foreach($cookies as $cookie) {
+            $parts = explode('=', $cookie);
+            $name = trim($parts[0]);
+            setcookie($name, '', time()-1000);
+            setcookie($name, '', time()-1000, '/');
+        }
     }
 
 
