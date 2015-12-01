@@ -64,14 +64,8 @@ function getFormLogin($t, $msg="") {
 '			<div style="font-size: 30px; text-align: center; margin-bottom: 10px; padding: 10px; color: white; background-color: #1aaacc;">
 				Authentification
 			</div>
+			<br>
 
-			<div style="margin-bottom: 20px;">
-				<div class="title">Connectez-vous avec votre compte Académique.</div>
-				<div>
-					<a class="btn" href="lib/parentPortalIdp.php?login">Parents/Elèves</a>
-					<a class="btn" href="lib/agentPortalIdp.php?login">Profs/Agents</a>
-				</div>
-			</div>
 			<div style="margin-bottom: 20px;">
 				<div class="title">Connectez-vous avec votre compte Laclasse.com.</div>
 				<form method="post" action="'.$actionForm.'">
@@ -85,6 +79,20 @@ function getFormLogin($t, $msg="") {
 					<br>
 					<input class="btn" name="submit" type="submit" value="'._('SE CONNECTER').'">
 				</form>
+			</div>
+			<br>
+
+                       	<div style="height: 2px; background-color: #fff; text-align: center; margin-bottom: 1em">
+                             <span style="background-color: #48bbd6; position: relative; top: -0.5em; margin: 0px auto;font-weight: bold">&nbsp;OU&nbsp;</span>
+                       	</div>
+                       	<br>
+
+			<div>
+				<div class="title">Connectez-vous avec votre compte Académique.</div>
+				<div>
+					<a class="btn" href="lib/parentPortalIdp.php?login">Parents/Elèves</a>
+					<a class="btn" href="lib/agentPortalIdp.php?login">Profs/Agents</a>
+				</div>
 			</div>
 		</div>
 ';
