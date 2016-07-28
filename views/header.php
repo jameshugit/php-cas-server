@@ -111,6 +111,22 @@ input[type=text], input[type=password] {
                         Espace Numérique de Travail<br>
                         des collèges et écoles de la Métropole de Lyon.
                 </div>
+
+                        <p>
+                          <strong>Besoin d\'aide ?</strong>
+                          <ul style="text-align:left">
+                            <li>
+                              <a href="http://ent-laclasse.blogs.laclasse.com">Consulter le blog de l\'ENT,</a>
+                            </li>
+                            <li>
+                              si vous êtes sur le territoire de la Métropole de Lyon
+                              <a href="mailto:svp4356@grandlyon.com">SVP Métropole</a>,
+                            </li>
+                            <li>
+                              sinon prenez contact avec votre collectivité de rattachement.
+                            </li>
+                          </ul>
+                        </p>
 ';
 }
 
