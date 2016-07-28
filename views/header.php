@@ -3,8 +3,8 @@
 // Header
 //------------------------------------------------------------------------------
 function getHeader(){
-        header("Content-type: text/html");
-        echo '<!DOCTYPE html>
+    header("Content-type: text/html");
+    echo '<!DOCTYPE html>
 <html>
         <head>
                 <title>'._('Service d\'Authentification Central de laclasse.com').'</title>
@@ -110,7 +110,6 @@ input[type=text], input[type=password] {
                         <div style="font-weight: bold; font-size: 34px">Laclasse.com</div><br>
                         Espace Numérique de Travail<br>
                         des collèges et écoles de la Métropole de Lyon.
-                </div>
 
                         <p>
                           <strong>Besoin d\'aide ?</strong>
@@ -127,6 +126,7 @@ input[type=text], input[type=password] {
                             </li>
                           </ul>
                         </p>
+                </div>
 ';
 }
 
