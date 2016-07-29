@@ -117,17 +117,20 @@ input[type=text], input[type=password] {
                             <li>
                               <a href="http://ent-laclasse.blogs.laclasse.com">Consulter le blog de l\'ENT,</a>
                             </li>
+<li>
+si vous êtes parent, élève ou personnel contactez votre administrateur d\'établissement,
+</li>
                             <li>
-                              si vous êtes sur le territoire de la Métropole de Lyon
-                              <a href="mailto:svp4356@grandlyon.com">SVP Métropole</a>,
-                            </li>
-                            <li>
-                              sinon prenez contact avec votre collectivité de rattachement.
-                            </li>
-                          </ul>
-                        </p>
-                </div>
-';
+                              si vous êtes administrateur d\'établissement sur le territoire de la Métropole de Lyon contactez le
+                                                                 <a href="mailto:svp4356@grandlyon.com">SVP Métropole</a>,
+    </li>
+    <li>
+    sinon prenez contact avec votre collectivité de rattachement.
+                                                                </li>
+    </ul>
+    </p>
+    </div>
+    ';
 }
 
 ?>
