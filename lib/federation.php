@@ -10,13 +10,11 @@ require_once('../config.inc.php');
 
 //the simpleSAMlphp autoloader class
 //require_once(SimpleSamlPATH.'/_autoload.php');
-//require_once('/var/www/sso/lib/backend.db.oracle.php'); 
 require_once('ticket.php');
 require_once('views/error.php');
 require_once('views/header.php');
 //require_once('views/logout.php');
 //require_once('views/auth_failure.php');
-require_once('backend.db.oracle.php');
 require_once('KLogger.php');
 
 //CASLogin function takes the (laclasse login) as input and generates  a ticket to login to Laclasse server.
