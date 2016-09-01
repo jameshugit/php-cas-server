@@ -97,69 +97,6 @@ function getFormLogin($t, $msg="") {
 ';
 }
 
-/*
-function getFormLogin($t, $msg="") {
-	$actionForm = $t["action"];
-	$service = urldecode($t["service"]);
-	$lt = $t["loginTicket"];
-	echo '<div id="mire">';
-	if ($msg != "") echo '<div id="status" class="errors">'.$msg.'</div>';
-	echo '
-			<form id="fm1" class="fm-v clearfix" method="post" action="'.$actionForm.'"> 
-	
-            <input type="hidden" name="action" value="login"/>
-            <input type="hidden" name="service" value="'.$service.'"/>
-            <input type="hidden" name="loginTicket" value="'.$lt.'"/>
-
-             <div style = "border-bottom: solid #3399FF; background-color:white; width: 260px; padding: 5px;">
-               <div class="row">
-                 <p> <img src="images/AcademieLogo.jpeg" style="float: left;" /><b>Connectez-vous avec votre compte académique. </b> </p>
-               </div>
-               <div  style=" margin:0px auto ;  text-align:center;">
-                    <p><a  href="lib/parentPortalIdp.php?login" class="tt" ><img src="images/parents_eleves1.png" alt="ADLyon"/><span class="tooltip"><span class="top"> </span>
-                    <span class="middle">se connecter avec votre profil parent/élève de l\'academie de lyon</span><span class="bottom"></span></span>
-                    </a><span style="margin-left:30px;"></span>
-                    <a  href="lib/agentPortalIdp.php?login" class="tt"><img src="images/profs_agents1.png" alt="ADLyon"/><span class="tooltip"><span class="top"> </span>
-                    <span class="middle">se connecter avec votre profil prof/agent  de l\'academie de lyon</span><span class="bottom"></span></span></a></p>
-                    </div>
-                </div>
-            <div class="box" id="login">
-              <h2>'._('Connectez-vous avec votre compte laclasse.').'</h2>
-              <div class="row">
-                <label for="username">'._('<span class="accesskey">I</span>dentifiant').':</label>
-                <input id="username" name="username" class="required" tabindex="1" accesskey="i" type="text" value="" size="25" autocomplete="false"/>
-              </div>
-              <div class="row">
-                <label for="password">'._('<span class="accesskey">M</span>ot de passe').':</label>
-                <input id="password" name="password" class="required" tabindex="2" accesskey="m" type="password" value="" size="25"/>
-              </div>
-
-              <div class="row btn-row">
-                <input type="hidden" name="lt" value="" />
-                <input type="hidden" name="_eventId" value="submit" />
-
-                <input class="btn-submit" name="submit" accesskey="l" value="'._('SE CONNECTER').'" tabindex="4" type="submit" />
-                <input class="btn-reset" name="reset" accesskey="c" value="'._('EFFACER').'" tabindex="5" type="reset" />
-              </div>
-
-              <div class="row" style="padding:20px 0 0 27px;">
-                <a href="http://www.laclasse.com/pls/public/!page.laclasse?contexte=QUESTION&rubrique=0">Mot de passe perdu</a>&nbsp;
-                <a href="javascript:void()" onClick="javascript:open(\'http://www.laclasse.com/pls/public/!page.laclasse?contexte=CONTACT&rubrique=1\',\'win\', \'resizable=yes\')">Trouver de l\'aide</a>
-              </div>
-              <br class="clear" />
-              <br />
-              </div>
-
-              <div id="sidebar">
-              <p>'._('Pour des raisons de s&eacute;curit&eacute;, veuillez vous d&eacute;connecter et fermer votre navigateur lorsque vous avez fini d\'acc&eacute;der aux services authentifi&eacute;s.').'</p>
-              <div id="list-languages">
-              </div>
-            </div>
-          </form>
-        </div>
-';          
-}*/
-
 //------------------------------------------------------------------------------
 // Callback viewLoginForm
 // 
