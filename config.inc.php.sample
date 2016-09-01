@@ -11,7 +11,6 @@
 /**
   Absolute path to your CAS install directory.
  */
-define('CAS_PATH', '/path/to/cas');
 define('SimpleSamlPATH', '/path/to/simplesamlphp/lib');
 define('ENT_SERVER', 'https://www.dev.laclasse.com');
 
