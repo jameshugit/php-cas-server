@@ -4,8 +4,8 @@
 	Gestion de template des errors.
 *******************************************************************************/
 
-require_once(__ROOT__.'/views/footer.php');
-require_once(__ROOT__.'/views/header.php');
+require_once('footer.php');
+require_once('header.php');
 
 function viewError($msg) {
 	getHeader();

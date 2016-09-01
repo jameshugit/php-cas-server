@@ -3,9 +3,9 @@
  * Test of SAML.
  */
 require_once('../config.inc.php'); 
-require_once(CAS_PATH.'/lib/ticket.php'); 
-require_once(CAS_PATH.'/views/auth_success.php'); 
-require_once(CAS_PATH.'/views/auth_failure.php'); 
+require_once('../lib/ticket.php'); 
+require_once('../views/auth_success.php'); 
+require_once('../views/auth_failure.php'); 
 echo "<h1>SAML/CAS unit tests</h1>";
 
 //$SERVICE  = 'Umpa-lumpa-Serv';

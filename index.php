@@ -54,19 +54,18 @@
  */
 require_once('config.inc.php');
 
-define('__ROOT__', dirname(__FILE__));
-require_once(__ROOT__.'/lib/functions.php');
-require_once(__ROOT__.'/lib/ticket.php');
-require_once(__ROOT__.'/lib/Utilities.php');
-require_once(__ROOT__.'/lib/saml/binding/HttpSoap.php');
-require_once(__ROOT__.'/lib/KLogger.php');
-require_once(__ROOT__.'/lib/Mobile_Detect.php');
+require_once('lib/functions.php');
+require_once('lib/ticket.php');
+require_once('lib/Utilities.php');
+require_once('lib/saml/binding/HttpSoap.php');
+require_once('lib/KLogger.php');
+require_once('lib/Mobile_Detect.php');
 
-require_once(__ROOT__.'/views/error.php');
-require_once(__ROOT__.'/views/login.php');
-require_once(__ROOT__.'/views/logout.php');
-require_once(__ROOT__.'/views/auth_failure.php');
-require_once(__ROOT__.'/views/saml_pronote_token.php');
+require_once('views/error.php');
+require_once('views/login.php');
+require_once('views/logout.php');
+require_once('views/auth_failure.php');
+require_once('views/saml_pronote_token.php');
 
 /**
  * login
@@ -572,7 +571,7 @@ function samlValidate() {
         $samlRequest = extractRequest($soapbody);
         $log->LogDebug("Saml Request: $samlRequest");
 
-        $samloneschema = __ROOT__ . '/schemas/oasis-sstc-saml-schema-protocol-1.1.xsd';
+        $samloneschema = 'schemas/oasis-sstc-saml-schema-protocol-1.1.xsd';
         // 4- validate the SAML Request (removed because it takes long time to return)
 //                 $validRequest=validateSamlschema($samlRequest, $samloneschema); 
 //                 

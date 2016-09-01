@@ -4,9 +4,9 @@
 	
 	Template for CAS2 token when authetication as successed.
 *******************************************************************************/
-require_once(CAS_PATH.'/views/auth_footer.php');
-require_once(CAS_PATH.'/views/auth_header.php');
-require_once(CAS_PATH.'/views/auth_attribute.php');
+require_once('auth_footer.php');
+require_once('auth_header.php');
+require_once('auth_attribute.php');
 
 
 /**
@@ -30,8 +30,8 @@ function viewAuthSuccess($viewName, $t, $pgtIou){
     	$token .= viewAuthFooter();
 	}
 	else { // custom view 
-		if (file_exists(CAS_PATH.'/views/'.$viewName.'.php')) {
-			require_once(CAS_PATH.'/views/'.$viewName.'.php');
+		if (file_exists($viewName.'.php')) {
+			require_once($viewName.'.php');
 			if (function_exists("view_$viewName")) $token =  call_user_func("view_$viewName", $t);
 			else $token = viewAuthHeader () . _('The function "view_'.$viewName.'" does not exist in file "'.$viewName.'.php"  !') . viewAuthFooter ();
 		}

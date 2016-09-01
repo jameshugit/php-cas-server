@@ -3,8 +3,8 @@
  * Test of the oracle backend.
  */
 require_once('../config.inc.php'); 
-require_once(CAS_PATH.'/views/auth_success.php'); 
-require_once(CAS_PATH.'/views/auth_failure.php'); 
+require_once('../views/auth_success.php'); 
+require_once('../views/auth_failure.php'); 
 
 $factoryInstance = new DBFactory();
 $db=$factoryInstance->createDB($CONFIG['DATABASE'],BACKEND_DBUSER, BACKEND_DBPASS,BACKEND_DBNAME);

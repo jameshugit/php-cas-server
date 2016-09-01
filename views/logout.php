@@ -3,8 +3,8 @@
 	@filename : logout.php 
 	@description : Gestion de template de logout.
 *******************************************************************************/
-require_once(CAS_PATH.'/views/footer.php');
-require_once(CAS_PATH.'/views/header.php');
+require_once('footer.php');
+require_once('header.php');
 
 //------------------------------------------------------------------------------
 // Callback viewLogoutSuccess

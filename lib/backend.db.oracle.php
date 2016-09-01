@@ -1,7 +1,7 @@
 <?php 
-include_once(CAS_PATH.'/lib/functions.php');
-require_once(CAS_PATH.'/views/auth_success.php'); 
-require_once(CAS_PATH.'/views/auth_failure.php'); 
+include_once('functions.php');
+require_once('../views/auth_success.php'); 
+require_once('../views/auth_failure.php'); 
 
 /**
  * Functions to implement oracle connectivity backend 

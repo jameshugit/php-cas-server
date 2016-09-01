@@ -4,7 +4,7 @@
  */
 
 require_once('../config.inc.php');
-require_once(CAS_PATH.'/lib/ticket.php'); 
+require_once('../lib/ticket.php'); 
 
 $SERVICE  = 'Umpa-lumpa-Serv';
 $USERNAME = 'charlie';

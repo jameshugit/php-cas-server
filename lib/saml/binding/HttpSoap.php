@@ -1,6 +1,6 @@
 <?php
 
-require_once (CAS_PATH.'/lib/Utilities.php');
+require_once ('Utilities.php');
 
 function extractSoap()
 {

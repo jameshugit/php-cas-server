@@ -13,6 +13,8 @@
  */
 define('SimpleSamlPATH', '/path/to/simplesamlphp/lib');
 define('ENT_SERVER', 'https://www.dev.laclasse.com');
+// Add lib/ directory in the include path
+set_include_path('.'.PATH_SEPARATOR.__DIR__.PATH_SEPARATOR.__DIR__.'/lib/'.PATH_SEPARATOR.get_include_path());
 
 define('ENT_SERVER', 'URL of the ENT server'); //https://www.dev.laclasse.com
 define('CAS_URL', 'URL of CAS server'); // http://..../sso

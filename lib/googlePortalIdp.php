@@ -17,7 +17,7 @@ require_once('../config.inc.php');
 //the simpleSAMlphp autoloader class
 require_once(SimpleSamlPATH.'/_autoload.php');
 
-require_once(CAS_PATH . '/lib/federation.php'); 
+require_once('federation.php'); 
 $profiles= array('agent'=>6, 'eleve'=>4 , 'parent'=>8); 
 
 /*

@@ -4,10 +4,10 @@
  * @file authentication.php
  * Interface that must be implemented by authenticators
  */
-include_once(CAS_PATH . '/lib/functions.php');
-require_once(CAS_PATH . '/lib/rest_request.php');
-require_once(CAS_PATH . '/views/auth_success.php');
-require_once(CAS_PATH . '/views/auth_failure.php');
+include_once('functions.php');
+require_once('rest_request.php');
+require_once('views/auth_success.php');
+require_once('views/auth_failure.php');
 
 interface casAuthentication {
 
