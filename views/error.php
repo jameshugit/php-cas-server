@@ -1,10 +1,11 @@
-<?
+<?php
 /*******************************************************************************
 	@file : error.php 
 	Gestion de template des errors.
 *******************************************************************************/
-require_once(CAS_PATH.'/views/footer.php');
-require_once(CAS_PATH.'/views/header.php');
+
+require_once(__ROOT__.'/views/footer.php');
+require_once(__ROOT__.'/views/header.php');
 
 function viewError($msg) {
 	getHeader();

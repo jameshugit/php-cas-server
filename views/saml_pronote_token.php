@@ -1,4 +1,4 @@
-<?
+<?php
 /**
 	Jetons spécifiques aux manuels scolaires numériques
 	Les balises apparaîssent même si elles ne sont pas valuées.
