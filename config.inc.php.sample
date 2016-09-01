@@ -37,12 +37,12 @@ $CONFIG['MODE'] = 'dev';
 $CONFIG['CAS_VERSION'] = '2.0';
 //-------------------------------------------------------------------
 // DATABASE BACKEND TYPE 
-$CONFIG['DATABASE'] = 'ORACLE';
+$CONFIG['DATABASE'] = 'WEBAPI';
 //$CONFIG['DATABASE']= 'MYSQL'; 
 //-------------------------------------------------------------------
 //-------------------------------------------------------------------
 // DATABASE BACKEND TYPE Only supports oracle and mysql
-$CONFIG['DATABASE'] = 'ORACLE';
+$CONFIG['DATABASE'] = 'WEBAPI';
 //$CONFIG['DATABASE']= 'MYSQL';
 //-------------------------------------------------------------------
 //------------------------------------------------------------------------------
