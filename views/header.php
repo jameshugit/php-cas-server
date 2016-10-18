@@ -97,7 +97,7 @@ input[type=text], input[type=password] {
 }
                 </style>
         </head>
-        <body">
+        <body>
                 <img draggable="false" class="logo" src="images/logolaclasse.svg" alt="Logo ENT">
                 <div class="footer">
                         <center><img draggable="false" src="images/grandlyon-logo-blanc.svg" alt="Logo Métropole du Grand Lyon" /></center>
