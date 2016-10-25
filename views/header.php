@@ -38,7 +38,6 @@ a {
     position: fixed;
     bottom: 1%;
         right: 0px;
-        opacity: 0.3;
         width: 75%;
         height: 15%;
 }
