@@ -76,7 +76,7 @@ $CONFIG['APIS'] = array(
     'headers' => null,
     'body_params' => null, //only post or put
     'path_param' => null,   //example user/(id)  only one parameter
-    'url_params' => array("nom", "prenom","id_sconet"), // nom and prenom are optionals, sconet_id is mandatory
+    'url_params' => array("nom", "prenom","id_sconet", "uai"), // nom, prenom, uai are optionals, sconet_id is mandatory
     'name' => "Search_Parent_By_Name_EleveSconetId",
     ),
 
