@@ -313,7 +313,7 @@ class WEBAPI implements casAuthentication {
     $api = $this->getApi("Search_Parent_By_Name_EleveSconetId");
     if (!is_null($api)) {
       try {
-        $response = $this->executeRequest($api, array($nom, $prenom, $eleveid), $this->api_access_key, $this->api_secret_key);
+        $response = $this->executeRequest($api, array($nom, $prenom, $eleveid, $uai), $this->api_access_key, $this->api_secret_key);
       } catch (Exception $e) {
         $this->log->LogError($e - getMessage());
         throw new Exception($e->getMessage());
