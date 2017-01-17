@@ -262,7 +262,7 @@ function login($attributes) {
                 if ($profil == 1 || $profil == 2) {
                     $factoryInstance = new DBFactory();
                     $db = $factoryInstance->createDB($CONFIG['DATABASE'], BACKEND_DBUSER, BACKEND_DBPASS, BACKEND_DBNAME);
-                    $casattributes = $db->Search_Parent_By_Name_EleveSconetId($nom, $prenom, $eleveid);
+                    $casattributes = $db->Search_Parent_By_Name_EleveSconetId($nom, $prenom, $eleveid, $UaiEtab);
                 }
                 $log->LogDebug("casattributes".print_r($casattributes,true));
                 $log->LogError("attributes in database:".print_r($casattributes,true));
@@ -311,7 +311,7 @@ function login($attributes) {
                     $prenom = $record['prenom'];
                     $eleveid = $record['eleveid'];
                     $profil = $record['profile'];
-                    $temp = array_union($db->Search_Parent_By_Name_EleveSconetId($nom, $prenom, $eleveid), $temp);
+                    $temp = array_union($db->Search_Parent_By_Name_EleveSconetId($nom, $prenom, $eleveid, $UaiEtab), $temp);
 
                     //print_r(Search_Parent_By_Name_Etab_EleveId($nom, $prenom, $eleveid)); 
                     $casattributes = $temp;

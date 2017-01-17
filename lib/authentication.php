@@ -51,235 +51,13 @@ interface casAuthentication {
   //InsEmail means institutional Email 
   public function Search_Agent_By_InsEmail($mail);
 
-  public function Search_Parent_By_Name_EleveSconetId($nom, $prenom, $eleveid);
+  public function Search_Parent_By_Name_EleveSconetId($nom, $prenom, $eleveid, $uai);
 
   public function Search_Eleve_By_Name_SconetId($nom, $prenom, $eleveid);
 
   public function has_default_password($login);
 
   public function update_password($login, $pwd);
-}
-
-// MYSQL IMPLEMENTAION 
-//-----------------------------------------------------------------//
-
-class MYSQL implements casAuthentication {
-
-  private $conn;
-
-  function __construct($BACKEND_DBUSER, $BACKEND_DBPASS, $BACKEND_DBNAME) {
-    $this->conn = $this->dbConnect($BACKEND_DBUSER, $BACKEND_DBPASS, $BACKEND_DBNAME);
-  }
-
-  public function __destruct() {
-    $this->dbDisconnect($this->conn);
-  }
-
-  private function dbConnect($BACKEND_DBUSER, $BACKEND_DBPASS, $BACKEND_DBNAME) {
-    try {
-      $conn = new PDO($BACKEND_DBNAME, $BACKEND_DBUSER, $BACKEND_DBPASS);
-    } catch (PDOException $e) {
-      echo $e->getMessage();
-      showError($e->getMessage());
-    }
-
-    return $conn;
-  }
-
-  private function ExecuteQuery($sql, $param) {
-
-    $recordSet = array();
-    $idx = 0;
-
-    if (!is_string($sql))
-      throw new Exception('the query is not a string');
-    if (empty($sql))
-      throw new Exception('empty querty');
-    try {
-      $stmt = $this->conn->prepare($sql);
-      //binding parameters
-      if (is_array($param) && isset($param)) {
-        $stmt->execute($param);
-      }
-
-      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $recordSet[$idx] = $row;
-        $idx++;
-      }
-    } catch (PDOException $e) {
-      showError($e->getMessage());
-    }
-
-    // Returning dataset
-    return $recordSet;
-  }
-
-  private function dbDisconnect($conn) {
-    $conn = null;
-  }
-
-  public function verifyLoginPasswordCredential($login, $password) {
-    $sqlParam = array('LOGIN' => $login, 'PWD' => $password);
-    $query = MySQL_AUTH;
-    $r = $this->ExecuteQuery($query, $sqlParam);
-    // If no record returned, credential is not valid.	
-    if (!$r)
-      return "";
-
-    // See what we have to do.
-    // just deal with the first reccord.
-    $rowSet = $r[0];
-    if (isset($rowSet)) {
-      if (strtoupper($rowSet['login']) == strtoupper($login)) {
-        // Yes ! this was successfull
-        return strtoupper($rowSet['login']);
-      }
-    }
-    // here is an unsuccessful attempt...
-    return "";
-  }
-
-  /**
-   * Returns the serviceValidate CAS 2.0 XML fragment response
-   * @param login Login for user (as returned by verifyLoginPasswordCredential)
-   * @param service Service that requests ST validation
-   * @return string containing loads of XML
-   */
-  public function getServiceValidate($login, $service, $pgtIou) {
-    global $CONFIG;
-    // index of the global array containing the list of autorized sites.
-    $idxOfAutorizedSiteArray = getServiceIndex($service);
-    $myAttributesProvider = isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['MysqlattributesProvider']) ?
-        $CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['MysqlattributesProvider'] : MySQL_FOR_ATTRIBUTES;
-
-    $myTokenView = isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['tokenModele']) ?
-        $CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['tokenModele'] : 'Default';
-
-    // An array with the needed attributes for this service.
-    $neededAttr = explode(",", str_replace(" ", "", strtoupper($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['allowedAttributes']))
-    );
-    $attributes = array(); // What to pass to the function that generate token
-    // Adding data to the array for displaying.
-    // user attribute is requiered in any way.
-    // this is requiered in CAS 1.0 for phpCAS Client.
-    $attributes['user'] = $login;
-
-    // executing second SQL Statment for other attributes.
-
-    $r = $this->ExecuteQuery($myAttributesProvider, array(':LOGIN' => $login));
-
-    // Should have only one row returned.
-    $rowSet = $r[0];
-    if (isset($rowSet)) {
-      // For all attributes returned
-      foreach ($rowSet as $idx => $val) {
-        if (in_array(strtoupper($idx), $neededAttr)) {
-          $attributes[$idx] = $val;
-        }
-      }
-    }
-
-    // call the token model with the default view or custom view
-    return viewAuthSuccess($myTokenView, $attributes, $pgtIou);
-  }
-
-  /**
-   * Returns the smalValidate CAS 1.0 XML fragment response
-   * @param login Login for user (as returned by verifyLoginPasswordCredential)
-   * @param service Service that requests ST validation
-   * @return string containing loads of XML
-   */
-  public function getSamlAttributes($login, $service) {
-    global $CONFIG;
-    // index of the global array containing the list of autorized sites.
-    $idxOfAutorizedSiteArray = getServiceIndex($service);
-    $myAttributesProvider = isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['MysqlattributesProvider']) ?
-        $CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['MysqlattributesProvider'] : Mysql_FOR_PRONOTE;
-
-    $myTokenView = isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['tokenModele']) ?
-        $CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['tokenModele'] : 'Default';
-    // An array with the needed attributes for this service.
-    $neededAttr = explode(",", str_replace(" ", "", strtoupper(isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['allowedAttributes']) ?
-                    $CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['allowedAttributes'] :
-                    'login,nom,prenom,dateNaissance,codePostal,categories'))
-    );
-
-    $attributes = array(); // What to pass to the function that generate token
-    /// @note : no need for the moment... $CASversion = $CONFIG['CAS_VERSION'];
-    // Adding data to the array for displaying.
-    // user attribute is requiered in any way.
-    // this is requiered in CAS 1.0 for phpCAS Client.
-    $attributes['user'] = $login;
-    // executing second SQL Statment for other attributes.
-
-    $r = $this->ExecuteQuery($myAttributesProvider, array(':LOGIN' => $login));
-
-
-
-    // Should have only one row returned.
-    $rowSet = $r[0];
-    //echo count($rowSet);  
-    if (isset($rowSet)) {
-      // For all attributes returned
-      foreach ($rowSet as $idx => $val) {
-        if (in_array(strtoupper($idx), $neededAttr)) {
-          $attributes[$idx] = $val;
-        }
-      }
-    }
-
-    //echo count($attributes); 
-    return $attributes;
-  }
-
-  /**
-   * Returns the validate CAS 1.0 response
-   * @param login Login for user (as returned by verifyLoginPasswordCredential)
-   * @param service Service that requests ST validation
-   * @return string containing loads of XML
-   */
-  public function getValidate($login, $service) {
-    return 0;
-  }
-
-  public function Search_User_By_Email($mail) {
-    global $CONFIG;
-    $query = Mysql_Search_User_by_mail;
-    $r = $this->ExecuteQuery($query, array(':mail' => $mail));
-    return $r;
-  }
-
-  //InsEmail means institutional Email
-  public function Search_Agent_By_InsEmail($mail) {
-
-    global $CONFIG;
-    $query = Mysql_Search_Agent_by_mail;
-    $r = $this->ExecuteQuery($query, array(':mail' => $mail));
-    return $r;
-  }
-
-  public function Search_Parent_By_Name_EleveSconetId($nom, $prenom, $eleveid) {
-    global $CONFIG;
-    $query = Mysql_Search_Parent_By_Name_EleveId;
-    $r = $this->ExecuteQuery($query, array('nom' => $nom, 'prenom' => $prenom, 'elevid' => $eleveid));
-    return $r;
-  }
-
-  public function Search_Eleve_By_Name_SconetId($nom, $prenom, $eleveid) {
-    global $CONFIG;
-    $query = Mysql_Search_student_By_Id;
-    $r = $this->ExecuteQuery($query, array(':nom' => $nom, 'prenom' => $prenom, ':eleveid' => $eleveid));
-    return $r;
-  }
-
-  public function has_default_password($login) {
-    
-  }
-
-  public function update_password($login, $pwd) {
-    
-  }
-
 }
 
 //--------------------------------------------------------------------------------------//
@@ -530,7 +308,7 @@ class WEBAPI implements casAuthentication {
     return $r['Data'];
   }
 
-  public function Search_Parent_By_Name_EleveSconetId($nom, $prenom, $eleveid) {
+  public function Search_Parent_By_Name_EleveSconetId($nom, $prenom, $eleveid, $uai) {
     global $CONFIG;
     $api = $this->getApi("Search_Parent_By_Name_EleveSconetId");
     if (!is_null($api)) {
@@ -545,7 +323,8 @@ class WEBAPI implements casAuthentication {
       $this->log->LogDebug("Response from annuaire:" . print_r($response->body, true));
       $r = json_decode($response->body, true);
     } else {
-      $this->log->LogError("Response from annuaire:" . print_r($response, true));
+      $this->log->LogError("Response from annuaire:" . print_r($response, true))
+;
     }
 
     return $r['Data'];
