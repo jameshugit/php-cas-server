@@ -177,7 +177,7 @@ final class TicketStorage {
         global $CONFIG;
         // TODO : assert $_value & $_username are ok
         try {
-            $this->_cache->set($CONFIG['REDIS_ROOT'] . "SSO" . self::SEPARATOR . $this->_key, $this->_value);
+            $this->_cache->setAndExpire($CONFIG['REDIS_ROOT'] . "SSO" . self::SEPARATOR . $this->_key, $this->_value, $duration);
         } catch (Rediska_Exception $e) {
             echo _("Unable to store TGT to database, error ") . $e->getCode() . "(" . $e->getMessage() . ")";
             exit;
