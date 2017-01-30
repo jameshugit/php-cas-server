@@ -83,11 +83,9 @@ function login() {
     $selfurl = $request_uris[0];
 
     $service = isset($_REQUEST['service']) ? $_REQUEST['service'] : false;
-    $loginTicketPosted = isset($_REQUEST['loginTicket']) ? $_REQUEST['loginTicket'] : false;
 
     $log->LogDebug("selfurl:  $selfurl");
     $log->LogDebug("service:  $service");
-    $log->LogDebug("loginTicketPosted: $loginTicketPosted");
 
     if (!array_key_exists('CASTGC', $_COOKIE)) { /*     * * user has no TGC ** */
         if (!array_key_exists('username', $_POST)) {
@@ -95,14 +93,9 @@ function login() {
               => present login/pass form,
               => store initial GET parameters somewhere (service)
              */
-            // displaying login Form with a new login ticket.
-            $lt = new LoginTicket();
-            $lt->create();
-            $loginticket = $lt->key();
-            $log->LogDebug("user has no TGC and is not trying to post credentials, generate new login ticket:$loginticket");
+            // displaying login Form.
             viewLoginForm(array('service' => $service,
-                'action' => $selfurl,
-                'loginTicket' => $lt->key()));
+                'action' => $selfurl));
             return;
         } else {
             /* user has no TGC but is trying to post credentials
@@ -115,23 +108,6 @@ function login() {
             $log->LogDebug('user has no TGC but is trying to post credentials');
             $factoryInstance = new DBFactory();
             $db = $factoryInstance->createDB($CONFIG['DATABASE'], BACKEND_DBUSER, BACKEND_DBPASS, BACKEND_DBNAME);
-
-
-            $lt = new LoginTicket();
-            // If the login Ticket is not valid, no need to go futher : redirect to login form
-
-            if (!$lt->find($loginTicketPosted)) {
-
-                $lt->create();
-
-                $log->LogError("the login Ticket is not valid, no need to go futher : redirect to login form");
-
-                viewLoginFailure(array('service' => $service,
-                    'action' => $selfurl,
-                    'errorMsg' => _("La session de cette page a expir&eacute;. r&eacute;-essayez en rafra&icirc;chissant votre page."),
-                    'loginTicket' => $lt->key()));
-                return;
-            }
 
             if ((strtoupper($db->verifyLoginPasswordCredential($_POST['username'], $_POST['password'])) == strtoupper($_POST['username']))) {
                 /* credentials ok */
@@ -151,19 +127,11 @@ function login() {
                 header("Location: " . url($selfurl) . "service=" . urlencode($service) . "");
             } else {
                 /* credentials failed */
-              // verify if we need a new login ticket
                 $user = $_POST['username'] ; 
-                $log->LogError('Credentials faild for $user, try again');
-                $newloginTicket = $loginTicketPosted;
-                $lt = new LoginTicket();
-                if (!$lt->find($loginTicketPosted)) {
-                    $lt->create();
-                    $newloginTicket = $lt->key();
-                }
+                $log->LogError('Credentials failed for $user, try again');
 
                 viewLoginFailure(array('service' => $service,
-                    'action' => $selfurl,
-                    'loginTicket' => $newloginTicket));
+                    'action' => $selfurl));
             }
         }
     } else { /*** user has TGC ***/

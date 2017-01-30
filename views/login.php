@@ -42,7 +42,6 @@ function getNewsList($t) {
 function getFormLogin($t, $msg="") {
 	$actionForm = $t["action"];
 	$service = urldecode($t["service"]);
-	$lt = $t["loginTicket"];
 
 	echo
 '		<div class="box" style="max-width: 400px; text-align: left">';
@@ -84,7 +83,6 @@ function getFormLogin($t, $msg="") {
 				<form method="post" action="'.$actionForm.'">
 		            <input type="hidden" name="action" value="login">
 		            <input type="hidden" name="service" value="'.$service.'">
-		            <input type="hidden" name="loginTicket" value="'.$lt.'">
 					<div>Identifiant:</div>
 					<input name="username" type="text" style="width: 80%; margin-bottom: 10px;">
 					<div>Mot de passe:</div>

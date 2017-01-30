@@ -541,55 +541,5 @@ class ProxyGrantingTicketIOU {
      */
 }
 
-/**
- * LoginTicket class
- * 
- * This kind of ticket is use to provide more security on the login form.
- * LT Tickets are one shot tickets which are generated when display login Form, and
- * are validated when the user posts its credential.
- * Their cycle life are very short in way to avoid reposting credentials when typing 'back' on the navigator.
- * @note : The ticket destruction occured when it times out.
- *
- */
-class LoginTicket {
 
-    private $_ticket = false;
 
-    // Constructeur
-    function __construct() {
-        
-    }
-
-    // creates a st ticket for tgt
-    public function create() {
-        global $CONFIG;
-        $this->_ticket = new TicketStorage('LT');
-        $this->_ticket->create(20, "LOGIN-TICKET", $CONFIG['LT_TIMOUT']);
-        return true;
-    }
-
-    // returns username associated to key
-    public function find($lt = false) {
-        //assert($lt !== false);
-        //assert(!$this->_ticket); 
-        // can only be initialized once
-        $this->_ticket = new TicketStorage('LT');
-        $this->_initialized = true;
-        $louqueEup = $this->_ticket->lookup($lt);
-        $this->delete();
-        return $louqueEup;
-    }
-
-    public function key() {
-        assert($this->_ticket);
-        return $this->_ticket->key();
-    }
-
-    public function delete() {
-        assert($this->_ticket);
-        return $this->_ticket->delete();
-    }
-
-}
-
-?>
