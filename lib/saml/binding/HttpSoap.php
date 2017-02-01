@@ -50,14 +50,14 @@ function extractRequest($soapResponse)
 
 function  soapReponse($SamlReponse)
 {
-    header('Content-Type: application/xml; charset="utf-8"');
-    $outputFromIdp = '<?xml version="1.0"?>';
-    $outputFromIdp.= '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">';
-    $outputFromIdp.= '<SOAP-ENV:Header/>';
-    $outputFromIdp.= '<SOAP-ENV:Body>';
-    $outputFromIdp.=$SamlReponse;
-    $outputFromIdp.= '</SOAP-ENV:Body>';
-    $outputFromIdp.= '</SOAP-ENV:Envelope>';
+    header('Content-Type: text/xml; charset="UTF-8"');
+    $outputFromIdp = "<?xml version=\"1.0\"?>\n";
+    $outputFromIdp.= "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\">\n";
+    $outputFromIdp.= "<SOAP-ENV:Header/>\n";
+    $outputFromIdp.= "<SOAP-ENV:Body>\n";
+    $outputFromIdp.= $SamlReponse;
+    $outputFromIdp.= "</SOAP-ENV:Body>\n";
+    $outputFromIdp.= "</SOAP-ENV:Envelope>\n";
     print($outputFromIdp);
     exit(0);
 }

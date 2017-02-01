@@ -50,20 +50,17 @@
 // generic function for success and failure reponses
 function soapReponse($SamlReponse) {
     header('Content-Type: text/xml', true);
-    $outputFromIdp = '<?xml version="1.0" encoding="UTF-8"?>';
-    $outputFromIdp .= '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">';
-    $outputFromIdp .= '<SOAP-ENV:Body>';
+    $outputFromIdp = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+    $outputFromIdp .= "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\">\n";
+    $outputFromIdp .= "<SOAP-ENV:Body>\n";
 
-
-    $outputFromIdp.=$SamlReponse;
-
-
+    $outputFromIdp.= $SamlReponse;
 
     //$outputFromIdp .= $tempOutputFromIdp;
-    $outputFromIdp .= '</SOAP-ENV:Body>';
-    $outputFromIdp .= '</SOAP-ENV:Envelope>';
+    $outputFromIdp .= "</SOAP-ENV:Body>\n";
+    $outputFromIdp .= "</SOAP-ENV:Envelope>\n";
     print($outputFromIdp);
     exit(0);
 }
 
-?>
+
