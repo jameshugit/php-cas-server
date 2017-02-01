@@ -44,30 +44,28 @@ function viewAuthSuccess($viewName, $t, $pgtIou){
 */
 function proxySuccesToken($PT)
 {
-	$token= '<cas:serviceResponse xmlns:cas="http://www.yale.edu/tp/cas">
-   		<cas:proxySuccess>
-     		<cas:proxyTicket>'.$PT.'</cas:proxyTicket>
-   		</cas:proxySuccess>
-		</cas:serviceResponse>'; 
-         
-	return $token;
+	return '<cas:serviceResponse xmlns:cas="http://www.yale.edu/tp/cas">
+	<cas:proxySuccess>
+		<cas:proxyTicket>'.$PT.'</cas:proxyTicket>
+	</cas:proxySuccess>
+</cas:serviceResponse>
+';
 }
 /*
    proxy authentication token generated after successful proxy ticket validation
 */
 function proxyAuthSuccess($username,$pgtiou,$proxy)
 {
-	$token= '<cas:serviceResponse xmlns:cas="http://www.yale.edu/tp/cas">
-		    <cas:authenticationSuccess>
-			<cas:user>'.$username.'</cas:user>
-			<cas:proxyGrantingTicket>'.$pgtiou.'</cas:proxyGrantingTicket>
-			<cas:proxies>
-			  <cas:proxy>'.$proxy.'</cas:proxy>
-			  </cas:proxies>
-		    </cas:authenticationSuccess>
-		</cas:serviceResponse>';
-        return $token; 
-
+	return '<cas:serviceResponse xmlns:cas="http://www.yale.edu/tp/cas">
+	<cas:authenticationSuccess>
+		<cas:user>'.$username.'</cas:user>
+		<cas:proxyGrantingTicket>'.$pgtiou.'</cas:proxyGrantingTicket>
+		<cas:proxies>
+			<cas:proxy>'.$proxy.'</cas:proxy>
+		</cas:proxies>
+	</cas:authenticationSuccess>
+</cas:serviceResponse>
+';
 }
 
 

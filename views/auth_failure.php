@@ -13,19 +13,22 @@
 	@param $t an array of param with 'code', and 'message' keys.
 	@returns
 */
-function viewAuthFailure($t){
-        echo "<cas:serviceResponse xmlns:cas='http://www.yale.edu/tp/cas'>
-    			<cas:authenticationFailure code=\"".$t['code']."\">
-        			".$t['message']."
-    			</cas:authenticationFailure>
-			</cas:serviceResponse>";
+function viewAuthFailure($t) {
+	header("Content-type: text/xml");
+	echo "<cas:serviceResponse xmlns:cas='http://www.yale.edu/tp/cas'>
+	<cas:authenticationFailure code=\"".$t['code']."\">
+		".$t['message']."
+	</cas:authenticationFailure>
+</cas:serviceResponse>
+";
 }
 
-function viewProxyAuthFailure($t)
-{
-        echo "<cas:serviceResponse xmlns:cas='http://www.yale.edu/tp/cas'>
-    			<cas:proxyFailure  code=\"".$t['code']."\">
-        			".$t['message']."
-    			</cas:proxyFailure >
-			</cas:serviceResponse>";
+function viewProxyAuthFailure($t) {
+	header("Content-type: text/xml");
+	echo "<cas:serviceResponse xmlns:cas='http://www.yale.edu/tp/cas'>
+	<cas:proxyFailure code=\"".$t['code']."\">
+		".$t['message']."
+	</cas:proxyFailure>
+</cas:serviceResponse>
+";
 }
