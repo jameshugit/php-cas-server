@@ -259,27 +259,27 @@ function serviceValidate() {
     $log->LogDebug("Service Validate is called ...");
 
     $ticket = isset($_GET['ticket']) ? $_GET['ticket'] : "";
-    $service = urldecode(isset($_GET['service']) ? $_GET['service'] : "");
+    $service = isset($_GET['service']) ? urldecode($_GET['service']) : "";
     $renew = isset($_GET['renew']) ? $_GET['renew'] : "";
 
     $log->LogDebug("Request parameters .....");
-    $log->LogDebug("Service Ticket :$ticket");
+    $log->LogDebug("Service Ticket : $ticket");
     $log->LogDebug("Service: $service");
-    $log->logDebug("renew:$renew");
+    $log->logDebug("renew: $renew");
 
     //for proxy validate
     // 1. verifying parameters ST ticket and service should not be empty.
-    if (!isset($ticket) || !isset($service)) {
+    if (!isset($_GET['ticket']) || !isset($_GET['service'])) {
         $log->LogError("INVALID_REQUEST: serviceValidate requires at least two parameters : ticket and service.");
-        viewAuthFailure(array('code' => 'INVALID_REQUEST', 'message' => _("serviceValidate require at least two parameters : ticket and service.")));
+        viewAuthFailure(array('code' => 'INVALID_REQUEST', 'message' => "serviceValidate require at least two parameters : ticket and service."));
         die();
     }
 
     // 2. verifying if ST ticket is valid.
     $st = new ServiceTicket();
     if (!$st->find($ticket)) {
-        $log->LogError("INVALID_TICKET" . $ticket . " is not recognized.");
-        viewAuthFailure(array('code' => 'INVALID_TICKET', 'message' => "Ticket " . $ticket . _(" is not recognized.")));
+        $log->LogError("INVALID_TICKET " . $ticket . " is not recognized.");
+        viewAuthFailure(array('code' => 'INVALID_TICKET', 'message' => "Ticket " . $ticket . " is not recognized."));
         die();
     }
 
@@ -527,13 +527,13 @@ function samlValidate() {
         $log->LogDebug("soap Request: $soapbody");
 
         // 2-   get the Target and validate it()
+        //************ verifiying the service 
+        if (!isset($_REQUEST['TARGET'])) {
+            $log->LogError("TARGET argument is needed !");
+            throw new Exception('No authorized service was found !');
+        }
         $service = $_REQUEST['TARGET'];
         $log->LogDebug("Service: $service");
-        //************ verifiying the service 
-        if (!isset($service)) {
-            $log->LogError($service."is not an authorized service  !");
-            throw new Exception('No authorized service was found ! ');
-        }
 
         // 3-  get the saml Request out of the SOAP message
         $samlRequest = extractRequest($soapbody);
@@ -555,7 +555,7 @@ function samlValidate() {
         //echo $ticket;   
         //  6- validate the ticket
         if (!isset($ticket) || $ticket == '') {
-            $log->LogError($ticket."is not a  valid ticket !");
+            $log->LogError($ticket." is not a  valid ticket !");
             throw new Exception('No valid ticket');
             // add some code to view saml error message.
         }
@@ -587,8 +587,7 @@ function samlValidate() {
 //                   }
 //                             
     } catch (Exception $e) {
-
-        //genterate  a failure saml reponse
+        // generate  a failure saml reponse
         $samlFailure = PronoteTokenBuilder(8, null, null, $e->getMessage());
         $log->LogError("Error". $e->getMessage());
         soapReponse($samlFailure);
@@ -727,6 +726,7 @@ switch (strtolower($action)) {
         serviceValidate();
         break;
     case "servicevalidate" :
+    case "p3/servicevalidate" :
         serviceValidate();
         break;
     // Consider that we can handle case insensitive (great ! this is not in CAS specs.)
@@ -743,4 +743,4 @@ switch (strtolower($action)) {
     default :
         showError(_("Action inconnue."));
 }
-?>
+
