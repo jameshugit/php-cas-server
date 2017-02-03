@@ -19,16 +19,6 @@ set_include_path('.'.PATH_SEPARATOR.__DIR__.PATH_SEPARATOR.__DIR__.'/lib/'.PATH_
 define('ENT_SERVER', 'URL of the ENT server'); //https://www.dev.laclasse.com
 define('CAS_URL', 'URL of CAS server'); // http://..../sso
 define('SERVICE', ENT_SERVER . '/pls/education/!page.laclasse');
-define('INSCRIPTION_URL', ENT_SERVER . '/pls/public/!page.laclasse?contexte=INSCRIPTION&rubrique=0');
-
-/*
-  Server mode
- * @param MODE
- *  - 'dev'   : http protocol allowed
- *  - 'prod'  : https required
- *  - 'debug' : 'dev' mode plus debug info display
- */
-$CONFIG['MODE'] = 'dev';
 
 /** CAS protocol compatibility
  * @param CAS_VERSION Possible values are : 1.0, 2.0.
@@ -89,39 +79,17 @@ $CONFIG['DEBUG_FILE'] = '/tmp/log.txt';
 $CONFIG['REDIS_SERVERS'] = array(array('localhost', 6379));
 $CONFIG['REDIS_ROOT'] = 'org.example.sso.tickets.';
 
-/** Twitter client config
- * @param DISPLAY_NEWS
- * @param TWITTER_ACCOUNT String prefixed with @ containing the account to use on twitter
- * (e.g.@laclasse)
- * @param TWITTER_HASHTAG String with the hashtag we're looking for, prefixed with # 
- * (e.g. '#sys')
- * @param REDIS_NEWS_ROOT The enws root we use for the twitter service
- * This param overrides $CONFIG['REDIS_ROOT']
- * See if we have to display news on the authentication form
- * The news are feeded by a twitter account
- */
-$CONFIG['DISPLAY_NEWS'] = true;
-$CONFIG['TWITTER_ACCOUNT'] = '@laclasse';
-$CONFIG['TWITTER_HASHTAG'] = '#sys';
-$CONFIG['TWITTER_CONSUMER_KEY'] = 'consumer_key';
-$CONFIG['TWITTER_CONSUMER_SECRET'] ='consumer_key_secret';
-$CONFIG['TWITTER_OAUTH_TOKEN'] ='oauth_token';
-$CONFIG['TWITTER_OAUTH_SECRET'] = 'oauth_secret';
-$CONFIG['REDIS_NEWS_ROOT'] = 'org.example.sso.last_message.';
-
 /**
   Timeout in second for each kind of ticket
-  LT for LoginTicket : The timeout shouldbe very short. It should not be over 4 minutes.
   ST for ServiceTicket : Could be short too because it  is a one shot ticket tha have to
   be validated : 4 minutes for example
-  ST for TicketGrantingTicket : Could be long : 8 hours for example
+  TGT for TicketGrantingTicket : Could be long : 8 hours for example
  */
-$CONFIG['LT_TIMOUT'] = 4 * 60;
 $CONFIG['ST_TIMOUT'] = 4 * 60;
 $CONFIG['TGT_TIMOUT'] = 8 * 60 * 60;
 $CONFIG['PT_TIMOUT'] = 4 * 60;
 $CONFIG['PGT_TIMOUT'] = 4 * 60;
-$CONFIG['PGTIOU_TIMOUT'] = 4 * 60;
+
 /**
   Logging and tracker config
   The logging format is as follows (All field are Tab separated):
@@ -132,7 +100,7 @@ $CONFIG['PGTIOU_TIMOUT'] = 4 * 60;
   => LOGOUT_SUCCESS
   => TRACKING_ALERT
  */
-$CONFIG['ACTIVATE_TRACKING'] = true;
+
 // Array of tracked users : usernames have to be uppercased
 $CONFIG['TRACKED_USERS'] = array('PLEVALLOIS', 'MBLANC');
 // Sending mail alert ?
@@ -145,8 +113,6 @@ $CONFIG['MAIL_ADMIN'] = "you@yourdomain.com";
  */
 
 include_once('lib/authentication.php');
-
-
 
 //--------------------------------------------------------------------------------------------
 // Requete SQL de validation des login/pwd
@@ -188,4 +154,3 @@ define('Search_student_By_Name_SconetId', '');
 define('accss_id',"1044"); 
 define('secret_key',"secret"); 
 
-?>

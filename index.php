@@ -30,6 +30,7 @@
  * @file index.php
  * @author Michel Blanc <mblanc@erasme.org>
  * @author Pierre-Gilles Levallois <pgl@erasme.org>
+ * @author Daniel LACROIX <dlacroix@erasme.org>
  *
  * This application controller routes login, logout and serviceValidate
  * requests, and enforce logic flow for those 3 CAS URIs
@@ -59,7 +60,6 @@ require_once('lib/ticket.php');
 require_once('lib/Utilities.php');
 require_once('lib/saml/binding/HttpSoap.php');
 require_once('lib/KLogger.php');
-require_once('lib/Mobile_Detect.php');
 
 require_once('views/error.php');
 require_once('views/login.php');
@@ -74,125 +74,103 @@ require_once('views/saml_pronote_token.php');
  * @returns void
  */
 function login() {
-    global $CONFIG;
-    $log = new KLogger($CONFIG['DEBUG_FILE'], $CONFIG['DEBUG_LEVEL']);
-    $log->LogDebug("Login Function is called");
+	global $CONFIG;
+	$log = new KLogger($CONFIG['DEBUG_FILE'], $CONFIG['DEBUG_LEVEL']);
+	$log->LogDebug("Login Function is called");
 
-    $log->LogDebug("REQUEST_URI". $_SERVER['REQUEST_URI']);
-    $request_uris = explode("?", $_SERVER['REQUEST_URI']);
-    $selfurl = $request_uris[0];
+	$log->LogDebug("REQUEST_URI". $_SERVER['REQUEST_URI']);
+	$request_uris = explode("?", $_SERVER['REQUEST_URI']);
+	$selfurl = $request_uris[0];
 
-    $service = isset($_REQUEST['service']) ? $_REQUEST['service'] : false;
+	$service = isset($_REQUEST['service']) ? $_REQUEST['service'] : false;
 
-    $log->LogDebug("selfurl:  $selfurl");
-    $log->LogDebug("service:  $service");
+	$log->LogDebug("selfurl:  $selfurl");
+	$log->LogDebug("service:  $service");
 
-    if (!array_key_exists('CASTGC', $_COOKIE)) { /*     * * user has no TGC ** */
-        if (!array_key_exists('username', $_POST)) {
-            /* user has no TGC and is not trying to post credentials :
-              => present login/pass form,
-              => store initial GET parameters somewhere (service)
-             */
-            // displaying login Form.
-            viewLoginForm(array('service' => $service,
-                'action' => $selfurl));
-            return;
-        } else {
-            /* user has no TGC but is trying to post credentials
-              user should have posted a valid LoginTicket.
-              => check credentials
-              => send TGT
-              => redirect to login
-             */
-            // create database provider
-            $log->LogDebug('user has no TGC but is trying to post credentials');
-            $factoryInstance = new DBFactory();
-            $db = $factoryInstance->createDB($CONFIG['DATABASE'], BACKEND_DBUSER, BACKEND_DBPASS, BACKEND_DBNAME);
+	$authentication_done = false;
+	$authentication_error = false;
+	$ticket = '';
+	$username = '';
 
-            if ((strtoupper($db->verifyLoginPasswordCredential($_POST['username'], $_POST['password'])) == strtoupper($_POST['username']))) {
-                /* credentials ok */
-                $log->LogDebug('credentials are valid, generate a TGC');
-                $ticket = new TicketGrantingTicket();
-                $ticket->create($_POST['username']);
-                $var = $ticket->key();
-                $log->LogDebug("Generated ticket: $var");
+	// user is trying to post credentials
+	if(array_key_exists('username', $_POST)) {
 
-                /* send TGC */
-                //setcookie("CASTGC", $ticket->key(), 0);
-		setcookie("CASTGC", $ticket->key(), 0, "/");
-                $log->LogDebug("CASTGC cookie is set succesfully: ".$ticket->key());
-                $log->LogDebug('redirect to login');
+		//  user should have posted a valid LoginTicket.
+		//  => check credentials
+		//  => send TGT
+		//  => redirect to login
+		// create database provider
+		$log->LogDebug('user is trying to post credentials');
+		$factoryInstance = new DBFactory();
+		$db = $factoryInstance->createDB($CONFIG['DATABASE'], BACKEND_DBUSER, BACKEND_DBPASS, BACKEND_DBNAME);
 
-                /* Redirect to /login */
-                header("Location: " . url($selfurl) . "service=" . urlencode($service) . "");
-            } else {
-                /* credentials failed */
-                $user = $_POST['username'] ; 
-                $log->LogError('Credentials failed for $user, try again');
+		if ((strtoupper($db->verifyLoginPasswordCredential($_POST['username'], $_POST['password'])) == strtoupper($_POST['username']))) {
+			// credentials ok
+			$log->LogDebug('credentials are valid, generate a TGC');
+			$tgt = new TicketGrantingTicket();
+			$tgt->create($_POST['username']);
+			$log->LogDebug("Generated ticket: ".$tgt->key());
 
-                viewLoginFailure(array('service' => $service,
-                    'action' => $selfurl));
-            }
-        }
-    } else { /*** user has TGC ***/
-        /* client has TGT and renew parameter set to true 
-          => destroy TGC
-          => present login form
-         */
-        $log->LogDebug('client has TGT and renew parameter set to true, destroy TGC, redirect to login form');
-        if (array_key_exists('renew', $_GET) && $_GET['renew'] == 'true') {
-            $tgt = new TicketGrantingTicket();
-            $tgt->find($_COOKIE["CASTGC"]);
-            $tgt->delete();
+			// send TGC
+			setcookie("CASTGC", $tgt->key(), 0, "/");
+			$log->LogDebug("CASTGC cookie is set succesfully: ".$tgt->key());
 
-            // delete cookie
-            setcookie("CASTGC", FALSE, 0, "/");
+			$ticket = $tgt->key();
+			$username = $_POST['username'];
+			$authentication_done = true;
+		}
+		else {
+			// credentials failed
+			$log->LogError("Credentials failed for ".$_POST['username'].", try again");
+			$authentication_error = true;
+		}
+	}
+	// user is not posting credentials
+	else {
+		// user has TGT and renew is not set
+		if(array_key_exists('CASTGC', $_COOKIE) && !isset($_GET['renew'])) {
+			$tgt = new TicketGrantingTicket();
+			// if the ticket is valid
+			if($tgt->find($_COOKIE["CASTGC"])) {
+				$ticket = $tgt->key();
+				$username = $tgt->username();
+				$authentication_done = true;
+			}
+		}
+	}
 
-            // Choosing redirection
-            if ($service)
-                header("Location: " . url($selfurl) . "service=" . urlencode($service) . "");
-            else
-                header("Location: $selfurl");
-
-            return;
-        }
-        /* client has valid TGT
-          => build a service ticket
-          => send a redirect to 'service' url with newly created ST as GET param
-         */
-        $log->LogDebug('client has valid TGT, build a service ticket');
-        // Assert validity of TGC
-        $tgt = new TicketGrantingTicket();
-        if (!$tgt->find($_COOKIE["CASTGC"])) {
-            // The TGC was nt found in storageTicket (perhaps it does not exist in Redis?)
-            $log->LogError("Oops:Ticket Granting Ticket is not found");
-
-            unset($_COOKIE['CASTGC']);
-            setcookie('CASTGC', "", -1, '/');
-
-            viewError("La session de cette page a expir&eacute;. r&eacute;-essayez en rafra&icirc;chissant votre page.");
-            die(); 
-        }
-        if ($service) {
-            if (!isServiceAutorized($service)) {
-                $log->LogError("Oops:Service: $service is not authorized");
-                showError(_("Cette application n'est pas autoris&eacute;e &agrave; s'authentifier sur le serveur CAS."));
-                die();
-            }
-
-            // build a service ticket
-            $st = new ServiceTicket();
-            $st->create($tgt->key(), $service, $tgt->username());
-            $log->LogDebug("Service Ticket :" . $st->key() . "");
-            $log->LogDebug("Redirect to :" . url($service) . "&ticket=" . $st->key() . "");
-            // Redirecting for futher client request for serviceValidate
-            header("Location: " . url($service) . "ticket=" . $st->key() . "");
-        } else {
-            // xNo service, user just wanted to login to SSO
-            $log->LogDebug("no Service was required");
-            viewLoginSuccess();
-        }
-    }
+	// is authentication succeed, redirect to the service
+	if($authentication_done) {
+		if ($service) {
+			if (!isServiceAutorized($service)) {
+				$log->LogError("Oups:Service: $service is not authorized");
+				showError(_("Cette application n'est pas autoris&eacute;e &agrave; s'authentifier sur le serveur CAS."));
+			}
+			else {
+				// build a service ticket
+				$st = new ServiceTicket();
+				$st->create($ticket, $service, $username);
+				$log->LogDebug("Service Ticket :" . $st->key() . "");
+				$log->LogDebug("Redirect to :" . url($service) . "&ticket=" . $st->key() . "");
+				// Redirecting for futher client request for serviceValidate
+				header("Location: " . url($service) . "ticket=" . $st->key() . "");
+			}
+		}
+		else {
+			// xNo service, user just wanted to login to SSO
+			$log->LogDebug("no Service was required");
+			viewLoginSuccess();
+			return;
+		}
+	}
+	// invalid user or password
+	elseif($authentication_error) {
+		viewLoginFailure(array('service' => $service, 'action' => $selfurl));
+	}
+	// else display the login form
+	else {
+		viewLoginForm(array('service' => $service, 'action' => $selfurl));
+	}
 }
 
 /**
@@ -201,50 +179,50 @@ function login() {
  * @return void
  */
 function logout() {
-    global $CONFIG;
-    $log = new KLogger($CONFIG['DEBUG_FILE'], $CONFIG['DEBUG_LEVEL']);
-    $log->LogDebug("Logout function is called");
+	global $CONFIG;
+	$log = new KLogger($CONFIG['DEBUG_FILE'], $CONFIG['DEBUG_LEVEL']);
+	$log->LogDebug("Logout function is called");
 
-    if (array_key_exists('CASTGC', $_COOKIE)) {
-        /* Remove TGT */
-        $tgt = new TicketGrantingTicket();
-        $tgt->find($_COOKIE["CASTGC"]);
-        $tgt->delete();
+	if (array_key_exists('CASTGC', $_COOKIE)) {
+		// Remove TGT
+		$tgt = new TicketGrantingTicket();
+		$tgt->find($_COOKIE["CASTGC"]);
+		$tgt->delete();
 
-        $log->LogDebug("LOGOUT_SUCCES".$tgt->username()."");
+		$log->LogDebug("LOGOUT_SUCCES".$tgt->username()."");
 
-        /* Remove cookie from client */
-        setcookie("CASTGC", FALSE, 0, "/");
-        $log->LogDebug("TGT is deleted...");
-        $log->LogDebug("CASTGT is removed...");
-    } else {
-        $log->LogDebug("TGC_NOT_FOUND");
-       // writeLog("LOGOUT_FAILURE", "TGC_NOT_FOUND");
-    }
-
-    // remove all cookies set for our domain
-    if (isset($_SERVER['HTTP_COOKIE'])) {
-        $cookies = explode(';', $_SERVER['HTTP_COOKIE']);
-        foreach($cookies as $cookie) {
-            $parts = explode('=', $cookie);
-            $name = trim($parts[0]);
-            setcookie($name, '', time()-1000);
-            setcookie($name, '', time()-1000, '/');
-        }
-    }
-
-    /* If url param is in the GET request, we send it to the view
-      so a link can be displayed */
-    if (array_key_exists('url', $_GET)||array_key_exists('destination', $_GET))
-	{
-	 if (array_key_exists('url', $_GET))
-            viewLogoutSuccess(array('url' => $_GET['url'])); 
-	else 
-	    header("Location:".url($_GET['destination']));
+		// Remove cookie from client
+		setcookie("CASTGC", FALSE, 0, "/");
+		$log->LogDebug("TGT is deleted...");
+		$log->LogDebug("CASTGT is removed...");
 	}
-    else
-        viewLogoutSuccess(array('url' => SERVICE));
-    return;
+	else {
+		$log->LogDebug("TGC_NOT_FOUND");
+		// writeLog("LOGOUT_FAILURE", "TGC_NOT_FOUND");
+	}
+
+	// remove all cookies set for our domain
+	if (isset($_SERVER['HTTP_COOKIE'])) {
+		$cookies = explode(';', $_SERVER['HTTP_COOKIE']);
+		foreach($cookies as $cookie) {
+			$parts = explode('=', $cookie);
+			$name = trim($parts[0]);
+			setcookie($name, '', time()-1000);
+			setcookie($name, '', time()-1000, '/');
+		}
+	}
+
+    // If url param is in the GET request, we send it to the view
+    //  so a link can be displayed
+	if (array_key_exists('url', $_GET) || array_key_exists('destination', $_GET)) {
+		if (array_key_exists('url', $_GET))
+			viewLogoutSuccess(array('url' => $_GET['url'])); 
+		else 
+			header("Location:".url($_GET['destination']));
+	}
+	else
+		viewLogoutSuccess(array('url' => SERVICE));
+	return;
 }
 
 /**
@@ -343,67 +321,65 @@ function serviceValidate() {
 }
 
 /**
-  * serviceTicket sends a ticket directly to a destination site
-  *
-*/
-
+ * serviceTicket sends a ticket directly to a destination site
+ */
 function serviceTicket(){
-      global $CONFIG; 
-      //start debugging
-      $log = new KLogger($CONFIG['DEBUG_FILE'], $CONFIG['DEBUG_LEVEL']);
-      $log->LogInfo("Service Ticket Function is called");
-      $log->LogDebug("sent cookies:".print_r($_COOKIE,true));
-      $log->LogDebug("sent Request:".print_r($_REQUEST,true));
-      $service = isset($_REQUEST['service']) ? $_REQUEST['service'] : false;
-      $login = isset($_REQUEST['login'])?$REQUEST['login']: false; 
-      $key =  isset($_REQUEST['key'])?$REQUEST['key']: false;
-      if($service && $login && $key){
-        //verify signature
-        $string_to_sign = "login=".$login.",service=".$service.",key=secret";
-        $signature = sha1($string_to_sign);
-        $log->LogDebug("signature= $signature");
-      }
-      if (!array_key_exists('CASTGC', $_COOKIE)) { 
-        /*     * * user has no TGC ** */
-        // redirect to login page
-        /* user has no TGC 
-        *=> notnecessary in this case 
-        => create a service ticket depending on the sourceservice
-        => redirect desinedservice url with service ticket  encoded in the url
-        header("Location: " . url($destinedservice) . "serviceticket=" . ticket. ""); 
-               */
-      } else { /*** user has TGC ***/
-        $tgt = new TicketGrantingTicket();
-        /// @todo Well, do something meaningful...
-        if (!$tgt->find($_COOKIE["CASTGC"])) {
-        $log->LogError("Oops:Ticket Granting Ticket is not found");
-        viewError("le cookie n est pas valide");
-        die();
-        }else
-        { 
-          if($service){ 
-            //create a service ticket depending on the sourceservice
-            // => redirect desinedservice url with service ticket  encoded in the url
-            $st = new ServiceTicket();
-            $st->create($tgt->key(), $service, $tgt->username());
-            $log->LogDebug("Service Ticket :" . $st->key() . "");
-            $log->LogDebug("Redirect to :" . url($service) . "ticket=" . $st->key() . "");
-            header("Location: " . url($service) . "ticket=" .$st->key(). ""); 
-         }
-          else{
-            $log->LogDebug("le service nest pas valid");
-            //no service is found
-          }
-        }
-      }
+	global $CONFIG; 
+	//start debugging
+	$log = new KLogger($CONFIG['DEBUG_FILE'], $CONFIG['DEBUG_LEVEL']);
+	$log->LogInfo("Service Ticket Function is called");
+	$log->LogDebug("sent cookies:".print_r($_COOKIE,true));
+	$log->LogDebug("sent Request:".print_r($_REQUEST,true));
+	$service = isset($_REQUEST['service']) ? $_REQUEST['service'] : false;
+	$login = isset($_REQUEST['login'])?$REQUEST['login']: false; 
+	$key =  isset($_REQUEST['key'])?$REQUEST['key']: false;
+	if($service && $login && $key) {
+		// verify signature
+		$string_to_sign = "login=".$login.",service=".$service.",key=secret";
+		$signature = sha1($string_to_sign);
+		$log->LogDebug("signature= $signature");
+	}
+	if (!array_key_exists('CASTGC', $_COOKIE)) { 
+		/*     * * user has no TGC ** */
+		// redirect to login page
+		/* user has no TGC 
+		*=> notnecessary in this case 
+		=> create a service ticket depending on the sourceservice
+		=> redirect desinedservice url with service ticket  encoded in the url
+		header("Location: " . url($destinedservice) . "serviceticket=" . ticket. ""); 
+		*/
+	}
+	// user has TGC
+	else {
+		$tgt = new TicketGrantingTicket();
+		/// @todo Well, do something meaningful...
+		if (!$tgt->find($_COOKIE["CASTGC"])) {
+			$log->LogError("Oops:Ticket Granting Ticket is not found");
+			viewError("le cookie n est pas valide");
+			die();
+		}
+		else { 
+			if($service) { 
+				// create a service ticket depending on the sourceservice
+				// => redirect desinedservice url with service ticket  encoded in the url
+				$st = new ServiceTicket();
+				$st->create($tgt->key(), $service, $tgt->username());
+				$log->LogDebug("Service Ticket :" . $st->key() . "");
+				$log->LogDebug("Redirect to :" . url($service) . "ticket=" . $st->key() . "");
+				header("Location: " . url($service) . "ticket=" .$st->key(). ""); 
+			}
+			// no service is found
+			else {
+				$log->LogDebug("le service nest pas valid");
+			}
+		}
+	}
 }
 
 /**
   proxy
   Provides proxy ticket to proxied service
 
-  @file
-  @author
   @param  targetService and PGT
   @returns  Proxy Ticket
  */
@@ -459,8 +435,6 @@ function proxy() {
   proxyValidate
   Validation of the ST ticket, with proxy features
 
-  @file
-  @author PGL pgl@erasme.org
   @param: service and ticket(PT)
   @returns
  */
@@ -511,8 +485,6 @@ function proxyValidate() {
   samlValidate
   Validation of the ST ticket, with SAML
 
-  @file
-  @author PGL pgl@erasme.org
   @param
   @returns
  */
@@ -601,74 +573,72 @@ function samlValidate() {
  * @return void
  */
 function showError($msg) {
-    viewError($msg);
-    return;
+	viewError($msg);
+	return;
 }
 
 class PhpError extends Exception {
-    public function __construct() {
-        list(
-                $this->code,
-                $this->message,
-                $this->file,
-                $this->line) = func_get_args();
-    }
-
+	public function __construct() {
+		list(
+			$this->code,
+			$this->message,
+			$this->file,
+			$this->line) = func_get_args();
+	}
 }
 
 function validateSchema($samlRequest, $samlSchema) {
-    assert('is_string($samlRequest)');
-    assert('is_string($samlSchema)');
-    set_error_handler(create_function('$errno, $errstr, $errfile, $errline', 'throw new PhpError($errno, $errstr, $errfile, $errline);'));
+	assert('is_string($samlRequest)');
+	assert('is_string($samlSchema)');
+	set_error_handler(create_function('$errno, $errstr, $errfile, $errline', 'throw new PhpError($errno, $errstr, $errfile, $errline);'));
 
-    try {
-        $dom = new DOMDocument();
-        $dom->loadXML($samlRequest);
-        $validschema = $dom->schemaValidate($samlSchema);
+	try {
+		$dom = new DOMDocument();
+		$dom->loadXML($samlRequest);
+		$validschema = $dom->schemaValidate($samlSchema);
 
-        return $validschema;
-    } catch (Exception $e) {
-
-        if ($e->getCode() == 2)
-            return 1;
-        else
-            return 0;
-    }
-    //return $validschema;
+		return $validschema;
+	}
+	catch (Exception $e) {
+		if ($e->getCode() == 2)
+			return 1;
+		else
+			return 0;
+	}
+	//return $validschema;
 }
 
 function validateTicket($ticket, $service) {
-    global $CONFIG;
-    $log = new KLogger($CONFIG['DEBUG_FILE'], $CONFIG['DEBUG_LEVEL']);
-    $log->LogDebug("Validate ticket  is called ...");
+	global $CONFIG;
+	$log = new KLogger($CONFIG['DEBUG_FILE'], $CONFIG['DEBUG_LEVEL']);
+	$log->LogDebug("Validate ticket  is called ...");
 
-    global $CONFIG;
-    $attributes = array();
-    $st = new ServiceTicket();
-    if (!$st->find($ticket)) {
-        throw new Exception("Ticket " . $ticket . _(" is not recognized."));
-    }
+	global $CONFIG;
+	$attributes = array();
+	$st = new ServiceTicket();
+	if (!$st->find($ticket)) {
+		throw new Exception("Ticket " . $ticket . _(" is not recognized."));
+	}
 
-    if ($st->service() != $service) {
+	if ($st->service() != $service) {
+		$st->delete();
+		throw new Exception(("The service ") . $service . _(" is not valid."));
+	}
 
-        $st->delete();
-        throw new Exception(("The service ") . $service . _(" is not valid."));
-    }
+	$login = $st->username();
+	//echo $service;
+	$factoryInstance = new DBFactory();
+	$db = $factoryInstance->createDB($CONFIG['DATABASE'], BACKEND_DBUSER, BACKEND_DBPASS, BACKEND_DBNAME);
+	$attributes = $db->getSamlAttributes($login, $service);
 
-    $login = $st->username();
-    //echo $service;
-    $factoryInstance = new DBFactory();
-    $db = $factoryInstance->createDB($CONFIG['DATABASE'], BACKEND_DBUSER, BACKEND_DBPASS, BACKEND_DBNAME);
-    $attributes = $db->getSamlAttributes($login, $service);
+	if (empty($attributes))
+		throw new Exception('empty attributes');
 
-    if (empty($attributes))
-        throw new Exception('empty attributes');
-
-    //***********test attributes
-    //****delete tcket 
-    $st->delete();
-    $log->LogDebug("attributes were found");
-    return $attributes;
+	//***********test attributes
+    //****delete ticket 
+	$st->delete();
+	$log->LogDebug("attributes were found");
+	return $attributes;
 }
 
 /* * *****************************************************************************
@@ -679,68 +649,41 @@ $action = array_key_exists('action', $_REQUEST) ? $_REQUEST['action'] : "";
 
 defined('IS_SOAP') || define('IS_SOAP', strlen($action) && array_key_exists($action, array('samlValidate')));
 
-/* Verify that this thing is happening over https
-  if we are using a production running mode.
-  HTTP can only be used in dev mode, SOAP can't be used in debug mode
- */
-if (($CONFIG['MODE'] == 'debug') && IS_SOAP)
-    $CONFIG['MODE'] = 'dev';
-if ($CONFIG['MODE'] == 'prod') {
-    if (!$_SERVER['HTTPS']) {
-        viewError(_("Erreur : ce script ne peut &ecirc;tre appel&eacute; qu'en HTTPS."));
-        die();
-    }
-} else if ($CONFIG['MODE'] == 'debug') {
-    echo("<h3>DEBUG MODE ACTIVATED</h3>");
-} else if ($CONFIG['MODE'] != 'dev') {
-    viewError(_("Erreur : mode d'exécution inconnu. Les modes possibles sont ") . "'prod' " . _("ou") . " 'dev' " . _("ou") . " 'debug'.");
-    die();
-}
-
 setLanguage();
 
-/*
-  Storing device type in session
-*/
-$detect = new Mobile_Detect;
-if(!isset($_SESSION['isMobile'])){
-  $_SESSION['isMobile'] = $detect->isMobile();
-}
-
 if ($action == "") {
-    showError(_("Aucune action trouv&eacute;e."));
-    die();
+	showError(_("Aucune action trouv&eacute;e."));
+	die();
 }
 
 /* Basic application routing */
 switch (strtolower($action)) {
-    case "login" :
-        login();
-        break;
-    case "logout" :
-        logout();
-        break;
-    // Sittin' on the dock of the PT...
-    case "proxyvalidate" :
-        // Consider that we can handle case insensitive (great ! this is not in CAS specs.)
-        serviceValidate();
-        break;
-    case "servicevalidate" :
-    case "p3/servicevalidate" :
-        serviceValidate();
-        break;
-    // Consider that we can handle case insensitive (great ! this is not in CAS specs.)
-    case "samlvalidate" :
-        samlValidate();
-        break;
-
-    case 'proxy':
-        proxy();
-        break;
-    case 'serviceticket':
-        serviceTicket();
-        break;
-    default :
-        showError(_("Action inconnue."));
+	case "login":
+		login();
+		break;
+	case "logout":
+		logout();
+		break;
+	// Sittin' on the dock of the PT...
+    case "proxyvalidate":
+		// Consider that we can handle case insensitive (great ! this is not in CAS specs.)
+		serviceValidate();
+		break;
+	case "servicevalidate":
+    case "p3/servicevalidate":
+		serviceValidate();
+		break;
+	// Consider that we can handle case insensitive (great ! this is not in CAS specs.)
+	case "samlvalidate":
+		samlValidate();
+		break;
+	case 'proxy':
+		proxy();
+		break;
+	case 'serviceticket':
+		serviceTicket();
+		break;
+	default:
+		showError(_("Action inconnue."));
 }
 

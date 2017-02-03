@@ -7,35 +7,6 @@ require_once('footer.php');
 require_once('header.php');
 
 //------------------------------------------------------------------------------
-// Callback getNewsList : displays news on login form
-//------------------------------------------------------------------------------
-function getNewsList($t) {
-	global $CONFIG;
-	$cache=false;
-	
-    /** Create Rediska instance **/
-    $options = array('servers' => array());
-    foreach ($CONFIG['REDIS_SERVERS'] as $srvary) {
-      //error_log("Added server " . $srvary[0]);
-      array_push($options['servers'], array('host' => $srvary[0], 'port' => $srvary[1]));
-    }
-	$cache = new Rediska($options);
-
-	$news = str_replace($CONFIG['TWITTER_HASHTAG'], '', utf8_decode($cache->get($CONFIG['REDIS_NEWS_ROOT']."text")));
-	
-	if ($news != "0" && $news) {
-		echo '
-		<div id="newsbox">
-    <div id="tweet">'.htmlentities($news).' (' . $cache->get($CONFIG['REDIS_NEWS_ROOT']."date") . ')</div>
-			<div id="followus">'._('Suivez-nous sur').' <b><a href="https://twitter.com/'.str_replace('@', '', $CONFIG['TWITTER_ACCOUNT']).'">'.$CONFIG['TWITTER_ACCOUNT'].'</b></a></div>
-		</div>
-		<script>
-		if(getRef("tweet")) fade("tweet", 252,237,49, 255,255,255, 100,1,10);
-		</script>';
-	}
-}
-
-//------------------------------------------------------------------------------
 // Callback getFormLogin
 //------------------------------------------------------------------------------
 
@@ -104,7 +75,6 @@ function viewLoginForm($t) {
 	global $CONFIG;
 	
 	getHeader();
-//	if ($CONFIG['DISPLAY_NEWS']) getNewsList($t);
 	getFormLogin($t);
 	getFooter();
 }
@@ -143,4 +113,4 @@ function viewLoginFailure($t) {
 }
 
 //------------------------------------------------------------------------------
-?>
+

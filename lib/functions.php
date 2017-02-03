@@ -31,45 +31,30 @@ function __($text) {
 
 function get_Saml_message($Soapmessage)
 {
-     $Request= '';  
-  foreach ($Soapmesssage->children("http://schemas.xmlsoap.org/soap/envelope/") as $tag => $item) {
-      if ($tag=='Body')
-      {    
-        //printf("balise : %s\n", $tag);
-        //print_r($item);
-
-       foreach($item->children("urn:oasis:names:tc:SAML:1.0:protocol") as $key => $value)
-       {
-           if ($key=='Request')
-           {
-             printf("balise : %s\n", $key);
-
-             $Request= $value;
-             return $Request;
-             //print_r($value);
-            }
-        }
-        }
-
-    }
-    throw new Exception('error parsing the message'); 
+	$Request= '';  
+	foreach ($Soapmesssage->children("http://schemas.xmlsoap.org/soap/envelope/") as $tag => $item) {
+		if ($tag=='Body') {
+			foreach($item->children("urn:oasis:names:tc:SAML:1.0:protocol") as $key => $value) {
+				if ($key=='Request') {
+					printf("balise : %s\n", $key);
+					$Request= $value;
+					return $Request;
+				}
+			}
+		}
+	}
+	throw new Exception('error parsing the message'); 
 }
 
 function get_saml_ticket($samlmessage)
 {
-    foreach ($samlmessage->children("urn:oasis:names:tc:SAML:1.0:protocol") as $tag => $item)
-  {
-      //printf("balise : %s\n", $tag);
-
-       //print_r($item);
-       if ($tag=='AssertionArtifact')
-       {
-           $ticket_value= (String)$item[0];
-           //print_r($ticket_value);
-           return $ticket_value;
-       }
-  }
-  return '';
+	foreach ($samlmessage->children("urn:oasis:names:tc:SAML:1.0:protocol") as $tag => $item) {
+		if ($tag=='AssertionArtifact') {
+			$ticket_value= (String)$item[0];
+			return $ticket_value;
+		}
+	}
+	return '';
 }
 
 
@@ -204,9 +189,6 @@ function getPrefLanguageArray() {
 	url : rewrite the url correctly with adding '&' at the end if the url has got some parameters
 	or adding '?' if the url has no parameter.
 	
-	
-	@file
-	@author PGL pgl@erasme.org
 	@param $url  : the url we want to deal with
 	@returns string
 */
@@ -409,4 +391,4 @@ function array_real_combine($a, $b)
     return is_array($a) && is_array($b) && sizeof($a)== sizeof($b) ? array_combine($a, $b) : null ;
 }
 
-?>
+

@@ -492,7 +492,6 @@ echo '<body id="cas" >
             <h3>une erreur est survenue, les donn&eacute;es envoy&eacute;es par l\'academie ne permettent pas de vous identifier. </h3>
             <p> Message d\'erreur: '.$message.'.</p>
             <ul>
-             <li><a href="'.INSCRIPTION_URL.'" onclick="logout();">cre&eacute;z un compte sur laclasse.com </a></li>
              <li> <a href="'.ENT_SERVER.'" onclick = "logout();"> Connectez-vous avec un compte laclasse.com </a></li>
              <li><A HREF="mailto:support@laclasse.com" onclick="logout();" > Envoyer le message d\'erreur au support</a></li>
            
