@@ -101,11 +101,11 @@ function AttributeStatement($Subject,$Attributes)
 
 function Assertion($Conditions, $Subject, $AttributeStatement, $AuthenticationStatement, $time)
 {
-    $Assertion='<Assertion   xmlns="urn:oasis:names:tc:SAML:1.0:assertion"
+    $Assertion='<Assertion xmlns="urn:oasis:names:tc:SAML:1.0:assertion"
          MajorVersion="1" MinorVersion="1"
          AssertionID="'.SimpleSAML_Utilities::generateID().'"
          Issuer="'.SimpleSAML_Utilities::selfURLhost().'"
-         IssueInstant= "'. SimpleSAML_Utilities::generateTimestamp($time).'">';
+         IssueInstant="'. SimpleSAML_Utilities::generateTimestamp($time).'">';
     $Assertion.=$Conditions; 
     $Assertion.=$Subject;
     $Assertion.=$AttributeStatement;
@@ -126,7 +126,7 @@ function Response($Assertion, $Status, $time)
                                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
        MajorVersion="1" MinorVersion="1"
        ResponseID="'.SimpleSAML_Utilities::generateID().'" 
-       IssueInstant= " '. SimpleSAML_Utilities::generateTimestamp($time). '" Recipient="Pronote"> '; 
+       IssueInstant="'. SimpleSAML_Utilities::generateTimestamp($time). '" Recipient="Pronote"> '; 
     $Response.=$Status; 
     $Response.=$Assertion;
     $Response.='</Response>';
@@ -210,4 +210,4 @@ function _addCasAttr($n,$v,$tab){
 	return $tabs.$att;
 }
 
-?>
+
