@@ -47,7 +47,7 @@ if (array_key_exists('logout', $_REQUEST)) {
 	/* The previous function will never return. */
 }
 if (array_key_exists('logoutacademie', $_REQUEST)) {
-header('Location:https://services.ac-lyon.fr/login/ct_logout.jsp');
+header('Location: https://services.ac-lyon.fr/login/ct_logout.jsp');
 
 }
 
@@ -241,8 +241,8 @@ function curPageURL() {
     </div>
         <div id="footer">
           <div id="copyleft">
-            <p>ERASME 2011-2012. Logiciel sous <a href="http://fr.wikipedia.org/wiki/WTF_Public_License">license WTFPL</a>.</p>
-            <p>D&eacute;velopp&eacute; et Maintenu par <a href="http://reseau.erasme.org">ERASME</a></p>
+            <p>ERASME 2011-2017. Logiciel sous <a href="http://fr.wikipedia.org/wiki/WTF_Public_License">license WTFPL</a>.</p>
+            <p>D&eacute;velopp&eacute; et Maintenu par <a href="http://www.erasme.org">ERASME</a></p>
           </div>
           <a href="http://www.laclasse.com" title="http://www.laclasse.com/">http://www.laclasse.com</a>
         </div>
