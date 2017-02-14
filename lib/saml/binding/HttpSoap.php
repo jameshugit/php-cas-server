@@ -48,7 +48,7 @@ function extractRequest($soapResponse)
 	return $requestXML;
 }
 
-function  soapReponse($SamlReponse)
+function soapReponse($SamlReponse)
 {
     header('Content-Type: text/xml; charset="UTF-8"');
     $outputFromIdp = "<?xml version=\"1.0\"?>\n";
