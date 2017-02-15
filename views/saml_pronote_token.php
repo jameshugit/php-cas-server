@@ -3,7 +3,7 @@
 	Jetons spécifiques aux manuels scolaires numériques
 	Les balises apparaîssent même si elles ne sont pas valuées.
 	
-	@file ent_manuels_numeriques.php
+	@file saml_pronote_token.php
 	@author PGL pgl@erasme.org
 	@param 
 	@returns a string with the name o f the attribute and its value

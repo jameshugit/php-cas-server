@@ -206,7 +206,6 @@ function sendalert($attributes) {
 
     global $CONFIG;
     $to = $CONFIG['MAIL_ADMIN']; // admin email 
-    //$to = 'bashar.ah.saleh@gmail.com';
     $subject = 'Differents ids pour la meme personne';
     $message = 'Bonjour,';
     $message = $message . "\n";
@@ -507,4 +506,3 @@ echo '<body id="cas" >
 
 }
 
-?>

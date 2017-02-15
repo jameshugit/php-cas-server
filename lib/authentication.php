@@ -213,8 +213,10 @@ class WEBAPI implements casAuthentication {
 
   public function getSamlAttributes($login, $service) {
     global $CONFIG;
+
     // index of the global array containing the list of autorized sites.
     $idxOfAutorizedSiteArray = getServiceIndex($service);
+
     $myAttributesProvider = isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['attributesProvider']) ?
         $CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['attributesProvider'] : SQL_FOR_PRONOTE;
 
@@ -234,7 +236,7 @@ class WEBAPI implements casAuthentication {
         $api = $this->getApi("sso_attributes_men");
         break;
       case SQL_FOR_PRONOTE:
-        $api = $this->getApi("sso_attributes_pronote"); #sql_for_pronote
+        $api = $this->getApi("sso_attributes_pronote");
         break;
     }
 
@@ -368,9 +370,6 @@ class DBFactory {
 
   // create database class instance
   public function createDB($db, $user = '', $password = '', $database = 'db.sqlite') {
-    if ($db != 'MYSQL' && $db != 'ORACLE' && $db != 'WEBAPI' && $db != 'ORACLEAPI') {
-      throw new Exception('Invalid type of database class');
-    }
     return new $db($user, $password, $database);
   }
 

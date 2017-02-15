@@ -18,11 +18,12 @@
  * @section License License
  * This fine piece of code is AGPL licensed
  * 
-  @verbatim
-  See LICENSE File for more information
-  @endverbatim
+ * @verbatim
+ * See LICENSE File for more information
+ * @endverbatim
  *
  */
+
 /**
  *
  * Main Application Controller for the CAS server
@@ -226,10 +227,9 @@ function logout() {
 }
 
 /**
-  serviceValidate
-  Validation of the ST ticket.
-  user's primary credential and not from an single sign on session.
-
+ * serviceValidate
+ * Validation of the ST ticket.
+ * user's primary credential and not from an single sign on session.
  */
 function serviceValidate() {
     global $CONFIG;
@@ -377,11 +377,11 @@ function serviceTicket(){
 }
 
 /**
-  proxy
-  Provides proxy ticket to proxied service
-
-  @param  targetService and PGT
-  @returns  Proxy Ticket
+ * proxy
+ * Provides proxy ticket to proxied service
+ *
+ * @param  targetService and PGT
+ * @returns  Proxy Ticket
  */
 function proxy() {
     global $CONFIG;
@@ -432,11 +432,11 @@ function proxy() {
 }
 
 /**
-  proxyValidate
-  Validation of the ST ticket, with proxy features
-
-  @param: service and ticket(PT)
-  @returns
+ * proxyValidate
+ * Validation of the ST ticket, with proxy features
+ *
+ * @param: service and ticket(PT)
+ * @returns
  */
 function proxyValidate() {
     global $CONFIG;
@@ -482,88 +482,87 @@ function proxyValidate() {
 }
 
 /**
-  samlValidate
-  Validation of the ST ticket, with SAML
-
-  @param
-  @returns
+ * samlValidate
+ * Validation of the ST ticket, with SAML
+ *
+ * @param
+ * @returns
  */
 function samlValidate() {
-    global $CONFIG;
-    $log = new KLogger($CONFIG['DEBUG_FILE'], $CONFIG['DEBUG_LEVEL']);
-    $log->LogDebug("Saml Validate is called ...");
-    try {
-
-        //  1-   get the soap message()  
+	global $CONFIG;
+	$log = new KLogger($CONFIG['DEBUG_FILE'], $CONFIG['DEBUG_LEVEL']);
+	$log->LogDebug("Saml Validate is called ...");
+	try {
+		//  1- get the soap message()  
         $soapbody = extractSoap();
         $log->LogDebug("soap Request: $soapbody");
 
-        // 2-   get the Target and validate it()
-        //************ verifiying the service 
-        if (!isset($_REQUEST['TARGET'])) {
-            $log->LogError("TARGET argument is needed !");
-            throw new Exception('No authorized service was found !');
-        }
+		// 2- get the Target and validate it()
+		//************ verifiying the service 
+		if(!isset($_REQUEST['TARGET'])) {
+			$log->LogError("TARGET argument is needed !");
+			throw new Exception('No authorized service was found !');
+		}
         $service = $_REQUEST['TARGET'];
         $log->LogDebug("Service: $service");
 
-        // 3-  get the saml Request out of the SOAP message
-        $samlRequest = extractRequest($soapbody);
-        $log->LogDebug("Saml Request: $samlRequest");
+		// 3- get the saml Request out of the SOAP message
+		$samlRequest = extractRequest($soapbody);
+		$log->LogDebug("Saml Request: $samlRequest");
 
-        $samloneschema = 'schemas/oasis-sstc-saml-schema-protocol-1.1.xsd';
         // 4- validate the SAML Request (removed because it takes long time to return)
-//                 $validRequest=validateSamlschema($samlRequest, $samloneschema); 
+//		$samloneschema = 'schemas/oasis-sstc-saml-schema-protocol-1.1.xsd';
+//		$validRequest=validateSamlschema($samlRequest, $samloneschema); 
 //                 
-//                if (!$validRequest)
-//                {
-//                    throw new Exception('non valid SAML Request'); 
-//                }
-        //  5- get the Ticket (Artifact)
-        // note: later there will be more than one artifact in the message
-        // extractTicket gets only one artifact
-        $ticket = extractTicket($samlRequest);
-        $log->LogDebug("Extracted Ticket: $ticket");
-        //echo $ticket;   
-        //  6- validate the ticket
-        if (!isset($ticket) || $ticket == '') {
-            $log->LogError($ticket." is not a  valid ticket !");
-            throw new Exception('No valid ticket');
-            // add some code to view saml error message.
-        }
+//		if(!$validRequest) {
+//			throw new Exception('non valid SAML Request'); 
+//		}
 
-        // verifying if ST ticket is valid and return the attributes.
-        $attr = validateTicket($ticket, $service);
-        $log->LogDebug("Validate the ticket". $attr);
+		//  5- get the Ticket (Artifact)
+		// note: later there will be more than one artifact in the message
+		// extractTicket gets only one artifact
+		$ticket = extractTicket($samlRequest);
+		$log->LogDebug("Extracted Ticket: $ticket");
 
-        $time = time() + 60 * 60;
-        $validity = $time + 600;
-        if (empty($attr)) {
-            $log->LogError("user not recognized !");
-            throw new Exception('user not recognized');
-        }
+		//  6- validate the ticket
+		if(!isset($ticket) || $ticket == '') {
+			$log->LogError($ticket." is not a  valid ticket !");
+			throw new Exception('No valid ticket');
+			// add some code to view saml error message.
+		}
 
+		// verifying if ST ticket is valid and return the attributes.
+		$attr = validateTicket($ticket, $service);
+		$log->LogDebug("Validate the ticket". $attr);
+
+		$time = time() + 60 * 60;
+		$validity = $time + 600;
+		if(empty($attr)) {
+			$log->LogError("user not recognized !");
+			throw new Exception('user not recognized');
+		}
+
+		// DANIEL: CHANGE FOR SDET v5 FOR BRNE TEST
+		// $attr['ENTPersonProfils'] = 'National_3';
 
         $nameIdentifier = $attr['user'];
 
-//                 generateSamlReponse
+		// generateSamlReponse
         $samlSuccess = PronoteTokenBuilder(0, $attr, $nameIdentifier, '');
         $log->LogDebug("Response: $samlSuccess");
-        // 8- Send Soap Reponse  
-//                   if ($validResponse)
-        soapReponse($samlSuccess);
-//                       
-//                   else
-//                   {
-//                       throw new Exception ('non valid Response'); 
-//                   }
-//                             
-    } catch (Exception $e) {
-        // generate  a failure saml reponse
-        $samlFailure = PronoteTokenBuilder(8, null, null, $e->getMessage());
-        $log->LogError("Error". $e->getMessage());
-        soapReponse($samlFailure);
-    }
+        // 8- Send Soap Reponse  		
+
+		// DANIEL: FOR DEBUG ONLY
+		// file_put_contents("/var/log/sso/$nameIdentifier-samlSuccess", $samlSuccess);
+
+		soapReponse($samlSuccess);
+	}
+	catch (Exception $e) {
+		// generate  a failure saml reponse
+		$samlFailure = PronoteTokenBuilder(8, null, null, $e->getMessage());
+		$log->LogError("Error". $e->getMessage());
+		soapReponse($samlFailure);
+	}
 }
 
 /**
@@ -626,7 +625,7 @@ function validateTicket($ticket, $service) {
 	}
 
 	$login = $st->username();
-	//echo $service;
+
 	$factoryInstance = new DBFactory();
 	$db = $factoryInstance->createDB($CONFIG['DATABASE'], BACKEND_DBUSER, BACKEND_DBPASS, BACKEND_DBNAME);
 	$attributes = $db->getSamlAttributes($login, $service);
@@ -634,8 +633,8 @@ function validateTicket($ticket, $service) {
 	if (empty($attributes))
 		throw new Exception('empty attributes');
 
-	//***********test attributes
-    //****delete ticket 
+	// test attributes
+    // delete ticket 
 	$st->delete();
 	$log->LogDebug("attributes were found");
 	return $attributes;
@@ -647,33 +646,28 @@ function validateTicket($ticket, $service) {
 
 $action = array_key_exists('action', $_REQUEST) ? $_REQUEST['action'] : "";
 
-defined('IS_SOAP') || define('IS_SOAP', strlen($action) && array_key_exists($action, array('samlValidate')));
-
 setLanguage();
 
-if ($action == "") {
+if($action == "") {
 	showError(_("Aucune action trouv&eacute;e."));
 	die();
 }
 
-/* Basic application routing */
-switch (strtolower($action)) {
+// Basic application routing
+switch(strtolower($action)) {
 	case "login":
 		login();
 		break;
 	case "logout":
 		logout();
 		break;
-	// Sittin' on the dock of the PT...
     case "proxyvalidate":
-		// Consider that we can handle case insensitive (great ! this is not in CAS specs.)
 		serviceValidate();
 		break;
 	case "servicevalidate":
     case "p3/servicevalidate":
 		serviceValidate();
 		break;
-	// Consider that we can handle case insensitive (great ! this is not in CAS specs.)
 	case "samlvalidate":
 		samlValidate();
 		break;
