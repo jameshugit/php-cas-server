@@ -110,7 +110,7 @@ input[type=text], input[type=password] {
 					</ul>
 				</p>
 			</div>
-    ';
+';
 }
 
 

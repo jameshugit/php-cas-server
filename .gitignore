@@ -1,24 +1,4 @@
-publish.sh
-doc/generated/*
-*~
-\#*\#
-/.emacs.desktop
-/.emacs.desktop.lock
-.elc
-auto-save-list
-tramp
 *~
 *.mo
-*.sw[a-p]
-.DS_Store
-Icon?
-# Thumbnails
-._*
 config.inc.php
-backup
-backup.php
 config.inc.*.php
-configsaml/saml*.php
-configsaml/authsources.php
-nbproject/*
-utils/get-last-tweet/pkg/

@@ -2,7 +2,7 @@
 /*******************************************************************************
 	@file : auth_success.php 
 	
-	Template for CAS2 token when authetication as successed.
+	Template for CAS2 token when authentication as successed.
 *******************************************************************************/
 require_once('auth_footer.php');
 require_once('auth_header.php');
@@ -17,26 +17,16 @@ require_once('auth_attribute.php');
 	@param $t an array of param to be include in the view. this is a key/value array.
 	@returns
 */
-function viewAuthSuccess($viewName, $t, $pgtIou){
-	if ($viewName == 'Default') {
-        $token = viewAuthHeader();
-		if (is_array($t)){
-			foreach($t as $k => $v) {
-				$token .= viewAuthAtttribute($k, $v);
-			}
+function viewAuthSuccess($t, $pgtIou){
+	$token = viewAuthHeader();
+	if (is_array($t)){
+		foreach($t as $k => $v) {
+			$token .= viewAuthAtttribute($k, $v);
 		}
-        if($pgtIou!=null)
-               $token .= viewProxyGrantingTicket($pgtIou);   
-    	$token .= viewAuthFooter();
 	}
-	else { // custom view 
-		if (file_exists($viewName.'.php')) {
-			require_once($viewName.'.php');
-			if (function_exists("view_$viewName")) $token =  call_user_func("view_$viewName", $t);
-			else $token = viewAuthHeader () . _('The function "view_'.$viewName.'" does not exist in file "'.$viewName.'.php"  !') . viewAuthFooter ();
-		}
-		else $token .= _('The file "'.$viewName.'.php" does not exist !');
-	}
+	if($pgtIou!=null)
+		$token .= viewProxyGrantingTicket($pgtIou);   
+	$token .= viewAuthFooter();
 	return $token;
 }
 /*

@@ -1,0 +1,52 @@
+<?php
+//
+// Site allowed to use this CAS server for authentication
+//
+// Structure of $CONFIG['AUTHORIZED_SITES'] :
+// sitename :
+//	this is the short name of the site you need to authenticate via this CAS server.
+//
+// url :
+//	Contains a regular expression that match the service URL
+//
+// allowedAttributes :
+//	these are the attributes that are passed in token after service validate.
+//	The names MUST match with the names in the attributes Provider.
+//	The multivalued attributes should appear in one line separated by comma and
+//	encapsulated with double quotes.
+//
+// attributesProvider :
+//	possible values pronote, sso_attributes_men, sso_attributes
+//
+
+$CONFIG['AUTHORIZED_SITES'] = array (
+  array(
+      'sitename'           => 'Pronote',
+      'url'                => array (
+        '/^http[s]{0,1}:\/\/[a-z0-9\.\-_]+\.ac\-lyon\.fr\/.*$/i',
+        '/^http[s]{0,1}:\/\/[a-z0-9\.\-_]+\.index\-education\.net\/.*$/i'
+      ),
+      'allowedAttributes'  => 'login,nom,prenom,dateNaissance,codePostal,categories',
+      'attributesProvider' => 'pronote'
+  ),
+  array(
+      'sitename'           => 'Connecteurs Manuels Numériques',
+      'url'                => array (
+        '/^http[s]{0,1}:\/\/ssl\.sesamath\.net\/ent-mn\/.*$/i',
+        '/^http[s]{0,1}:\/\/www\.kiosque-edu\.com\/.*$/i',
+        '/^http:\/\/[a-z0-9\.\-_]+\.lesite\.tv\/index\.cfm\?portail=laclasse.*$/i',
+        '/^http:\/\/[a-z0-9\.\-_]+\.lelivrescolaire\.fr\/ent\?ent=laclasse.*$/i'
+      ),
+      'allowedAttributes'  => 'uid,ENTPersonStructRattach,ENTEleveClasses,ENTPersonStructRattachRNE,ENTPersonProfils,ENTEleveNivFormation',
+      'attributesProvider' => 'sso_attributes_men'
+  ),
+  array(
+      'sitename'           => 'laclasse',
+      'url'                => array (
+        '/^http[s]{0,1}:\/\/[a-z0-9\.\-_]+\.laclasse\.com\/.*$/i',
+		'/^http[s]{0,1}:\/\/localhost[:\/].*$/i'
+      ),
+      'allowedAttributes'  => 'LOGIN,ENT_id,uid,ENTPersonRoles,ENTPersonStructRattach,ENTEleveClasses,ENTPersonStructRattachRNE,ENTStructureNomCourant,ENTPersonProfils,ENTEleveNivFormation,LaclasseNom,LaclassePrenom,LaclasseDateNais,LaclasseCivilite,LaclasseSexe,LaclasseProfil,LaclasseNomClasse,LaclasseEmail,LaclasseEmailAca,MailAdressePrincipal,MailBackend,MailAliases',
+      'attributesProvider' => 'sso_attributes'
+  )
+);

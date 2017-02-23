@@ -10,9 +10,7 @@ require_once('header.php');
 // Callback getFormLogin
 //------------------------------------------------------------------------------
 
-function getFormLogin($t, $msg="") {
-	$actionForm = $t["action"];
-	$service = urldecode($t["service"]);
+function getFormLogin($service, $msg = "") {
 
 	echo
 '		<div class="box" style="max-width: 400px; text-align: left">';
@@ -38,8 +36,8 @@ function getFormLogin($t, $msg="") {
 			<div style="margin-bottom: 20px;">
 				<div class="title">Connectez-vous avec votre compte Académique.</div>
 				<div>
-					<a class="btn" href="lib/parentPortalIdp.php?login">Parents/Elèves</a>
-					<a class="btn" href="lib/agentPortalIdp.php?login">Profs/Agents</a>
+					<a class="btn" href="parentPortalIdp?service='.urlencode($service).'">Parents/Elèves</a>
+					<a class="btn" href="agentPortalIdp?service='.urlencode($service).'">Profs/Agents</a>
 				</div>
 			</div>
 
@@ -51,7 +49,7 @@ function getFormLogin($t, $msg="") {
 
 			<div style="margin-bottom: 20px;">
 				<div class="title">Connectez-vous avec votre compte Laclasse.com.</div>
-				<form method="post" action="'.$actionForm.'">
+				<form method="post" action="?">
 		            <input type="hidden" name="action" value="login">
 		            <input type="hidden" name="service" value="'.$service.'">
 					<div>Identifiant:</div>
@@ -68,14 +66,10 @@ function getFormLogin($t, $msg="") {
 
 //------------------------------------------------------------------------------
 // Callback viewLoginForm
-// 
-// Analyzing browser type and deciding if this is a mobile device or not.
 //------------------------------------------------------------------------------
-function viewLoginForm($t) {
-	global $CONFIG;
-	
+function viewLoginForm($service) {
 	getHeader();
-	getFormLogin($t);
+	getFormLogin($service);
 	getFooter();
 }
 
@@ -104,11 +98,9 @@ function viewLoginSuccess() {
 //------------------------------------------------------------------------------
 // Callback viewLoginFailure
 //------------------------------------------------------------------------------
-function viewLoginFailure($t) {
-	$msg = array_key_exists('errorMsg', $t)? $t['errorMsg'] : _("Les informations transmises n'ont pas permis de vous authentifier.");
-
+function viewLoginFailure($service, $msg = "Les informations transmises n'ont pas permis de vous authentifier.") {
 	getHeader();
-	getFormLogin($t, $msg);
+	getFormLogin($service, $msg);
 	getFooter();
 }
 

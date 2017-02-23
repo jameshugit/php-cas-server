@@ -1,122 +1,81 @@
 <?php
 
-/**
- * @file config.inc.php 
- * Server configuration directives
- *
- * @defgroup confdir Configuration Directives
- * Configuration directives for CAS server
- * @{
- */
-/**
-  Absolute path to your CAS install directory.
- */
-define('SimpleSamlPATH', '/path/to/simplesamlphp/lib');
-define('ENT_SERVER', 'https://www.dev.laclasse.com');
-// Add lib/ directory in the include path
-set_include_path('.'.PATH_SEPARATOR.__DIR__.PATH_SEPARATOR.__DIR__.'/lib/'.PATH_SEPARATOR.get_include_path());
+//
+// @file config.inc.php
+// Server configuration directives
+//
 
-define('ENT_SERVER', 'URL of the ENT server'); //https://www.dev.laclasse.com
-define('CAS_URL', 'URL of CAS server'); // http://..../sso
-define('SERVICE', ENT_SERVER . '/pls/education/!page.laclasse');
+// include allowed service which can use this server
+include_once('config.inc.sites.php');
 
-/** CAS protocol compatibility
- * @param CAS_VERSION Possible values are : 1.0, 2.0.
- * @note Not used ATM
- */
-$CONFIG['CAS_VERSION'] = '2.0';
-//-------------------------------------------------------------------
-// DATABASE BACKEND TYPE 
-$CONFIG['DATABASE'] = 'WEBAPI';
-//-------------------------------------------------------------------
-//------------------------------------------------------------------------------
-// Constantes de connexion au Backend.
-//------------------------------------------------------------------------------
+// URL and authentication to query the directory (service-annuaire)
+// to authenticate users (using api/sso...)
+$CONFIG['API_URL'] = 'http://localhost/';
+$CONFIG['API_KEY'] = 'SSO';
+$CONFIG['API_PASS'] = 'sso_password';
 
-// Database name
-define('BACKEND_DBNAME', 'http://my.api.server.lan/api');
-// Database username
-define('BACKEND_DBUSER', 'some_db_user');
-// Database password
-define('BACKEND_DBPASS', 'incredible_hard_to_guess_password');
+// The URL for the external teachers AAF SSO
+$CONFIG['AGENTS_AAF_SSO_URL'] = 'https://portail.ac-test.fr/sso/SSO';
 
-//------------------------------------------------------------------
-//php simple saml authentication sources in authSource.php
-//-------------------------------------------------------------------
-// Profile Parent Eleve Metadata name  in /simplesamlphp/config authSource.php�
-$CONFIG['PARENT_ELEVE_SOURCE'] = 'simpleexample';
-// Profile Agent Metadata name in /simplesamlphp/config authSource.php
-$CONFIG['AGENT_SOURCE'] = 'Agentportal';
-//-------------------------------------------------------------------
+// The public certificate of the authority that sign AAF SAML Response
+$CONFIG['AGENTS_AAF_SSO_CERT'] =
+'-----BEGIN CERTIFICATE-----
+RXQgb2xpbSBsaWNldCBvdGlvc2FlIHNpbnQgdHJpYnVzIHBhY2F0YWVxdWUgY2VudHVyaWFlIGV0
+IG51bGxhIHN1ZmZyYWdpb3J1bSBjZXJ0YW1pbmEgc2V0IFBvbXBpbGlhbmkgcmVkaWVyaXQgc2Vj
+dXJpdGFzIHRlbXBvcmlzLCBwZXIgb21uZXMgdGFtZW4gcXVvdHF1b3Qgc3VudCBwYXJ0ZXMgdGVy
+cmFydW0sIHV0IGRvbWluYSBzdXNjaXBpdHVyIGV0IHJlZ2luYSBldCB1YmlxdWUgcGF0cnVtIHJl
+dmVyZW5kYSBjdW0gYXVjdG9yaXRhdGUgY2FuaXRpZXMgcG9wdWxpcXVlIFJvbWFuaSBub21lbiBj
+aXJjdW1zcGVjdHVtIGV0IHZlcmVjdW5kdW0uDQoNCg==
+-----END CERTIFICATE-----';
 
-/* * **** Debugging*** */
-/* Values 
-  DEBUG  = 1;
-  INFO      = 2;
-  WARN      = 3;
-  ERROR   = 4;
-  FATAL   = 5;
-  OFF   = 6;  //no log
- */
-$CONFIG['DEBUG_LEVEL'] = 1;
-$CONFIG['DEBUG_FILE'] = '/tmp/log.txt';
-//----------------------------------------------------------------------
-/** Redis server array
- * Redis is the datastorage for versions above 1.1
- * @param REDIS_SERVERS Array of servers. Each server is an array of (host, port).
- * Thus, REDIS_SERVERS contains an array of arrays. It is looped over
- * and each entry is as parameter to
- * Rediska::addServer
- * @param REDIS_ROOT String containing the base root for ALL Redis get/set operations
- * related to ticket handling.
- */
+// The URL for the external parents AAF SSO
+$CONFIG['PARENTS_AAF_SSO_URL'] = 'https://services.ac-test.fr/sso/SSO';
+
+// The public certificate of the authority that sign AAF SAML Response
+$CONFIG['PARENTS_AAF_SSO_CERT'] =
+'-----BEGIN CERTIFICATE-----
+RXQgb2xpbSBsaWNldCBvdGlvc2FlIHNpbnQgdHJpYnVzIHBhY2F0YWVxdWUgY2VudHVyaWFlIGV0
+IG51bGxhIHN1ZmZyYWdpb3J1bSBjZXJ0YW1pbmEgc2V0IFBvbXBpbGlhbmkgcmVkaWVyaXQgc2Vj
+dXJpdGFzIHRlbXBvcmlzLCBwZXIgb21uZXMgdGFtZW4gcXVvdHF1b3Qgc3VudCBwYXJ0ZXMgdGVy
+cmFydW0sIHV0IGRvbWluYSBzdXNjaXBpdHVyIGV0IHJlZ2luYSBldCB1YmlxdWUgcGF0cnVtIHJl
+dmVyZW5kYSBjdW0gYXVjdG9yaXRhdGUgY2FuaXRpZXMgcG9wdWxpcXVlIFJvbWFuaSBub21lbiBj
+aXJjdW1zcGVjdHVtIGV0IHZlcmVjdW5kdW0uDQoNCg==
+-----END CERTIFICATE-----';
+
+
+// Debugging
+
+// DEBUG_LEVEL
+// 1 = DEBUG = Most Verbose
+// 2 = INFO  = ...
+// 3 = WARN  = ...
+// 4 = ERROR = ...
+// 5 = FATAL = Least Verbose
+// 6 = OFF   = No log
+$CONFIG['DEBUG_LEVEL'] = 1; 
+
+// The log file
+$CONFIG['DEBUG_FILE'] = '/var/log/php-cas-server/sso.log';
+
+
+// Redis server array
+// Redis is the datastorage
+// @param REDIS_SERVERS Array of servers. Each server is an array of (host, port).
+// Thus, REDIS_SERVERS contains an array of arrays. It is looped over
+// and each entry is as parameter to Rediska::addServer
+// @param REDIS_ROOT String containing the base root for ALL Redis get/set operations
+// related to ticket handling.
+
 $CONFIG['REDIS_SERVERS'] = array(array('localhost', 6379));
-$CONFIG['REDIS_ROOT'] = 'org.example.sso.tickets.';
+$CONFIG['REDIS_ROOT'] = 'com.laclasse.v3dev.sso.tickets.';
 
-/**
-  Timeout in second for each kind of ticket
-  ST for ServiceTicket : Could be short too because it  is a one shot ticket tha have to
-  be validated : 4 minutes for example
-  TGT for TicketGrantingTicket : Could be long : 8 hours for example
- */
-$CONFIG['ST_TIMOUT'] = 4 * 60;
-$CONFIG['TGT_TIMOUT'] = 8 * 60 * 60;
+//  Timeout in second for each kind of ticket
+//  ST for ServiceTicket : Could be short too because it  is a one shot ticket that have to
+//               be validated : 4 minutes for example
+//  TGT for TicketGrantingTicket : Could be long : 8 hours for example
+
+$CONFIG['ST_TIMOUT']  = 4*60;
+$CONFIG['TGT_TIMOUT'] = 8*60*60;
 $CONFIG['PT_TIMOUT'] = 4 * 60;
 $CONFIG['PGT_TIMOUT'] = 4 * 60;
-
-/**
-  Logging and tracker config
-  The logging format is as follows (All field are Tab separated):
-  CODE USERNAME IP DATE
-  Available codes are :
-  => LOGIN_SUCCESS
-  => LOGIN_FAILURE
-  => LOGOUT_SUCCESS
-  => TRACKING_ALERT
- */
-
-// Mail of admin who need to receive the tracking alert 
-$CONFIG['MAIL_ADMIN'] = "you@yourdomain.com";
-
-/*
- * Authentication backend
- */
-
-include_once('lib/authentication.php');
-
-//--------------------------------------------------------------------------------------------
-// Requete SQL de validation des login/pwd
-//------------------------------------------------------------------------------
-define('SQL_AUTH', 'select user from table having certain login and password');
-
-//------------------------------------------------------------------------------
-// Requete SQL d'extration des donn�es pour le jeton d'authentification CAS.
-//
-// You can define one Attributes provider per authorized service
-// By default, the sql statment for DB backend is SQL_FOR_ATTRIBUTES
-//------------------------------------------------------------------------------
-define('SQL_FOR_ATTRIBUTES', 'select whatever field you need                 
-		from whatever, table, is, required
-		where u.login = :LOGIN and few joins');
-
 

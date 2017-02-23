@@ -830,57 +830,6 @@ class SimpleSAML_Utilities {
 		return $errorText;
 	}
 
-
-	/**
-	 * This function performs some sanity checks on XML documents, and optionally validates them
-	 * against their schema. A warning will be printed to the log if validation fails.
-	 *
-	 * @param $message  The message which should be validated, as a string.
-	 * @param $type     The type of document - can be either 'saml20', 'saml11' or 'saml-meta'.
-	 */
-	public static function validateXMLDocument($message, $type) {
-		assert('is_string($message)');
-		assert($type === 'saml11' || $type === 'saml20' || $type === 'saml-meta');
-
-		/* A SAML message should not contain a doctype-declaration. */
-		if(strpos($message, '<!DOCTYPE') !== FALSE) {
-			throw new Exception('XML contained a doctype declaration.');
-		}
-
-		$enabled = SimpleSAML_Configuration::getInstance()->getBoolean('debug.validatexml', NULL);
-		if($enabled === NULL) {
-			/* Fall back to old configuration option. */
-			$enabled = SimpleSAML_Configuration::getInstance()->getBoolean('debug.validatesamlmessages', NULL);
-			if($enabled === NULL) {
-				/* Fall back to even older configuration option. */
-				$enabled = SimpleSAML_Configuration::getInstance()->getBoolean('debug.validatesaml2messages', FALSE);
-			}
-		}
-
-		if(!$enabled) {
-			return;
-		}
-
-		switch($type) {
-		case 'saml11':
-			$result = self::validateXML($message, 'oasis-sstc-saml-schema-protocol-1.1.xsd');
-			break;
-		case 'saml20':
-			$result = self::validateXML($message, 'saml-schema-protocol-2.0.xsd');
-			break;
-		case 'saml-meta':
-			$result = self::validateXML($message, 'saml-schema-metadata-2.0.xsd');
-			break;
-		default:
-			throw new Exception('Invalid message type.');
-		}
-
-		if($result !== '') {
-			SimpleSAML_Logger::warning($result);
-		}
-	}
-
-
 	public static function generateRandomBytesMTrand($length) {
 	
 		/* Use mt_rand to generate $length random bytes. */

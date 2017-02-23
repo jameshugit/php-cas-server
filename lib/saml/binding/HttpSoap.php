@@ -2,13 +2,6 @@
 
 require_once ('Utilities.php');
 
-function extractSoap()
-{
-    $soapbody = file_get_contents('php://input');
-    return $soapbody;
-    
-}
-
 function extractRequest($soapResponse)
 {
 	assert('is_string($soapResponse)');
@@ -88,4 +81,3 @@ function extractTicket($samlrequest)
        
 }
 
-?>
