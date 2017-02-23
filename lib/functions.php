@@ -15,7 +15,7 @@ function generateRand($size) {
 	$res = '';
 	$chars = 'abcdefghijklmonpqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 	for($i = 0; $i < $size; $i++) {
-		$res .= $chars[rand(0, strlen($chars))];
+		$res .= $chars[rand(0, strlen($chars)-1)];
 	}
 	return $res;
 }
