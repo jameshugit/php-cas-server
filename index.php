@@ -250,7 +250,7 @@ function logout() {
 
 
 function getAttributes($login, $service) {
-	global $CONFIG;
+	global $CONFIG, $log;
 	// index of the global array containing the list of autorized sites.
 	$idxOfAutorizedSiteArray = getServiceIndex($service);
 	$myAttributesProvider = isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['attributesProvider']) ?
