@@ -547,7 +547,9 @@ function samlValidate() {
 		if(!isset($_REQUEST['TARGET'])) {
 			$log->LogError("TARGET argument is needed !");
 			header('Content-Type: text/xml; charset="UTF-8"');
-			print soapSamlResponseError($selfURL, null, 'unknown');
+			$r = soapSamlResponseError($selfURL, null, 'unknown');
+			$r->formatOutput = true;
+			print $r->saveXML()."\n";
 			return;
 		}
 		$service = $_REQUEST['TARGET'];
@@ -563,7 +565,9 @@ function samlValidate() {
 		if($assertionArtifact->length == 0) {
 			$log->LogError("samlValidate AssertionArtifact not found in: $soapbody");
 			header('Content-Type: text/xml; charset="UTF-8"');
-			print soapSamlResponseError($selfURL, $doc, $service);
+			$r = soapSamlResponseError($selfURL, $doc, $service);
+			$r->formatOutput = true;
+			print $r->saveXML()."\n";
 			return;
         }
         $ticket = $assertionArtifact[0]->nodeValue;
@@ -573,7 +577,9 @@ function samlValidate() {
 		if(!isset($ticket) || empty($ticket)) {
 			$log->LogError("samlValidate No valid ticket");
 			header('Content-Type: text/xml; charset="UTF-8"');
-			print soapSamlResponseError($selfURL, $doc, $service);
+			$r = soapSamlResponseError($selfURL, $doc, $service);
+			$r->formatOutput = true;
+			print $r->saveXML()."\n";
 			return;
 		}
 
@@ -583,7 +589,9 @@ function samlValidate() {
 		if(empty($attr)) {
 			$log->LogError("samlValidate user not recognized !");
 			header('Content-Type: text/xml; charset="UTF-8"');
-			print soapSamlResponseError($selfURL, $doc, $service);
+			$r = soapSamlResponseError($selfURL, $doc, $service);
+			$r->formatOutput = true;
+			print $r->saveXML()."\n";
 			return;
 		}
 
@@ -598,7 +606,9 @@ function samlValidate() {
 	catch (Exception $e) {
 		$log->LogError("Error". $e->getMessage());
 		header('Content-Type: text/xml; charset="UTF-8"');
-		print soapSamlResponseError($selfURL, $doc, $service);
+		$r = soapSamlResponseError($selfURL, $doc, $service);
+		$r->formatOutput = true;
+		print $r->saveXML()."\n";
 	}
 }
 
