@@ -31,9 +31,8 @@ function getSelfURL() {
 	}
 
 	$host = $_SERVER['HTTP_HOST'];
-
-	$path = $_SERVER['PHP_SELF'];
-	$path = str_replace("index.php", "", $path);
+	preg_match('/^(.*\/)[^\/]*$/ ', $_SERVER['REQUEST_URI'], $matches);
+	$path = str_replace("index.php", "", $matches[1]);
 
 	return "$protocol://$host$path";
 }
