@@ -851,7 +851,7 @@ function agentPortalIdp() {
 		}
 		// verify the digital signature
 		if(!verifySignature($samlResponse, $CONFIG['AGENTS_AAF_SSO_CERT'])) {
-			$log->LogError("agentPortalIdp digital signature in: $samlResponse");
+			$log->LogError("agentPortalIdp invalid digital signature in: $samlResponse");
 			viewLoginFailure($service, "Les données d'authentification de l'Académie ne sont pas valides et ne nous permette pas de vous identifier. Rééssayez plus tard ou contacter votre administrateur.");
 			return;
 		}
@@ -898,6 +898,7 @@ function agentPortalIdp() {
 			CASLogin($json->Data[0]->login, $service);
 		}
 		else {
+			$log->LogDebug("agentPortalIdp '$ctemail' not found in laclasse.com");
 			viewLoginFailure($service, "Compte utilisateur non trouvé dans laclasse.com. Votre compte doit être provisionné dans laclasse.com avant de pouvoir vous connecter en utilisant votre compte Académique.");
 		}
 	
@@ -905,7 +906,7 @@ function agentPortalIdp() {
 	else {
 		$AssertionConsumerServiceURL = $selfURL . "agentPortalIdp";
 		// DANIEL: temporary until change done in AAF-SSO
-		$AssertionConsumerServiceURL = "https://www.laclasse.com/saml/module.php/saml/sp/saml2-acs.php/agents-portal";
+		//$AssertionConsumerServiceURL = "https://www.laclasse.com/saml/module.php/saml/sp/saml2-acs.php/agents-portal";
 		$AafSsoUrl = $CONFIG['AGENTS_AAF_SSO_URL'];
 
 		// encode the target service in the ID
@@ -924,7 +925,7 @@ SAMLXML;
 
 		$samlRequest = base64_encode(gzdeflate($samlXML, 9));
 
-		$location = $AafSsoUrl."?SAMLRequest=".
+		$location = $AafSsoUrl.(strpos($AafSsoUrl,'?')?'&':'?').'SAMLRequest='.
 			urlencode($samlRequest)."&RelayState=".
 			urlencode($AssertionConsumerServiceURL);
 
@@ -1061,9 +1062,9 @@ function parentPortalIdp() {
 		}
 	}
 	else {
-		$AssertionConsumerServiceURL = $selfURL . "agentPortalIdp";
+		$AssertionConsumerServiceURL = $selfURL . "parentPortalIdp";
 		// DANIEL: temporary until change done in AAF-SSO
-		$AssertionConsumerServiceURL = "https://www.laclasse.com/saml/module.php/saml/sp/saml2-acs.php/parents-portal";
+		//$AssertionConsumerServiceURL = "https://www.laclasse.com/saml/module.php/saml/sp/saml2-acs.php/parents-portal";
 		$AafSsoUrl = $CONFIG['PARENTS_AAF_SSO_URL'];
 
 		// encode the target service in the ID
@@ -1082,7 +1083,7 @@ SAMLXML;
 
 		$samlRequest = base64_encode(gzdeflate($samlXML, 9));
 
-		$location = $AafSsoUrl."?SAMLRequest=".
+		$location = $AafSsoUrl.(strpos($AafSsoUrl,'?')?'&':'?').'SAMLRequest='.
 			urlencode($samlRequest)."&RelayState=".
 			urlencode($AssertionConsumerServiceURL);
 
