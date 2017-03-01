@@ -57,17 +57,13 @@ require_once('config.inc.php');
 
 require_once('lib/functions.php');
 require_once('lib/ticket.php');
-//require_once('lib/Utilities.php');
 require_once('lib/saml.php');
-//require_once('lib/saml/binding/HttpSoap.php');
 require_once('lib/KLogger.php');
 
 require_once('views/error.php');
 require_once('views/login.php');
 require_once('views/logout.php');
 require_once('views/auth_success.php');
-require_once('views/auth_failure.php');
-//require_once('views/saml_pronote_token.php');
 
 $log = new KLogger($CONFIG['DEBUG_FILE'], $CONFIG['DEBUG_LEVEL']);
 
@@ -249,12 +245,14 @@ function logout() {
 }
 
 
-function getAttributes($login, $service) {
+function getAttributes($login, $service, &$identityValue) {
 	global $CONFIG, $log;
 	// index of the global array containing the list of autorized sites.
 	$idxOfAutorizedSiteArray = getServiceIndex($service);
 	$myAttributesProvider = isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['attributesProvider']) ?
 		$CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['attributesProvider'] : 'sso_attributes';
+	$identityAttribute = isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['identityAttribute']) ?
+		$CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['identityAttribute'] : 'login';
 
 	// An array with the needed attributes for this service.
 	$neededAttr = explode(",", str_replace(" ", "", strtoupper(isset($CONFIG['AUTHORIZED_SITES'][$idxOfAutorizedSiteArray]['allowedAttributes']) ?
@@ -262,7 +260,6 @@ function getAttributes($login, $service) {
 		'login,nom,prenom,date_naissance,code_postal,categories')));
 
 	$attributes = array(); // What to pass to the function that generate token
-	$attributes['user'] = $login;
 
 	// get the attributes
 	$ch = curl_init();
@@ -282,6 +279,13 @@ function getAttributes($login, $service) {
 
 	$rowSet = json_decode($data, true);
 
+	// get the identity value which correspond to cas:user or
+	// saml:NameIdentifier
+	if(isset($rowSet[$identityAttribute]))
+		$identityValue = $rowSet[$identityAttribute];
+	else
+		$identityValue = $login;
+
 	if (isset($rowSet)) {
 		// For all attributes returned
 		foreach ($rowSet as $idx => $val) {
@@ -294,14 +298,76 @@ function getAttributes($login, $service) {
 }
 
 
-function getServiceValidate($login, $service, $pgtIou) {
-	$attributes = getAttributes($login, $service);
-	if($attributes == null) {
-        viewAuthFailure(array('code' => 'INVALID_TICKET', 'message' => "Ticket " . $pgtIou . " is not recognized."));
-		die();
+function serviceResponseSuccess($user, $attributes) {
+	$cas = 'http://www.yale.edu/tp/cas';
+
+	$dom = new DOMDocument('1.0');
+
+	$serviceResponse = $dom->createElementNS($cas, 'cas:serviceResponse');
+	$dom->appendChild($serviceResponse);
+
+	$authenticationSuccess = $dom->createElementNS($cas, 'authenticationSuccess');
+	$serviceResponse->appendChild($authenticationSuccess);
+
+	$userNode = $dom->createElementNS($cas, 'user');
+	$userNode->nodeValue = $user;
+	$authenticationSuccess->appendChild($userNode);
+
+	if(is_array($attributes)) {
+		$attributesNode = $dom->createElementNS($cas, 'attributes');
+		$authenticationSuccess->appendChild($attributesNode);
+
+		foreach($attributes as $key => $value) {
+			$attribute = $dom->createElementNS($cas, $key);
+			$attribute->nodeValue = $value;
+			$attributesNode->appendChild($attribute);
+		}
 	}
-	// call the token model with the default view or custom view
-	return viewAuthSuccess($attributes, $pgtIou);
+	return $dom;
+}
+
+function serviceResponseFailure($code, $message) {
+	$cas = 'http://www.yale.edu/tp/cas';
+
+	$dom = new DOMDocument('1.0');
+
+	$serviceResponse = $dom->createElementNS($cas, 'cas:serviceResponse');
+	$dom->appendChild($serviceResponse);
+
+	$authenticationFailure = $dom->createElementNS($cas, 'authenticationFailure');
+	$authenticationFailure->setAttribute('code', $code);
+	$authenticationFailure->nodeValue = $message;
+	$serviceResponse->appendChild($authenticationFailure);
+
+	return $dom;
+}
+
+function serviceResponseProxyFailure($code, $message) {
+	$cas = 'http://www.yale.edu/tp/cas';
+
+	$dom = new DOMDocument('1.0');
+
+	$serviceResponse = $dom->createElementNS($cas, 'cas:serviceResponse');
+	$dom->appendChild($serviceResponse);
+
+	$proxyFailure = $dom->createElementNS($cas, 'proxyFailure');
+	$proxyFailure->setAttribute('code', $code);
+	$proxyFailure->nodeValue = $message;
+	$serviceResponse->appendChild($proxyFailure);
+
+	return $dom;
+}
+
+
+function getServiceValidate($login, $service, $pgtIou) {
+	$attributes = getAttributes($login, $service, $identityValue);
+	if($attributes == null)
+		$dom = serviceResponseFailure('INVALID_TICKET', "Ticket $pgtIou is not recognized.");
+	else
+		$dom = serviceResponseSuccess($identityValue, $attributes);
+
+	$dom->formatOutput = true;
+	return $dom->saveXML($dom->documentElement);
 }
 
 //
@@ -327,16 +393,22 @@ function serviceValidate() {
     // 1. verifying parameters ST ticket and service should not be empty.
     if (!isset($_GET['ticket']) || !isset($_GET['service'])) {
         $log->LogError("INVALID_REQUEST: serviceValidate requires at least two parameters : ticket and service.");
-        viewAuthFailure(array('code' => 'INVALID_REQUEST', 'message' => "serviceValidate require at least two parameters : ticket and service."));
-        die();
+		$dom = serviceResponseFailure('INVALID_REQUEST', 'serviceValidate require at least two parameters : ticket and service.');
+		$dom->formatOutput = true;
+		header('Content-Type: text/xml; charset="UTF-8"');		
+		print $dom->saveXML($dom->documentElement);
+		return;
     }
 
     // 2. verifying if ST ticket is valid.
     $st = new ServiceTicket();
     if (!$st->find($ticket)) {
         $log->LogError("INVALID_TICKET " . $ticket . " is not recognized.");
-        viewAuthFailure(array('code' => 'INVALID_TICKET', 'message' => "Ticket " . $ticket . " is not recognized."));
-        die();
+		$dom = serviceResponseFailure('INVALID_TICKET', "Ticket $ticket is not recognized.");
+		$dom->formatOutput = true;
+		header('Content-Type: text/xml; charset="UTF-8"');		
+		print $dom->saveXML($dom->documentElement);
+		return;
     }
 
     $pgtIou = null;
@@ -445,15 +517,22 @@ function proxy() {
     // 1. verifying parameters PGT ticket and targetService should not be empty.
     if (!isset($PGT) || !isset($targetService)) {
         $log->LogError("INVALID_REQUEST: proxy requires at least two parameters : PGT ticket and targetService.");
-        viewProxyAuthFailure(array('code' => 'INVALID_REQUEST', 'message' => _("proxy require at least two parameters : PGT ticket and targetService.")));
-        die();
+
+		$dom = serviceResponseProxyFailure('INVALID_REQUEST', _("proxy require at least two parameters : PGT ticket and targetService."));
+		$dom->formatOutput = true;
+		header('Content-Type: text/xml; charset="UTF-8"');
+		print $dom->saveXML($dom->documentElement);
+		return;
     }
     // 2. validating the PGT ticket
     $pgtkt = new ProxyGrantingTicket();
     if (!$pgtkt->find($PGT)) {
         $log->LogError("INVALID_PROXY_GRANTING_TICKET" . $PGT . " is not recognized.");
-        viewProxyAuthFailure(array('code' => 'INVALID_PROXY_GRANTING_TICKET', 'message' => "Ticket " . $PGT . _(" is not recognized.")));
-        die();
+		$dom = serviceResponseProxyFailure('INVALID_PROXY_GRANTING_TICKET', "Ticket " . $PGT . _(" is not recognized."));
+		$dom->formatOutput = true;
+		header('Content-Type: text/xml; charset="UTF-8"');
+		print $dom->saveXML($dom->documentElement);
+		return;
     }
 
     // 3. generate ProxyTicket  and send success reponse
@@ -498,7 +577,10 @@ function proxyValidate() {
 	// 1. verifying parameters PT ticket and service should not be empty.
 	if (!isset($proxyticket) || !isset($service)) {
 		$log->LogError("INVALID_REQUEST: proxy Validate requires at least two parameters : PT ticket and Service.");
-		viewAuthFailure(array('code' => 'INVALID_REQUEST', 'message' => _("proxyValidate require at least two parameters : ticket and service.")));
+		$dom = serviceResponseFailure('INVALID_REQUEST', _("proxyValidate require at least two parameters : ticket and service."));
+		$dom->formatOutput = true;
+		header('Content-Type: text/xml; charset="UTF-8"');		
+		print $dom->saveXML($dom->documentElement);
 		return;
 	}
 
@@ -506,7 +588,10 @@ function proxyValidate() {
 	$ptkt = new ProxyTicket();
 	if (!$ptkt->find($proxyticket)) {
 		$log->LogError("INVALID_PROXY_TICKET" . $proxyticket . " is not recognized.");
-		viewAuthFailure(array('code' => 'INVALID_PROXY_TICKET', 'message' => "Ticket " . $proxyticket . _(" is not recognized.")));
+		$dom = serviceResponseFailure('INVALID_PROXY_TICKET', "Ticket " . $proxyticket . _(" is not recognized."));
+		$dom->formatOutput = true;
+		header('Content-Type: text/xml; charset="UTF-8"');
+		print $dom->saveXML($dom->documentElement);
 		return;
 	}
 
@@ -583,11 +668,18 @@ function samlValidate() {
 			return;
 		}
 
-		// verifying if ST ticket is valid and return the attributes.
-		$attr = validateTicket($ticket, $service);
-		$log->LogDebug("Validate the ticket");
-		if(empty($attr)) {
-			$log->LogError("samlValidate user not recognized !");
+		// 5. verifying if ST ticket is valid.
+		$st = new ServiceTicket();
+		if (!$st->find($ticket)) {
+			$log->LogError("INVALID_TICKET $ticket is not recognized.");
+			header('Content-Type: text/xml; charset="UTF-8"');
+			$r = soapSamlResponseError($selfURL, $doc, $service);
+			$r->formatOutput = true;
+			print $r->saveXML()."\n";
+			return;
+		}
+		if ($st->service() !== $service) {
+			$log->LogError("INVALID_TICKET $ticket service mismatch (ticket: ".$st->service().", request: $service).");
 			header('Content-Type: text/xml; charset="UTF-8"');
 			$r = soapSamlResponseError($selfURL, $doc, $service);
 			$r->formatOutput = true;
@@ -595,7 +687,19 @@ function samlValidate() {
 			return;
 		}
 
-        $nameIdentifier = $attr['user'];
+        $attr = getAttributes($st->username(), $service, $identityValue);
+        if(($attr == null) || empty($attr)) {
+			$log->LogError("$ticket empty attributes.");
+			header('Content-Type: text/xml; charset="UTF-8"');
+			$r = soapSamlResponseError($selfURL, $doc, $service);
+			$r->formatOutput = true;
+			print $r->saveXML()."\n";
+			return;
+		}
+		// delete ticket 
+        $st->delete();
+
+        $nameIdentifier = $identityValue;
 
 		// generate and send the SAML Response
 		$r = soapSamlResponse($selfURL, $doc, $attr, $nameIdentifier, $service);
@@ -651,7 +755,7 @@ function validateTicket($ticket, $service) {
 	}
 
 	$login = $st->username();
-	$attributes = getAttributes($login, $service);
+	$attributes = getAttributes($login, $service, $identityValue);
 
 	if(($attributes == null) || empty($attributes))
 		throw new Exception('empty attributes');

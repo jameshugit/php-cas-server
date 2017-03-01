@@ -27,7 +27,8 @@ $CONFIG['AUTHORIZED_SITES'] = array (
         '/^http[s]{0,1}:\/\/[a-z0-9\.\-_]+\.index\-education\.net\/.*$/i'
       ),
       'allowedAttributes'  => 'login,nom,prenom,dateNaissance,codePostal,categories',
-      'attributesProvider' => 'pronote'
+      'attributesProvider' => 'pronote',
+      'identityAttribute'  => 'login'
   ),
   array(
       'sitename'           => 'Connecteurs Manuels Numériques',
@@ -38,7 +39,8 @@ $CONFIG['AUTHORIZED_SITES'] = array (
         '/^http:\/\/[a-z0-9\.\-_]+\.lelivrescolaire\.fr\/ent\?ent=laclasse.*$/i'
       ),
       'allowedAttributes'  => 'uid,ENTPersonStructRattach,ENTEleveClasses,ENTPersonStructRattachRNE,ENTPersonProfils,ENTEleveNivFormation',
-      'attributesProvider' => 'sso_attributes_men'
+      'attributesProvider' => 'sso_attributes_men',
+      'identityAttribute'  => 'login'
   ),
   array(
       'sitename'           => 'laclasse',
@@ -47,6 +49,7 @@ $CONFIG['AUTHORIZED_SITES'] = array (
 		'/^http[s]{0,1}:\/\/localhost[:\/].*$/i'
       ),
       'allowedAttributes'  => 'LOGIN,ENT_id,uid,ENTPersonRoles,ENTPersonStructRattach,ENTEleveClasses,ENTPersonStructRattachRNE,ENTStructureNomCourant,ENTPersonProfils,ENTEleveNivFormation,LaclasseNom,LaclassePrenom,LaclasseDateNais,LaclasseCivilite,LaclasseSexe,LaclasseProfil,LaclasseNomClasse,LaclasseEmail,LaclasseEmailAca,MailAdressePrincipal,MailBackend,MailAliases',
-      'attributesProvider' => 'sso_attributes'
+      'attributesProvider' => 'sso_attributes',
+      'identityAttribute'  => 'login'
   )
 );
