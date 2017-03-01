@@ -321,6 +321,11 @@ function serviceResponseSuccess($user, $attributes) {
 			$attribute = $dom->createElementNS($cas, $key);
 			$attribute->nodeValue = $value;
 			$attributesNode->appendChild($attribute);
+
+			// for compatibiliy with bad CAS 2.0
+			$attribute2 = $dom->createElementNS($cas, $key);
+			$attribute2->nodeValue = $value;
+			$authenticationSuccess->appendChild($attribute2);			
 		}
 	}
 	return $dom;
