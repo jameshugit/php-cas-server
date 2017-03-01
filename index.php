@@ -585,7 +585,7 @@ function samlValidate() {
 
 		// verifying if ST ticket is valid and return the attributes.
 		$attr = validateTicket($ticket, $service);
-		$log->LogDebug("Validate the ticket". $attr);
+		$log->LogDebug("Validate the ticket");
 		if(empty($attr)) {
 			$log->LogError("samlValidate user not recognized !");
 			header('Content-Type: text/xml; charset="UTF-8"');
