@@ -1042,6 +1042,73 @@ SAMLXML;
 	}
 }
 
+
+function searchFrEduVecteur($FrEduVecteur, &$error_message) {
+	global $CONFIG, $log;
+
+	$error_message = null;
+	$tab = explode('|', $FrEduVecteur);
+	if(count($tab) !== 5) {
+		$error_message = "Les données d'authentification de l'Académie ne nous permette pas de vous identifier. Rééssayez plus tard ou contacter votre administrateur.";
+		return null;
+	}
+	$type = $tab[0];
+	$lastname = $tab[1];
+	$firstname = $tab[2];
+	$id_sconet = $tab[3];
+	$uai = $tab[4];
+
+	// if parents
+	if(($type == '1') || ($type == '2')) {
+		$ch = curl_init();
+		$url = $CONFIG['API_URL'].'api/sso/parents?nom='.urlencode($lastname)."&prenom=".urlencode($firstname)."&id_sconet=".urlencode($id_sconet)."&uai=".urlencode($uai);
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_ENCODING ,"");
+		curl_setopt($ch, CURLOPT_HEADER, 0);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_USERPWD, $CONFIG['API_KEY'] . ":" . $CONFIG['API_PASS']);
+		$data = curl_exec($ch);
+		if(curl_errno($ch) || (curl_getinfo($ch, CURLINFO_HTTP_CODE) != 200)) {
+			$log->LogError("HTTP error with the request '$url'. Got: ".curl_error($ch));
+			$error_message = "Un problème dans laclasse.com nous empêche de vous authentifier. Rééssayez plus tard ou contacter votre administrateur.";
+			curl_close($ch);
+			return null;
+		}
+		curl_close($ch);
+
+		$json = json_decode($data);
+		// login with the found user login
+		if(isset($json->Data) && is_array($json->Data) && (count($json->Data) > 0)) {
+			return $json->Data[0];
+		}
+	}
+	// if student
+	else {
+		$ch = curl_init();
+		$url = $CONFIG['API_URL'].'api/sso/eleves?nom='.urlencode($lastname)."&prenom=".urlencode	($firstname)."&id_sconet=".urlencode($id_sconet)."&uai=".urlencode($uai);
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_ENCODING ,"");
+		curl_setopt($ch, CURLOPT_HEADER, 0);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_USERPWD, $CONFIG['API_KEY'] . ":" . $CONFIG['API_PASS']);
+		$data = curl_exec($ch);
+		if(curl_errno($ch) || (curl_getinfo($ch, CURLINFO_HTTP_CODE) != 200)) {
+			$log->LogError("HTTP error with the request '$url'. Got: ".curl_error($ch));
+			$error_message = "Un problème dans laclasse.com nous empêche de vous authentifier. Rééssayez plus tard ou contacter votre administrateur.";
+			curl_close($ch);
+			return null;
+		}
+		curl_close($ch);
+
+		$json = json_decode($data);
+		// login with the found user login
+		if(isset($json->Data) && is_array($json->Data) && (count($json->Data) > 0)) {
+			return $json->Data[0];
+		}
+	}
+	return null;
+}
+
 //
 // parentPortalIdp
 // Handles AAF-SSO SAML requests
@@ -1063,7 +1130,12 @@ function parentPortalIdp() {
 		$doc->loadXML($samlResponse);
 		$id = $doc->documentElement->getAttribute('InResponseTo');
 
-		file_put_contents("/tmp/samlResponse-parents", $samlResponse);
+		// decode the target service from the InResponseTo attribute
+		$decode = hex2bin(substr($id, 1));
+		$pos = strpos($decode, ':');
+		if($pos) {
+			$service = substr($decode, $pos+1);
+		}
 
 		// verify that the digest present in the signature is correct
 		$refNodeDoc = verifyDigest($samlResponse);
@@ -1084,90 +1156,30 @@ function parentPortalIdp() {
 
 		// TODO: handle multiples values
 		// search for the FrEduVecteur attribut
-		$FrEduVecteur = $xpath->query('//saml:Attribute[@Name="FrEduVecteur"]/saml:AttributeValue')[0]->nodeValue;
-		if(!isset($FrEduVecteur) || empty($FrEduVecteur)) {
-			$log->LogDebug("parentPortalIdp FrEduVecteur '$FrEduVecteur' not found");
+		$FrEduVecteurList = $xpath->query('//saml:Attribute[@Name="FrEduVecteur"]/saml:AttributeValue');
+		if($FrEduVecteurList->length < 1) {
+			$log->LogDebug("parentPortalIdp FrEduVecteur not found");
 			viewLoginFailure($service, "Les données d'authentification de l'Académie ne nous permette pas de vous identifier. Rééssayez plus tard ou contacter votre administrateur.");
 			return;
 		}
 
-		// decode the target service from the InResponseTo attribute
-		$decode = hex2bin(substr($id, 1));
-		$pos = strpos($decode, ':');
-		if($pos) {
-			$service = substr($decode, $pos+1);
+		$error_message = null;
+		$user = null;
+		foreach($FrEduVecteurList as $item) {
+			$FrEduVecteur = $item->nodeValue;
+			$user = searchFrEduVecteur($FrEduVecteur, $error_message);
+			if($user !== null)
+				break;
 		}
 
-		$log->LogDebug("parentPortalIdp AAF authentication done for '$FrEduVecteur' for service $service");
-
-		// search the user by its FrEduVecteur
-		$tab = explode('|', $FrEduVecteur);
-		if(count($tab) !== 5) {
-			$log->LogError("parentPortalIdp invalid FrEduVecteur '$FrEduVecteur'");
-			viewLoginFailure($service, "Les données d'authentification de l'Académie ne nous permette pas de vous identifier. Rééssayez plus tard ou contacter votre administrateur.");
-			return;
+		// login with the found user login
+		if($user !== null) {
+			CASLogin($user->login, $service);
 		}
-		$type = $tab[0];
-		$lastname = $tab[1];
-		$firstname = $tab[2];
-		$id_sconet = $tab[3];
-		$uai = $tab[4];
-
-		// if parents
-		if(($type == '1') || ($type == '2')) {
-			$ch = curl_init();
-			$url = $CONFIG['API_URL'].'api/sso/parents?nom='.urlencode($lastname)."&prenom=".urlencode($firstname)."&id_sconet=".urlencode($id_sconet)."&uai=".urlencode($uai);
-			curl_setopt($ch, CURLOPT_URL, $url);
-			curl_setopt($ch, CURLOPT_ENCODING ,"");
-			curl_setopt($ch, CURLOPT_HEADER, 0);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-			curl_setopt($ch, CURLOPT_USERPWD, $CONFIG['API_KEY'] . ":" . $CONFIG['API_PASS']);
-			$data = curl_exec($ch);
-			if(curl_errno($ch) || (curl_getinfo($ch, CURLINFO_HTTP_CODE) != 200)) {
-				$log->LogError("HTTP error with the request '$url'. Got: ".curl_error($ch));
-				viewLoginFailure($service, "Un problème dans laclasse.com nous empêche de vous authentifier. Rééssayez plus tard ou contacter votre administrateur.");
-				curl_close($ch);
-				return;
-			}
-			curl_close($ch);
-
-			$json = json_decode($data);
-			// login with the found user login
-			if(isset($json->Data) && is_array($json->Data) && (count($json->Data) > 0)) {
-				CASLogin($json->Data[0]->login, $service);
-			}
-			else {
-				$log->LogError("parentPortalIdp FrEduVecteur '$FrEduVecteur' not found in laclasse.com");
-				viewLoginFailure($service, "Compte utilisateur non trouvé dans laclasse.com. Votre compte doit être provisionné dans laclasse.com avant de pouvoir vous connecter en utilisant votre compte Académique.");
-			}
-		}
-		// if student
 		else {
-			$ch = curl_init();
-			$url = $CONFIG['API_URL'].'api/sso/eleves?nom='.urlencode($lastname)."&prenom=".urlencode	($firstname)."&id_sconet=".urlencode($id_sconet)."&uai=".urlencode($uai);
-			curl_setopt($ch, CURLOPT_URL, $url);
-			curl_setopt($ch, CURLOPT_ENCODING ,"");
-			curl_setopt($ch, CURLOPT_HEADER, 0);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-			curl_setopt($ch, CURLOPT_USERPWD, $CONFIG['API_KEY'] . ":" . $CONFIG['API_PASS']);
-			$data = curl_exec($ch);
-			if(curl_errno($ch) || (curl_getinfo($ch, CURLINFO_HTTP_CODE) != 200)) {
-				$log->LogError("HTTP error with the request '$url'. Got: ".curl_error($ch));
-				viewLoginFailure($service, "Un problème dans laclasse.com nous empêche de vous authentifier. Rééssayez plus tard ou contacter votre administrateur.");
-				curl_close($ch);
-				return;
-			}
-			curl_close($ch);
-
-			$json = json_decode($data);
-			// login with the found user login
-			if(isset($json->Data) && is_array($json->Data) && (count($json->Data) > 0)) {
-				CASLogin($json->Data[0]->login, $service);
-			}
-			else {
-				$log->LogError("parentPortalIdp FrEduVecteur '$FrEduVecteur' not found in laclasse.com");
-				viewLoginFailure($service, "Compte utilisateur non trouvé dans laclasse.com. Votre compte doit être provisionné dans laclasse.com avant de pouvoir vous connecter en utilisant votre compte Académique.");
-			}
+			if($error_message === null)
+				$error_message = "Compte utilisateur non trouvé dans laclasse.com. Votre compte doit être provisionné dans laclasse.com avant de pouvoir vous connecter en utilisant votre compte Académique.";	
+			viewLoginFailure($service, $error_message);
 		}
 	}
 	else {
