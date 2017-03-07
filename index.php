@@ -1017,6 +1017,7 @@ function agentPortalIdp() {
 		// DANIEL: temporary until change done in AAF-SSO
 		//$AssertionConsumerServiceURL = "https://www.laclasse.com/saml/module.php/saml/sp/saml2-acs.php/agents-portal";
 		$AafSsoUrl = $CONFIG['AGENTS_AAF_SSO_URL'];
+		$issuer = $CONFIG['AGENTS_AAF_SSO_ISSUER'];
 
 		// encode the target service in the ID
 		$ID = "_".bin2hex(generateRand(10).":".$service);		
@@ -1027,7 +1028,7 @@ function agentPortalIdp() {
 
 		$samlXML = <<<SAMLXML
 <samlp:AuthnRequest xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" ID="$ID" Version="2.0" IssueInstant="$issueInstant" Destination="$AafSsoUrl" AssertionConsumerServiceURL="$AssertionConsumerServiceURL" ProtocolBinding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST">
-	<saml:Issuer>portail-agents</saml:Issuer>
+	<saml:Issuer>$issuer</saml:Issuer>
 	<samlp:NameIDPolicy Format="urn:oasis:names:tc:SAML:2.0:nameid-format:transient" AllowCreate="true"/>
 </samlp:AuthnRequest>
 SAMLXML;
@@ -1187,6 +1188,7 @@ function parentPortalIdp() {
 		// DANIEL: temporary until change done in AAF-SSO
 		//$AssertionConsumerServiceURL = "https://www.laclasse.com/saml/module.php/saml/sp/saml2-acs.php/parents-portal";
 		$AafSsoUrl = $CONFIG['PARENTS_AAF_SSO_URL'];
+		$issuer = $CONFIG['PARENTS_AAF_SSO_ISSUER'];
 
 		// encode the target service in the ID
 		$ID = "_".bin2hex(generateRand(10).":".$service);		
@@ -1197,7 +1199,7 @@ function parentPortalIdp() {
 
 		$samlXML = <<<SAMLXML
 <samlp:AuthnRequest xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" ID="$ID" Version="2.0" IssueInstant="$issueInstant" Destination="$AafSsoUrl" AssertionConsumerServiceURL="$AssertionConsumerServiceURL" ProtocolBinding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST">
-	<saml:Issuer>portail-parents</saml:Issuer>
+	<saml:Issuer>$issuer</saml:Issuer>
 	<samlp:NameIDPolicy Format="urn:oasis:names:tc:SAML:2.0:nameid-format:transient" AllowCreate="true"/>
 </samlp:AuthnRequest>
 SAMLXML;

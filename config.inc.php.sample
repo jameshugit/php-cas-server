@@ -17,6 +17,10 @@ $CONFIG['API_PASS'] = 'sso_password';
 // The URL for the external teachers AAF SSO
 $CONFIG['AGENTS_AAF_SSO_URL'] = 'https://portail.ac-test.fr/sso/SSO';
 
+// The Issuer in the SAML Request (what ever you want but must be given
+// to the Idp provider to identify your SAML Sp)
+$CONFIG['AGENTS_AAF_SSO_ISSUER'] = 'portail-agents';
+
 // The public certificate of the authority that sign AAF SAML Response
 $CONFIG['AGENTS_AAF_SSO_CERT'] =
 '-----BEGIN CERTIFICATE-----
@@ -30,6 +34,10 @@ aXJjdW1zcGVjdHVtIGV0IHZlcmVjdW5kdW0uDQoNCg==
 
 // The URL for the external parents AAF SSO
 $CONFIG['PARENTS_AAF_SSO_URL'] = 'https://services.ac-test.fr/sso/SSO';
+
+// The Issuer in the SAML Request (what ever you want but must be given
+// to the Idp provider to identify your SAML Sp)
+$CONFIG['PARENTS_AAF_SSO_ISSUER'] = 'portail-parents';
 
 // The public certificate of the authority that sign AAF SAML Response
 $CONFIG['PARENTS_AAF_SSO_CERT'] =
