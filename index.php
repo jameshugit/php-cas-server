@@ -1014,8 +1014,6 @@ function agentPortalIdp() {
 	}
 	else {
 		$AssertionConsumerServiceURL = $selfURL . "agentPortalIdp";
-		// DANIEL: temporary until change done in AAF-SSO
-		//$AssertionConsumerServiceURL = "https://www.laclasse.com/saml/module.php/saml/sp/saml2-acs.php/agents-portal";
 		$AafSsoUrl = $CONFIG['AGENTS_AAF_SSO_URL'];
 		$issuer = $CONFIG['AGENTS_AAF_SSO_ISSUER'];
 
@@ -1185,8 +1183,6 @@ function parentPortalIdp() {
 	}
 	else {
 		$AssertionConsumerServiceURL = $selfURL . "parentPortalIdp";
-		// DANIEL: temporary until change done in AAF-SSO
-		//$AssertionConsumerServiceURL = "https://www.laclasse.com/saml/module.php/saml/sp/saml2-acs.php/parents-portal";
 		$AafSsoUrl = $CONFIG['PARENTS_AAF_SSO_URL'];
 		$issuer = $CONFIG['PARENTS_AAF_SSO_ISSUER'];
 
